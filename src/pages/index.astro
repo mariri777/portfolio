@@ -94,12 +94,7 @@ const works = [
         </a>
         <nav class="hidden md:flex items-center gap-9 text-[12px] tracking-[0.18em] text-[var(--ink-2)]">
           <a href="#works" class="hover:text-[var(--accent-deep)] transition-colors">制作実績</a>
-          <a href="#about" class="hover:text-[var(--accent-deep)] transition-colors">プロフィール</a>
-          <a href="#contact" class="hover:text-[var(--accent-deep)] transition-colors">お問い合わせ</a>
         </nav>
-        <a href="#contact" class="inline-flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-full bg-[var(--ink)] text-[var(--bg)] text-[11px] tracking-[0.22em] hover:bg-[var(--accent-deep)] transition-colors">
-          <span>ご相談はこちら</span>
-        </a>
       </div>
     </header>
 
@@ -197,75 +192,7 @@ const works = [
       </div>
     </section>
 
-    <div class="max-w-[1320px] mx-auto px-5 md:px-10"><div class="hair"></div></div>
-
-    <!-- About -->
-    <section id="about" class="relative py-20 md:py-32">
-      <div class="max-w-[1320px] mx-auto px-5 md:px-10 grid grid-cols-12 gap-6 md:gap-10">
-        <div class="col-span-12 lg:col-span-5">
-          <div class="eyebrow-tag mb-5">— about</div>
-          <h2 class="font-mincho leading-[1.15] text-[clamp(28px,4vw,56px)] font-light">
-            <span class="block">わたしのこと、</span>
-            <span class="block text-[var(--accent-deep)]">制作スタイル。</span>
-          </h2>
-        </div>
-        <div class="col-span-12 lg:col-span-7">
-          <p class="font-mincho text-[15px] md:text-[17px] leading-[2.1] text-[var(--ink-2)] max-w-[640px]">
-            Webデザインとフロントエンド実装を専門とする、ひとり制作のスタジオです。
-            美容クリニック・医療・ライフスタイル領域を中心に、
-            ブランドの「静かな美しさ」を引き出すLP・ブランドサイト制作を行っています。
-          </p>
-          <div class="mt-10 grid sm:grid-cols-2 gap-8">
-            <div>
-              <div class="text-[11px] tracking-[0.22em] text-[var(--muted)] mb-3">対応領域</div>
-              <ul class="space-y-2.5 font-mincho text-[14px] text-[var(--ink-2)]">
-                <li>— ブランドサイト・LPデザイン</li>
-                <li>— フロントエンド実装</li>
-                <li>— モーション・インタラクション設計</li>
-                <li>— アートディレクション</li>
-              </ul>
-            </div>
-            <div>
-              <div class="text-[11px] tracking-[0.22em] text-[var(--muted)] mb-3">使用ツール</div>
-              <ul class="space-y-2.5 font-mincho text-[14px] text-[var(--ink-2)]">
-                <li>— Figma / Photoshop / Illustrator</li>
-                <li>— Astro / Tailwind CSS</li>
-                <li>— GSAP / Lenis</li>
-                <li>— Cloudflare / Vercel / GitHub Pages</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Contact CTA -->
-    <section id="contact" class="relative py-20 md:py-32 border-t border-[rgba(31,26,21,0.08)]">
-      <div class="max-w-[1320px] mx-auto px-5 md:px-10 text-center">
-        <div class="eyebrow-tag mb-8">— contact</div>
-        <h2 class="font-mincho leading-[1.18] text-[clamp(32px,5vw,72px)] font-light">
-          <span class="block">静かな手仕事を、</span>
-          <span class="block text-[var(--accent-deep)]">ご一緒に。</span>
-        </h2>
-        <p class="mt-8 font-mincho text-[15px] leading-[2.1] text-[var(--ink-2)] max-w-[520px] mx-auto">
-          制作のご相談・お見積もりはお気軽にどうぞ。<br />
-          通常24時間以内にご返信いたします。
-        </p>
-        <div class="mt-12 flex flex-wrap items-center justify-center gap-4">
-          <a href="mailto:hello@example.com" class="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-[var(--ink)] text-[var(--bg)] text-[12px] tracking-[0.22em] hover:bg-[var(--accent-deep)] transition-colors">
-            <span>hello@example.com</span>
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-              <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
-          <a href="https://github.com/mariri777" target="_blank" rel="noopener" class="inline-flex items-center gap-3 px-7 py-4 rounded-full border border-[rgba(31,26,21,0.3)] text-[12px] tracking-[0.22em] text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--bg)] transition-colors">
-            <span>GitHub</span>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <footer class="border-t border-[rgba(31,26,21,0.08)]">
+    <footer class="border-t border-[rgba(31,26,21,0.08)] mt-12 md:mt-20">
       <div class="max-w-[1320px] mx-auto px-5 md:px-10 py-8 flex flex-wrap items-center justify-between gap-4 text-[11px] tracking-[0.18em] text-[var(--muted)]">
         <div>© 2026 Mariri Portfolio. All rights reserved.</div>
         <div class="flex items-center gap-5">
