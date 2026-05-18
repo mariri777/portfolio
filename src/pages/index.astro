@@ -5,7 +5,8 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 const works = [
   {
     slug: 'beauty-clinic',
-    no: '02',
+    href: `${BASE}/works/beauty-clinic`,
+    no: '04',
     title: '美容クリニック ランディングページ',
     sub: 'Lume Aesthetic Clinic',
     role: 'デザイン + 実装',
@@ -18,7 +19,8 @@ const works = [
   },
   {
     slug: 'rabbit-clinic',
-    no: '01',
+    href: `${BASE}/works/rabbit-clinic`,
+    no: '03',
     title: 'うさぎ専門病院 ブランドサイト',
     sub: 'Rabbit Specialty Clinic',
     role: 'デザイン + 実装',
@@ -28,6 +30,34 @@ const works = [
       'うさぎのためだけに設計された専門医療チームのブランドサイト。エディトリアル組版、GSAPによるリビールアニメーション、Lenisスムーススクロール、マグネティックボタンを採用。',
     cover: 'https://images.unsplash.com/photo-1535241749838-299277b6305f?w=1600&q=80&auto=format&fit=crop',
     accent: 'from-[#F9D9D4] via-[#E8A3A3] to-[#6B1F3D]',
+  },
+  {
+    slug: 'day7-patisserie',
+    href: `${BASE}/100days/day7.html`,
+    no: '02',
+    title: 'パティスリー ブランドサイト',
+    sub: 'Pâtisserie Hidamari',
+    role: 'デザイン + 実装',
+    year: '2026',
+    tags: ['パティスリー', '手仕事', 'ナチュラル'],
+    summary:
+      '三軒茶屋の小さなケーキ工房のブランドサイト。地元素材を使った日々の手仕事を、ベージュとベリーカラーで温かく表現。100Days Challenge Day7。',
+    cover: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=1600&q=80&auto=format&fit=crop',
+    accent: 'from-[#F4D4D4] via-[#D4A574] to-[#7A4A2D]',
+  },
+  {
+    slug: 'day3-clinic',
+    href: `${BASE}/100days/day3.html`,
+    no: '01',
+    title: '内科・皮膚科クリニック ランディングページ',
+    sub: 'Aoyama Leaf Clinic',
+    role: 'デザイン + 実装',
+    year: '2026',
+    tags: ['内科・皮膚科', 'クリーン', 'LP'],
+    summary:
+      '南青山の内科・皮膚科クリニックLP。淡いブルーグレーを基調にした清潔感あるデザインで、日々の不調から肌の悩みまで包括的に対応するクリニックの世界観を表現。100Days Challenge Day3。',
+    cover: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1600&q=80&auto=format&fit=crop',
+    accent: 'from-[#D8E7F3] via-[#4A8DC7] to-[#2F6BA0]',
   },
 ];
 ---
@@ -151,7 +181,7 @@ const works = [
 
         <div class="space-y-12 md:space-y-24">
           {works.map((w, i) => (
-            <a href={`${BASE}/works/${w.slug}`} class="work-card group block">
+            <a href={w.href} class="work-card group block">
               <article class="grid grid-cols-12 gap-4 md:gap-8 items-center">
                 <div class={`col-span-12 md:col-span-7 ${i % 2 === 1 ? 'md:order-2' : ''}`}>
                   <div class="relative aspect-[5/4] md:aspect-[16/11] overflow-hidden rounded-[2px] grain shadow-[0_30px_60px_-30px_rgba(31,26,21,0.25)]">
