@@ -1,0 +1,84 @@
+---
+---
+<section id="access" class="relative py-28 md:py-44 px-6 md:px-10">
+  <div class="grid grid-cols-12 gap-4 md:gap-6">
+    <div class="col-span-12 md:col-span-5">
+      <div class="eyebrow">— (10) Access</div>
+      <h2 class="mt-4 font-display text-[clamp(36px,5.4vw,88px)] leading-[0.95] tracking-tightest">
+        Find<br />
+        <span class="italic text-primary">your way.</span>
+      </h2>
+
+      <dl class="mt-12 space-y-8">
+        <div>
+          <dt class="text-[11px] tracking-[0.28em] uppercase text-primary">Address / 住所</dt>
+          <dd class="mt-2 font-mincho text-[16px] leading-[1.9]">
+            〒150-0001<br />
+            東京都渋谷区神宮前 0-0-0<br />
+            Rabbit Building 3F
+          </dd>
+        </div>
+        <div>
+          <dt class="text-[11px] tracking-[0.28em] uppercase text-primary">Transit / 交通</dt>
+          <dd class="mt-2 font-mincho text-[15px] leading-[2] text-ink/80">
+            東京メトロ 明治神宮前駅 <span class="text-primary">5番出口</span> より徒歩5分<br />
+            JR 原宿駅 <span class="text-primary">表参道口</span> より徒歩8分
+          </dd>
+        </div>
+        <div>
+          <dt class="text-[11px] tracking-[0.28em] uppercase text-primary">Phone / 電話</dt>
+          <dd class="mt-2">
+            <a href="tel:0312345678" data-hover="link" class="font-display italic text-[28px] text-ink hover:text-primary transition-colors">03-1234-5678</a>
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="col-span-12 md:col-span-7">
+      <div class="relative aspect-[4/3] md:aspect-[5/4] overflow-hidden bg-blush">
+        <!-- Stylized map -->
+        <svg viewBox="0 0 800 640" class="absolute inset-0 w-full h-full" aria-hidden="true">
+          <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(26,14,20,0.05)" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <rect width="800" height="640" fill="url(#grid)"/>
+          <!-- Roads -->
+          <g stroke="rgba(26,14,20,0.18)" stroke-width="12" fill="none" stroke-linecap="round">
+            <path d="M0 320 L800 320"/>
+            <path d="M400 0 L400 640"/>
+            <path d="M100 100 L700 540"/>
+          </g>
+          <g stroke="rgba(26,14,20,0.12)" stroke-width="4" fill="none" stroke-linecap="round">
+            <path d="M0 160 L800 160"/>
+            <path d="M0 480 L800 480"/>
+            <path d="M200 0 L200 640"/>
+            <path d="M600 0 L600 640"/>
+          </g>
+          <!-- Landmarks -->
+          <circle cx="180" cy="300" r="48" fill="rgba(184,90,125,0.12)"/>
+          <text x="180" y="305" text-anchor="middle" font-size="11" fill="#6B1F3D" font-family="Fraunces, serif" font-style="italic">Park</text>
+          <circle cx="620" cy="420" r="60" fill="rgba(184,90,125,0.1)"/>
+          <text x="620" y="425" text-anchor="middle" font-size="11" fill="#6B1F3D" font-family="Fraunces, serif" font-style="italic">Station</text>
+          <!-- Pin -->
+          <g transform="translate(400 320)">
+            <circle r="90" fill="rgba(184,90,125,0.12)">
+              <animate attributeName="r" from="30" to="110" dur="2.4s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" from="0.6" to="0" dur="2.4s" repeatCount="indefinite"/>
+            </circle>
+            <circle r="14" fill="#B85A7D"/>
+            <circle r="5" fill="#FDF6F2"/>
+          </g>
+          <text x="420" y="300" font-size="12" fill="#1A0E14" font-family="Fraunces, serif" font-style="italic">Rabbit Clinic</text>
+        </svg>
+        <div class="absolute top-4 left-4 text-[10px] tracking-[0.3em] uppercase text-ink/60">
+          — Map / Jingumae, Tokyo
+        </div>
+        <div class="absolute bottom-4 right-4 text-[10px] tracking-[0.3em] uppercase text-ink/60">
+          N 35.6712 · E 139.7046
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

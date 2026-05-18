@@ -1,0 +1,70 @@
+---
+const voices = [
+  {
+    quote: 'カウンセリングで「やらない選択」も提案してくれて、本当に信頼できると感じました。仕上がりもすごく自然で、友達に気づかれなかったのが嬉しい。',
+    name: 'A.M さん',
+    age: '20代 / 二重整形（埋没法）',
+    img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&q=80&auto=format&fit=crop',
+  },
+  {
+    quote: '韓国で受けた施術と同じ仕上がりを、日本語で安心して受けられるのがありがたい。アフターケアもLINEで気軽に相談できて心強いです。',
+    name: 'R.K さん',
+    age: '30代 / 水光注射',
+    img: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=600&q=80&auto=format&fit=crop',
+  },
+  {
+    quote: '初めての美容医療で緊張していたけど、完全個室で他のお客様と会わずに帰れて、プライバシー面が最高でした。また通いたいと思える場所。',
+    name: 'Y.S さん',
+    age: '20代 / 医療脱毛',
+    img: 'https://images.unsplash.com/photo-1554151228-14d9def656e4?w=600&q=80&auto=format&fit=crop',
+  },
+];
+---
+<section id="voice" class="relative py-24 md:py-36 bg-nude/40">
+  <div class="max-w-[1320px] mx-auto px-5 md:px-10">
+    <div class="grid grid-cols-12 gap-6 md:gap-10 mb-12 md:mb-16">
+      <div class="col-span-12 lg:col-span-5">
+        <div class="eyebrow-lux mb-5">— customer voice</div>
+        <h2 class="font-mincho text-inkSoft leading-[1.12] font-light text-[clamp(28px,4vw,52px)]">
+          <span class="block">お客様の、</span>
+          <span class="block text-mochaDeep">小さな変化。</span>
+        </h2>
+      </div>
+      <div class="col-span-12 lg:col-span-7 lg:pt-10">
+        <p class="font-mincho text-[15px] leading-[2.1] text-inkSoft/75">
+          施術そのものよりも、施術のあとに訪れる<br class="hidden md:inline" />
+          「自分のことを少し好きになれた」という感覚。<br />
+          そんな声を、何よりも大切にしています。
+        </p>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4 md:gap-6">
+      {voices.map((v, i) => (
+        <article class="bg-ivory p-6 md:p-8 rounded-[2px] ring-soft flex flex-col">
+          <div class="flex items-center gap-2 text-[11px] tracking-[0.28em] text-mochaDeep">
+            <span class="font-cormorant text-[18px] italic">{`No.${String(i + 1).padStart(2, '0')}`}</span>
+            <span class="opacity-60">— voice</span>
+          </div>
+          <p class="mt-5 font-mincho text-[14px] md:text-[15px] leading-[2.1] text-inkSoft/85 flex-1">
+            <span class="font-cormorant text-[28px] text-mochaDeep leading-none mr-1">“</span>
+            {v.quote}
+          </p>
+          <div class="mt-6 pt-5 border-t border-mochaDeep/15 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full overflow-hidden">
+              <img src={v.img} alt={v.name} class="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <div>
+              <div class="text-[13px] text-inkSoft font-medium">{v.name}</div>
+              <div class="text-[11px] text-mochaDeep tracking-wider">{v.age}</div>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <p class="mt-8 text-[11px] leading-[1.8] text-inkSoft/55 max-w-[820px]">
+      ※掲載のコメントは個人の感想です。効果や満足度には個人差があります。
+    </p>
+  </div>
+</section>

@@ -1,0 +1,399 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cream: #FDF6F2;
+  --blush: #F9D9D4;
+  --rose: #E8A3A3;
+  --primary: #B85A7D;
+  --plum: #6B1F3D;
+  --ink: #1A0E14;
+  --header-h: 64px;
+}
+
+html {
+  scroll-behavior: auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+  font-weight: 400;
+  overflow-x: clip;
+  cursor: none;
+}
+
+@media (max-width: 900px) {
+  body { cursor: auto; }
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--cream);
+}
+
+/* Noise overlay */
+.noise {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Fonts */
+.font-display {
+  font-family: "Fraunces", "Shippori Mincho B1", serif;
+  font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 1;
+  font-weight: 400;
+}
+
+/* Section label */
+.eyebrow {
+  font-family: "Fraunces", serif;
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+  text-transform: none;
+}
+
+/* Reveal helpers */
+.reveal-mask {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: top;
+}
+.reveal-mask > .inner {
+  display: inline-block;
+  transform: translateY(110%);
+  will-change: transform;
+}
+
+.split-char {
+  display: inline-block;
+  transform: translateY(110%);
+  will-change: transform;
+}
+.split-wrap {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  line-height: 1.1;
+}
+
+.clip-img {
+  clip-path: inset(100% 0 0 0);
+  will-change: clip-path;
+}
+
+/* Cursor */
+.cursor-dot,
+.cursor-ring {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  mix-blend-mode: difference;
+  will-change: transform;
+}
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.25s ease, height 0.25s ease, opacity 0.2s ease;
+}
+.cursor-ring.is-hover {
+  width: 68px;
+  height: 68px;
+}
+
+/* Preloader */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--cream);
+  display: grid;
+  place-items: center;
+}
+
+/* Marquee */
+.marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* Accordion */
+details.faq-item > summary { list-style: none; cursor: pointer; }
+details.faq-item > summary::-webkit-details-marker { display: none; }
+
+/* Button */
+.btn-magnetic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  will-change: transform;
+}
+.btn-magnetic .label {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Thin divider */
+.hair {
+  border-top: 1px solid rgba(26, 14, 20, 0.12);
+}
+
+/* No scrollbar visual during pin */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* =========================================================
+   Beauty LP — Korean minimal × luxe (scoped under .beauty)
+   ========================================================= */
+.beauty {
+  --ivory: #FAF6F1;
+  --linen: #F2E9E0;
+  --nude: #E6D3C4;
+  --sand: #D8C0AC;
+  --mocha: #B0917A;
+  --mocha-deep: #7B5E4B;
+  --champagne: #C8A878;
+  --rosegold: #D9B6A2;
+  --ink-soft: #241A14;
+  background: var(--ivory);
+  color: var(--ink-soft);
+  cursor: auto;
+}
+.beauty ::selection {
+  background: var(--mocha);
+  color: var(--ivory);
+}
+
+.beauty .font-cormorant {
+  font-family: "Cormorant Garamond", "Shippori Mincho B1", serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.beauty .eyebrow-lux {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: var(--mocha-deep);
+  text-transform: lowercase;
+}
+
+.beauty .label-en {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 11px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--mocha-deep);
+}
+
+.beauty .hair-line {
+  border-top: 1px solid rgba(123, 94, 75, 0.18);
+}
+
+.beauty .btn-lux {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 34px;
+  border-radius: 9999px;
+  background: var(--ink-soft);
+  color: var(--ivory);
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.3s ease;
+}
+.beauty .btn-lux:hover {
+  background: var(--mocha-deep);
+  transform: translateY(-1px);
+}
+.beauty .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 34px;
+  border-radius: 9999px;
+  border: 1px solid rgba(36, 26, 20, 0.4);
+  color: var(--ink-soft);
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.beauty .btn-ghost:hover {
+  background: var(--ink-soft);
+  color: var(--ivory);
+}
+
+.beauty .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(216, 192, 172, 0.35);
+  color: var(--mocha-deep);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.beauty .ring-soft {
+  box-shadow: 0 1px 0 rgba(123, 94, 75, 0.08), 0 30px 60px -30px rgba(123, 94, 75, 0.25);
+}
+
+.beauty .grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.45 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+}
+
+/* Reveal animation (used inside .beauty without requiring GSAP) */
+.beauty .b-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.9s ease, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.beauty .b-reveal.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Before/After slider handle */
+.beauty .ba-slider {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 2px;
+  user-select: none;
+}
+.beauty .ba-after,
+.beauty .ba-before {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.beauty .ba-before-wrap {
+  position: absolute;
+  inset: 0;
+  width: 50%;
+  overflow: hidden;
+}
+.beauty .ba-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: rgba(250, 246, 241, 0.9);
+  transform: translateX(-50%);
+  cursor: ew-resize;
+}
+.beauty .ba-handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: rgba(250, 246, 241, 0.95);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+}
+.beauty .ba-handle::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  border-left: 2px solid var(--mocha-deep);
+  border-right: 2px solid var(--mocha-deep);
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+/* Floating LINE CTA */
+.beauty .line-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 18px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 22px;
+  border-radius: 9999px;
+  background: #06C755;
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  box-shadow: 0 18px 40px -10px rgba(6, 199, 85, 0.5);
+}
+@media (min-width: 768px) {
+  .beauty .line-fab { right: 28px; bottom: 28px; padding: 16px 28px; }
+}
+
+/* FAQ */
+.beauty details.b-faq[open] > summary .b-plus { transform: rotate(45deg); }
+.beauty details.b-faq > summary { list-style: none; cursor: pointer; }
+.beauty details.b-faq > summary::-webkit-details-marker { display: none; }
+
+/* Marquee */
+.beauty .b-marquee {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: bMarquee 32s linear infinite;
+}
+@keyframes bMarquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}

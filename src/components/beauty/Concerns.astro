@@ -1,0 +1,41 @@
+---
+const concerns = [
+  { ja: '初めての美容医療で\n不安が大きい', en: 'first time' },
+  { ja: 'カウンセリングで\n強引な勧誘が怖い', en: 'no push selling' },
+  { ja: '症例実績の多い\nドクターに任せたい', en: 'experienced doctor' },
+  { ja: '韓国系のナチュラルな\n仕上がりが好み', en: 'k-natural look' },
+  { ja: 'プライバシーが\nしっかり守られたい', en: 'private space' },
+  { ja: 'ダウンタイムを\n最小限にしたい', en: 'minimum downtime' },
+];
+---
+<section id="concerns" class="relative py-24 md:py-36 bg-linen overflow-hidden">
+  <div class="max-w-[1320px] mx-auto px-5 md:px-10">
+    <div class="grid grid-cols-12 gap-6 md:gap-10">
+      <div class="col-span-12 lg:col-span-4">
+        <div class="eyebrow-lux mb-5">— concerns</div>
+        <h2 class="font-mincho text-inkSoft leading-[1.12] font-light text-[clamp(28px,4vw,52px)]">
+          <span class="block">こんなお悩み、</span>
+          <span class="block text-mochaDeep">ありませんか。</span>
+        </h2>
+        <p class="mt-8 font-mincho text-[15px] leading-[2] text-inkSoft/75 max-w-[440px]">
+          一人で悩んでいたその気持ち、<br />
+          まずはお話を聞かせてください。<br />
+          無料カウンセリングは押し売り一切なし、<br />
+          ご相談だけでも歓迎しています。
+        </p>
+      </div>
+
+      <div class="col-span-12 lg:col-span-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+          {concerns.map((c, i) => (
+            <div class="relative aspect-[5/4] bg-ivory ring-soft p-5 md:p-7 flex flex-col justify-between rounded-[2px]">
+              <div class="font-cormorant italic text-[18px] text-mochaDeep/70">{String(i + 1).padStart(2, '0')}</div>
+              <div class="font-mincho text-[14px] md:text-[16px] leading-[1.9] text-inkSoft whitespace-pre-line">{c.ja}</div>
+              <div class="label-en text-mochaDeep">{c.en}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

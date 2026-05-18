@@ -1,0 +1,68 @@
+---
+const doctors = [
+  {
+    role: 'Director',
+    jpRole: '院長',
+    name: 'Taro Yamada',
+    jpName: '山田 太郎',
+    license: 'D.V.M. / Exotic Animal Medicine',
+    bio: '獣医師歴20年。日本エキゾチック動物学会所属。うさぎの歯科・外科を専門とし、国内外の学会にて講演多数。',
+    tags: ['Surgery', 'Dental', 'Imaging'],
+    img: 'https://images.unsplash.com/photo-1452857297128-d9c29adba80b?w=1200&q=80&auto=format&fit=crop',
+  },
+  {
+    role: 'Vice Director',
+    jpRole: '副院長',
+    name: 'Hanako Tanaka',
+    jpName: '田中 花子',
+    license: 'D.V.M. / Internal Medicine',
+    bio: 'うさぎの消化器・内科を専門に、一頭一頭のストレス最小化に心を配る診療で知られる。獣医師歴12年。',
+    tags: ['Internal', 'Prevention', 'Care'],
+    img: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=1200&q=80&auto=format&fit=crop',
+  },
+];
+---
+<section id="doctors" class="relative py-28 md:py-44 px-6 md:px-10">
+  <div class="grid grid-cols-12 gap-4 md:gap-6 mb-14 md:mb-24">
+    <div class="col-span-12 md:col-span-6">
+      <div class="eyebrow">— (06) Our Doctors</div>
+      <h2 class="mt-4 font-display text-[clamp(36px,5.4vw,88px)] leading-[0.95] tracking-tightest">
+        <span class="italic">Specialists</span><br />
+        of <span class="text-primary italic">small hearts.</span>
+      </h2>
+    </div>
+    <div class="col-span-12 md:col-span-4 md:col-start-9 font-mincho text-[14px] leading-[2] text-ink/70">
+      うさぎの臨床に人生を捧げる二人の獣医師。<br />
+      どちらも、必ず診察室で目の高さを合わせます。
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+    {doctors.map((d, i) => (
+      <article class={`doctor-card group relative ${i === 1 ? 'md:mt-24' : ''}`}>
+        <div class="relative aspect-[4/5] overflow-hidden bg-blush">
+          <img src={d.img} alt={d.jpName} class="w-full h-full object-cover clip-img transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]" loading="lazy" />
+          <div class="absolute top-4 left-4 text-[10px] tracking-[0.3em] uppercase text-cream/90 mix-blend-difference">
+            — ({String(i + 1).padStart(2, '0')})
+          </div>
+          <div class="absolute bottom-4 right-4 text-[10px] tracking-[0.28em] uppercase text-cream/90 mix-blend-difference text-right">
+            {d.role}<br />{d.jpRole}
+          </div>
+        </div>
+        <div class="mt-6 grid grid-cols-12 gap-3 items-start">
+          <div class="col-span-8">
+            <div class="font-display text-[32px] md:text-[40px] leading-[1] tracking-tight italic">{d.name}</div>
+            <div class="mt-1 font-mincho text-[14px] text-ink/70">{d.jpName}</div>
+            <div class="mt-3 text-[11px] tracking-[0.2em] uppercase text-primary">{d.license}</div>
+          </div>
+          <div class="col-span-4 flex flex-wrap gap-1.5 justify-end">
+            {d.tags.map((t) => (
+              <span class="text-[10px] tracking-[0.2em] uppercase px-2.5 py-1 rounded-full border border-ink/20 text-ink/70">{t}</span>
+            ))}
+          </div>
+        </div>
+        <p class="mt-5 text-[13px] leading-[2] text-ink/75 font-mincho max-w-[44ch]">{d.bio}</p>
+      </article>
+    ))}
+  </div>
+</section>

@@ -1,0 +1,103 @@
+---
+const treatments = [
+  {
+    no: '01',
+    en: 'Double Eyelid',
+    jp: '二重整形',
+    desc: '埋没法から切開法まで、骨格・まぶたの状態に合わせて最適な術式を提案。自然で長持ちする美しい二重を。',
+    points: ['埋没2点 ¥49,800〜', '切開法 ¥248,000〜', 'ダウンタイム最短3日'],
+    img: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=1200&q=80&auto=format&fit=crop',
+  },
+  {
+    no: '02',
+    en: 'Skin Care',
+    jp: '肌管理',
+    desc: '韓国式の総合スキンケアプログラム。毛穴・くすみ・ハリにアプローチし、内側から発光するような素肌へ。',
+    points: ['ハイドラフェイシャル ¥18,000〜', 'ポテンツァ ¥66,000〜', '水光注射 ¥38,000〜'],
+    img: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1200&q=80&auto=format&fit=crop',
+  },
+  {
+    no: '03',
+    en: 'V-line · Slim Face',
+    jp: '小顔施術',
+    desc: 'HIFU・ボトックス・脂肪溶解注射を組み合わせ、フェイスラインをシャープに。ナチュラルなVラインへ。',
+    points: ['HIFU 全顔 ¥48,000〜', 'エラボトックス ¥29,800〜', '脂肪溶解 ¥9,800〜'],
+    img: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&q=80&auto=format&fit=crop',
+  },
+  {
+    no: '04',
+    en: 'Medical Hair Removal',
+    jp: '医療脱毛',
+    desc: '蓄熱式と熱破壊式を肌質・毛質に合わせて使い分け。痛みを抑えながら、ツルすべ肌へ最短ルートで。',
+    points: ['全身5回 ¥149,800', 'VIO 5回 ¥59,800', '顔 5回 ¥49,800'],
+    img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1200&q=80&auto=format&fit=crop',
+  },
+  {
+    no: '05',
+    en: 'Beauty Injection',
+    jp: '美容注射',
+    desc: 'ヒアルロン酸・ボトックス・白玉点滴など、悩みと理想に合わせてオーダーメイドの注射メニューを設計。',
+    points: ['ヒアル 1本 ¥49,800〜', 'ボトックス ¥9,800〜', '白玉点滴 ¥6,800〜'],
+    img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=1200&q=80&auto=format&fit=crop',
+  },
+];
+---
+<section id="treatments" class="relative py-24 md:py-36 bg-ivory">
+  <div class="max-w-[1320px] mx-auto px-5 md:px-10">
+    <div class="flex items-end justify-between flex-wrap gap-6 mb-12 md:mb-16">
+      <div>
+        <div class="eyebrow-lux mb-5">— treatments</div>
+        <h2 class="font-mincho text-inkSoft leading-[1.12] font-light text-[clamp(28px,4vw,52px)]">
+          <span class="block">あなたに似合う</span>
+          <span class="block text-mochaDeep">施術を、丁寧に。</span>
+        </h2>
+      </div>
+      <p class="max-w-[420px] font-mincho text-[15px] leading-[2] text-inkSoft/75">
+        肌・骨格・ライフスタイルに合わせて、<br />
+        ドクターが最適なプランを提案します。<br />
+        単発でも、計画的なコースでも。
+      </p>
+    </div>
+
+    <div class="space-y-3 md:space-y-4">
+      {treatments.map((t, i) => (
+        <article class="group relative grid grid-cols-12 gap-3 md:gap-6 bg-linen rounded-[2px] ring-soft overflow-hidden">
+          <div class={`col-span-12 md:col-span-5 ${i % 2 === 1 ? 'md:order-2' : ''}`}>
+            <div class="relative aspect-[5/4] md:aspect-auto md:h-full overflow-hidden">
+              <img
+                src={t.img}
+                alt={t.jp}
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
+                loading="lazy"
+              />
+              <div class="absolute top-4 left-4 label-en text-ivory mix-blend-difference">{`/ ${t.no} — ${t.en}`}</div>
+            </div>
+          </div>
+          <div class={`col-span-12 md:col-span-7 p-6 md:p-10 lg:p-14 flex flex-col justify-center ${i % 2 === 1 ? 'md:order-1' : ''}`}>
+            <div class="flex items-baseline gap-4 mb-4">
+              <span class="font-cormorant italic text-[20px] text-mochaDeep">{t.no}</span>
+              <span class="label-en">{t.en}</span>
+            </div>
+            <h3 class="font-cormorant text-[clamp(32px,4.4vw,60px)] text-inkSoft leading-[1.05]">{t.jp}</h3>
+            <p class="mt-5 font-mincho text-[14px] md:text-[15px] leading-[2] text-inkSoft/75 max-w-[560px]">{t.desc}</p>
+            <ul class="mt-6 grid sm:grid-cols-3 gap-3">
+              {t.points.map((p) => (
+                <li class="text-[12px] md:text-[13px] tracking-wider text-inkSoft border-t border-mochaDeep/15 pt-3">
+                  {p}
+                </li>
+              ))}
+            </ul>
+            <div class="mt-8">
+              <a href="#reserve" class="inline-flex items-center gap-3 text-[12px] tracking-[0.28em] text-mochaDeep uppercase border-b border-mochaDeep/40 pb-1 hover:border-mochaDeep transition-colors">
+                <span>このメニューを相談する</span>
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

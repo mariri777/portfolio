@@ -1,0 +1,75 @@
+---
+const career = [
+  '2008 慶應義塾大学医学部 卒業',
+  '2014 韓国 ソウル江南 美容皮膚科クリニック 研修',
+  '2018 都内大手美容クリニック 副院長',
+  '2024 Lume Aesthetic Clinic 開院',
+];
+const certs = [
+  '日本美容外科学会専門医',
+  '日本皮膚科学会認定医',
+  '日本抗加齢医学会会員',
+];
+---
+<section id="doctor" class="relative py-24 md:py-36 bg-inkSoft text-ivory overflow-hidden">
+  <div class="max-w-[1320px] mx-auto px-5 md:px-10 grid grid-cols-12 gap-6 md:gap-10">
+    <div class="col-span-12 lg:col-span-5">
+      <div class="relative aspect-[4/5] overflow-hidden rounded-[2px]">
+        <img
+          src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1200&q=80&auto=format&fit=crop"
+          alt="院長 麻生 美由紀"
+          class="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+        />
+        <div class="absolute bottom-4 left-4 right-4 flex items-end justify-between text-[10px] tracking-[0.3em] uppercase">
+          <span>/ director — miyuki aso, md</span>
+          <span>portrait · 2024</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-12 lg:col-span-7 flex flex-col justify-center">
+      <div class="eyebrow-lux text-rosegold mb-5">— director's message</div>
+      <h2 class="font-mincho leading-[1.15] font-light text-[clamp(26px,3.6vw,46px)]">
+        <span class="block">「美しさは、</span>
+        <span class="block text-rosegold">　あなたを縛らない。」</span>
+      </h2>
+
+      <p class="mt-8 font-mincho text-[15px] leading-[2.2] text-ivory/85 max-w-[620px]">
+        美容医療は、誰かに評価されるためのものではありません。<br />
+        ふと鏡を見たときに、自分のことをすこし好きになれる。<br />
+        そんな小さな自信を、医療の力でそっと支えたい。<br />
+        Lumeは、そう願う方のための場所です。
+      </p>
+
+      <div class="mt-10 grid sm:grid-cols-2 gap-8">
+        <div>
+          <div class="label-en text-rosegold mb-4">/ career</div>
+          <ul class="space-y-3 font-mincho text-[14px] leading-[1.9] text-ivory/85">
+            {career.map((c) => (
+              <li class="flex gap-3">
+                <span class="text-rosegold">—</span>
+                <span>{c}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <div class="label-en text-rosegold mb-4">/ certifications</div>
+          <ul class="space-y-3 font-mincho text-[14px] leading-[1.9] text-ivory/85">
+            {certs.map((c) => (
+              <li class="flex gap-3">
+                <span class="text-rosegold">—</span>
+                <span>{c}</span>
+              </li>
+            ))}
+          </ul>
+          <div class="mt-8">
+            <div class="font-cormorant italic text-[28px] text-rosegold leading-none">Miyuki Aso</div>
+            <div class="mt-2 text-[11px] tracking-[0.3em] uppercase text-ivory/60">麻生 美由紀 / 院長</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

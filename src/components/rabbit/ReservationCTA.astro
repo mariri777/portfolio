@@ -1,0 +1,47 @@
+---
+---
+<section id="reserve" class="relative py-32 md:py-52 px-6 md:px-10 bg-primary text-cream overflow-hidden">
+  <!-- Background word -->
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0 grid place-items-center opacity-10">
+    <span class="font-display text-[38vw] leading-none italic tracking-tightest select-none whitespace-nowrap">Reserve</span>
+  </div>
+
+  <div class="relative z-10 grid grid-cols-12 gap-4 md:gap-6">
+    <div class="col-span-12">
+      <div class="eyebrow text-cream/80">— (11) Reservation</div>
+    </div>
+    <div class="col-span-12">
+      <h2 class="font-display leading-[0.9] tracking-tightest text-[clamp(56px,12vw,220px)]">
+        <span class="italic block">Book</span>
+        <span class="block"><span class="italic">your</span> visit.</span>
+      </h2>
+    </div>
+    <div class="col-span-12 md:col-span-6 md:col-start-7 mt-10">
+      <p class="font-mincho text-[16px] leading-[2] text-cream/90">
+        完全予約制のため、お電話または Web フォームより事前のご予約をお願いいたします。
+        ご予約時に、症状・年齢・種類・体重・食欲の有無をお知らせください。
+      </p>
+      <div class="mt-10 flex flex-col md:flex-row gap-4 md:gap-5">
+        <a
+          href="mailto:reservation@rabbit-clinic.example"
+          data-magnetic
+          data-hover="cta"
+          class="btn-magnetic group flex-1 px-8 py-6 rounded-full bg-cream text-ink hover:bg-ink hover:text-cream transition-colors"
+        >
+          <span class="label font-display italic text-[22px]">Web Reservation</span>
+          <span class="ml-2 text-[11px] tracking-[0.3em] uppercase opacity-70">24時間受付</span>
+          <svg class="w-4 h-4 ml-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a
+          href="tel:0312345678"
+          data-magnetic
+          data-hover="cta"
+          class="btn-magnetic group flex-1 px-8 py-6 rounded-full border border-cream/60 text-cream hover:bg-cream hover:text-ink transition-colors"
+        >
+          <span class="label font-display italic text-[22px]">03-1234-5678</span>
+          <span class="ml-2 text-[11px] tracking-[0.3em] uppercase opacity-70">お電話</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

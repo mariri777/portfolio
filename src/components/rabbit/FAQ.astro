@@ -1,0 +1,46 @@
+---
+const faqs = [
+  { q: '予約なしでも受診できますか？', a: '当院は完全予約制です。急患の場合は必ず事前にお電話（03-1234-5678）でご相談ください。できる限り最短でご案内いたします。' },
+  { q: 'うさぎ以外のエキゾチックアニマルも診てもらえますか？', a: '申し訳ありませんが、当院はうさぎ専門病院です。モルモット・フェレット・鳥類等の診察は行っておりません。提携病院をご紹介することが可能です。' },
+  { q: 'キャリーケースは持参が必要ですか？', a: 'はい、移動時のストレスを軽減するため、普段使い慣れたキャリーでのご来院をお願いしております。保温材（夏場は保冷材）も忘れずにご準備ください。' },
+  { q: '健康診断はどのくらいの頻度が推奨ですか？', a: '成体（1〜5歳）は年1回、シニア（5歳以上）は年2回の健康診断を推奨しています。うさぎは不調を隠すため、定期検診での早期発見が最も重要です。' },
+  { q: 'ペットホテルの予約はいつまでに必要ですか？', a: '通常期は1週間前、年末年始・GW等の繁忙期は1ヶ月前のご予約をお願いしております。持病のある子もお預かり可能ですので、お気軽にご相談ください。' },
+  { q: 'クレジットカードは使えますか？', a: 'VISA / Mastercard / JCB / AMEX / Diners、および各種電子マネー・QR決済に対応しております。' },
+];
+---
+<section id="faq" class="relative py-28 md:py-44 px-6 md:px-10">
+  <div class="grid grid-cols-12 gap-4 md:gap-6">
+    <div class="col-span-12 md:col-span-4 md:sticky md:top-28 self-start">
+      <div class="eyebrow">— (09) Questions</div>
+      <h2 class="mt-4 font-display text-[clamp(36px,5.4vw,88px)] leading-[0.95] tracking-tightest">
+        <span class="italic">Ask</span><br />
+        us <span class="text-primary italic">anything.</span>
+      </h2>
+      <p class="mt-8 text-[13px] leading-[2] text-ink/70 font-mincho max-w-[30ch]">
+        その他ご不明な点は、お気軽にお問い合わせください。
+      </p>
+    </div>
+
+    <div class="col-span-12 md:col-span-8">
+      <div class="hair"></div>
+      {faqs.map((f, i) => (
+        <details class="faq-item hair group" name="faq">
+          <summary class="flex items-center justify-between py-7 gap-6" data-hover="link">
+            <div class="flex items-baseline gap-5">
+              <span class="text-[11px] tracking-[0.28em] text-primary/80">— {String(i + 1).padStart(2, '0')}</span>
+              <span class="font-display text-[22px] md:text-[28px] italic leading-[1.2] tracking-tight">{f.q}</span>
+            </div>
+            <span class="relative w-10 h-10 rounded-full border border-ink/20 shrink-0 grid place-items-center transition-colors group-open:bg-primary group-open:border-primary group-open:text-cream">
+              <svg class="w-3.5 h-3.5 transition-transform group-open:rotate-45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </summary>
+          <div class="pb-8 pr-14 md:pl-12 text-[14px] font-mincho leading-[2.1] text-ink/80">
+            {f.a}
+          </div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

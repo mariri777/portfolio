@@ -1,0 +1,82 @@
+---
+import BeautyLayout from '../../layouts/BeautyLayout.astro';
+import Nav from '../../components/beauty/Nav.astro';
+import Hero from '../../components/beauty/Hero.astro';
+import Concerns from '../../components/beauty/Concerns.astro';
+import Treatments from '../../components/beauty/Treatments.astro';
+import Cases from '../../components/beauty/Cases.astro';
+import Features from '../../components/beauty/Features.astro';
+import Doctor from '../../components/beauty/Doctor.astro';
+import Pricing from '../../components/beauty/Pricing.astro';
+import Voice from '../../components/beauty/Voice.astro';
+import FAQ from '../../components/beauty/FAQ.astro';
+import ReservationCTA from '../../components/beauty/ReservationCTA.astro';
+import Footer from '../../components/beauty/Footer.astro';
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+---
+<BeautyLayout>
+  <a
+    href={BASE}
+    class="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-[100] inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-ivory/95 backdrop-blur border border-mochaDeep/20 text-[11px] tracking-[0.22em] text-mochaDeep hover:bg-inkSoft hover:text-ivory transition-colors shadow-[0_10px_30px_-10px_rgba(123,94,75,0.4)]"
+  >
+    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M19 12H5M11 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    Portfolio
+  </a>
+  <Nav />
+  <main>
+    <Hero />
+    <Concerns />
+    <Treatments />
+    <Cases />
+    <Features />
+    <Doctor />
+    <Pricing />
+    <Voice />
+    <FAQ />
+    <ReservationCTA />
+  </main>
+  <Footer />
+</BeautyLayout>
+
+<script>
+  function initReveal() {
+    const els = document.querySelectorAll<HTMLElement>('.beauty [data-reveal]');
+    if (!els.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in');
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -10% 0px' }
+    );
+    els.forEach((el) => {
+      el.classList.add('b-reveal');
+      io.observe(el);
+    });
+  }
+
+  function initSmoothAnchors() {
+    document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        const id = a.getAttribute('href');
+        if (!id || id === '#') return;
+        const target = document.querySelector(id);
+        if (!target) return;
+        e.preventDefault();
+        const top = (target as HTMLElement).getBoundingClientRect().top + window.scrollY - 70;
+        window.scrollTo({ top, behavior: 'smooth' });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => { initReveal(); initSmoothAnchors(); });
+  } else {
+    initReveal();
+    initSmoothAnchors();
+  }
+</script>

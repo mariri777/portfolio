@@ -1,0 +1,67 @@
+---
+const features = [
+  {
+    no: '01',
+    en: 'Doctor First',
+    jp: 'ドクター指名のカウンセリング',
+    desc: 'カウンセラー任せにせず、施術を担当するドクター本人があなたの理想を直接ヒアリング。誤解なく、最適なプランをご提案します。',
+  },
+  {
+    no: '02',
+    en: 'No Hard Sell',
+    jp: '押し売り一切なしの方針',
+    desc: '「相談だけで帰る」も大歓迎。ご納得いただけるまで、何度でも無料でカウンセリングいたします。',
+  },
+  {
+    no: '03',
+    en: 'Private Room',
+    jp: '完全個室・別動線',
+    desc: '受付から施術・帰り道まで、他のお客様と顔を合わせない動線設計。プライバシーを大切にしています。',
+  },
+  {
+    no: '04',
+    en: 'After Care',
+    jp: '1年間の無料アフターケア',
+    desc: '施術後に気になることがあれば、何度でも無料で診察。LINEからいつでも医師に直接相談できます。',
+  },
+];
+---
+<section id="features" class="relative py-24 md:py-36 bg-ivory overflow-hidden">
+  <div class="max-w-[1320px] mx-auto px-5 md:px-10 grid grid-cols-12 gap-6 md:gap-10">
+    <div class="col-span-12 lg:col-span-5 lg:sticky lg:top-28 self-start">
+      <div class="eyebrow-lux mb-5">— why lume</div>
+      <h2 class="font-mincho text-inkSoft leading-[1.12] font-light text-[clamp(28px,4vw,52px)]">
+        <span class="block">選ばれる、</span>
+        <span class="block text-mochaDeep">4つの理由。</span>
+      </h2>
+      <p class="mt-8 font-mincho text-[15px] leading-[2] text-inkSoft/75 max-w-[440px]">
+        「ここなら任せられる」と感じていただける体験を、<br />
+        ひとつひとつ丁寧に積み上げてきました。
+      </p>
+
+      <div class="mt-10 relative aspect-[4/5] overflow-hidden ring-soft rounded-[2px] hidden lg:block">
+        <img
+          src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=1200&q=80&auto=format&fit=crop"
+          alt="クリニックの内装"
+          class="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+        />
+      </div>
+    </div>
+
+    <div class="col-span-12 lg:col-span-7 space-y-5 md:space-y-7">
+      {features.map((f) => (
+        <article class="relative grid grid-cols-12 gap-4 md:gap-6 bg-linen p-6 md:p-9 rounded-[2px] ring-soft">
+          <div class="col-span-12 md:col-span-3">
+            <div class="font-cormorant italic text-[44px] md:text-[56px] text-mochaDeep leading-none">{f.no}</div>
+            <div class="mt-2 label-en">{f.en}</div>
+          </div>
+          <div class="col-span-12 md:col-span-9">
+            <h3 class="font-cormorant text-[26px] md:text-[34px] text-inkSoft leading-snug">{f.jp}</h3>
+            <p class="mt-4 font-mincho text-[14px] md:text-[15px] leading-[2] text-inkSoft/75">{f.desc}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

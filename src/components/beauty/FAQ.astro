@@ -1,0 +1,61 @@
+---
+const faqs = [
+  {
+    q: 'カウンセリングだけでも大丈夫ですか？',
+    a: 'もちろんです。「相談だけで帰る」も大歓迎です。無料カウンセリングは何度受けていただいても費用はかかりません。',
+  },
+  {
+    q: 'はじめての美容医療で不安です。',
+    a: 'はじめてのお客様が約7割です。施術のメリットだけでなく、リスクやダウンタイムも丁寧にご説明しますので、納得した上でお決めいただけます。',
+  },
+  {
+    q: '支払い方法は何が使えますか？',
+    a: '現金・各種クレジットカード・QR決済・医療ローンに対応しています。分割払いも最大60回までご利用いただけます。',
+  },
+  {
+    q: '未成年でも施術は受けられますか？',
+    a: '18歳以上であれば、保護者の同意書をご持参いただくことで一部メニューを除き受けていただけます。詳しくはお問い合わせください。',
+  },
+  {
+    q: 'ダウンタイムが心配です。',
+    a: '施術によって異なりますが、メイクで隠せる範囲のものから、長めにお休みが必要なものまでさまざまです。ご都合に合わせて施術プランをご提案します。',
+  },
+  {
+    q: 'アフターケアはどうなっていますか？',
+    a: '施術後1年間は無料でアフター診察をお受けいただけます。LINEから医師に直接ご相談いただける窓口も24時間ご利用可能です。',
+  },
+];
+---
+<section id="faq" class="relative py-24 md:py-36 bg-ivory">
+  <div class="max-w-[1320px] mx-auto px-5 md:px-10 grid grid-cols-12 gap-6 md:gap-10">
+    <div class="col-span-12 lg:col-span-4">
+      <div class="eyebrow-lux mb-5">— faq</div>
+      <h2 class="font-mincho text-inkSoft leading-[1.12] font-light text-[clamp(28px,4vw,52px)]">
+        <span class="block">よくある</span>
+        <span class="block text-mochaDeep">ご質問。</span>
+      </h2>
+      <p class="mt-8 font-mincho text-[15px] leading-[2] text-inkSoft/75 max-w-[380px]">
+        こちらに載っていないご質問は、<br />
+        LINEから24時間お気軽にどうぞ。
+      </p>
+    </div>
+
+    <div class="col-span-12 lg:col-span-8 divide-y divide-mochaDeep/15 border-t border-b border-mochaDeep/15">
+      {faqs.map((item, i) => (
+        <details class="b-faq group py-5 md:py-6">
+          <summary class="flex items-start gap-5">
+            <span class="font-cormorant italic text-[18px] text-mochaDeep w-10 shrink-0 pt-1">{String(i + 1).padStart(2, '0')}</span>
+            <span class="flex-1 font-mincho text-[15px] md:text-[17px] text-inkSoft leading-relaxed">{item.q}</span>
+            <span class="b-plus relative w-5 h-5 mt-2 shrink-0 transition-transform duration-300">
+              <span class="absolute inset-0 m-auto w-full h-px bg-mochaDeep"></span>
+              <span class="absolute inset-0 m-auto h-full w-px bg-mochaDeep"></span>
+            </span>
+          </summary>
+          <div class="mt-4 pl-[60px] pr-8 font-mincho text-[14px] md:text-[15px] leading-[2] text-inkSoft/75">
+            {item.a}
+          </div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

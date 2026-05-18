@@ -1,0 +1,56 @@
+---
+const links = [
+  { href: '#intro', label: 'About', jp: '理念' },
+  { href: '#services', label: 'Care', jp: '診療案内' },
+  { href: '#features', label: 'Why Us', jp: '特徴' },
+  { href: '#doctors', label: 'Doctors', jp: '医師' },
+  { href: '#facilities', label: 'Facilities', jp: '施設' },
+  { href: '#hours', label: 'Hours', jp: '診療時間' },
+  { href: '#faq', label: 'FAQ', jp: 'Q&A' },
+  { href: '#access', label: 'Access', jp: 'アクセス' },
+];
+---
+<header id="nav" class="fixed top-0 left-0 right-0 z-[800] pointer-events-none">
+  <div class="pointer-events-auto mx-auto flex items-center justify-between px-6 md:px-10 py-5 transition-all">
+    <a href="#top" class="flex items-center gap-3 group" data-hover="link">
+      <svg viewBox="0 0 40 40" class="w-7 h-7" aria-hidden="true">
+        <g fill="#B85A7D">
+          <ellipse cx="13" cy="11" rx="3.2" ry="8" />
+          <ellipse cx="27" cy="11" rx="3.2" ry="8" />
+          <circle cx="20" cy="26" r="9" />
+        </g>
+      </svg>
+      <span class="font-display text-[15px] tracking-tight leading-none">
+        <span class="italic">Rabbit</span> <span class="text-primary">Clinic</span>
+      </span>
+    </a>
+
+    <nav class="hidden lg:flex items-center gap-7">
+      {links.map((l) => (
+        <a
+          href={l.href}
+          data-hover="link"
+          class="nav-link group relative text-[12px] tracking-[0.14em] uppercase text-ink/70 hover:text-ink transition-colors"
+        >
+          <span class="nav-en">{l.label}</span>
+          <span class="nav-jp absolute left-0 top-0 text-[12px] font-mincho tracking-normal text-primary opacity-0 translate-y-2 transition-all group-hover:opacity-100 group-hover:translate-y-0">
+            {l.jp}
+          </span>
+        </a>
+      ))}
+    </nav>
+
+    <a
+      href="#reserve"
+      data-magnetic
+      data-hover="cta"
+      class="btn-magnetic group relative px-5 py-3 rounded-full bg-ink text-cream text-[12px] tracking-[0.18em] uppercase hover:bg-primary transition-colors"
+    >
+      <span class="label">Web予約</span>
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+  </div>
+  <div class="hair mx-6 md:mx-10 opacity-0" id="nav-hair"></div>
+</header>

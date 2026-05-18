@@ -1,0 +1,79 @@
+---
+const categories = [
+  {
+    title: '二重整形',
+    en: 'Double Eyelid',
+    items: [
+      { name: '埋没法 2点留め', price: '¥49,800', note: '保証3年' },
+      { name: '埋没法 4点留め', price: '¥89,800', note: '保証5年' },
+      { name: '切開法 全切開', price: '¥248,000', note: '半永久' },
+      { name: '目頭切開', price: '¥198,000', note: '半永久' },
+    ],
+  },
+  {
+    title: '肌管理',
+    en: 'Skin Care',
+    items: [
+      { name: 'ハイドラフェイシャル', price: '¥18,000', note: '所要 60分' },
+      { name: '水光注射', price: '¥38,000', note: '初回 ¥29,800' },
+      { name: 'ポテンツァ ドラッグデリバリー', price: '¥66,000', note: '初回 ¥49,800' },
+      { name: 'PRP皮膚再生療法', price: '¥98,000', note: 'ご相談' },
+    ],
+  },
+  {
+    title: '小顔・医療脱毛・注射',
+    en: 'Body Care',
+    items: [
+      { name: 'HIFU（全顔）', price: '¥48,000', note: '初回 ¥38,000' },
+      { name: '医療脱毛 全身5回', price: '¥149,800', note: '顔・VIO別' },
+      { name: 'ヒアルロン酸注射 1本', price: '¥49,800', note: 'カスタマイズ可' },
+      { name: '白玉点滴', price: '¥6,800', note: '10回コース有' },
+    ],
+  },
+];
+---
+<section id="pricing" class="relative py-24 md:py-36 bg-linen">
+  <div class="max-w-[1320px] mx-auto px-5 md:px-10">
+    <div class="flex items-end justify-between flex-wrap gap-6 mb-12 md:mb-16">
+      <div>
+        <div class="eyebrow-lux mb-5">— pricing</div>
+        <h2 class="font-mincho text-inkSoft leading-[1.12] font-light text-[clamp(28px,4vw,52px)]">
+          <span class="block">明朗会計、</span>
+          <span class="block text-mochaDeep">追加料金なし。</span>
+        </h2>
+      </div>
+      <p class="max-w-[420px] font-mincho text-[14px] leading-[2] text-inkSoft/70">
+        表示価格は税込です。<br />
+        カウンセリング・診察・お薬代は基本料金に含まれます。<br />
+        医療ローンも各種ご利用いただけます。
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-4 md:gap-6">
+      {categories.map((cat) => (
+        <article class="bg-ivory p-6 md:p-8 rounded-[2px] ring-soft">
+          <div class="flex items-baseline justify-between mb-6 pb-4 border-b border-mochaDeep/20">
+            <h3 class="font-cormorant text-[24px] md:text-[28px] text-inkSoft">{cat.title}</h3>
+            <span class="label-en">{cat.en}</span>
+          </div>
+          <ul class="space-y-5">
+            {cat.items.map((it) => (
+              <li class="flex items-baseline justify-between gap-4">
+                <div>
+                  <div class="font-mincho text-[14px] md:text-[15px] text-inkSoft leading-snug">{it.name}</div>
+                  <div class="mt-1 text-[10px] tracking-[0.22em] text-mochaDeep/80 uppercase">{it.note}</div>
+                </div>
+                <div class="font-cormorant text-[20px] md:text-[22px] text-mochaDeep whitespace-nowrap">{it.price}〜</div>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+
+    <p class="mt-10 text-[11px] leading-[1.8] text-inkSoft/55 max-w-[820px]">
+      ※掲載の料金は2026年5月時点のものです。施術にはリスク・副作用・ダウンタイムが伴う場合があります。
+      自由診療のため、健康保険は適用されません。詳しくはカウンセリング時にご説明いたします。
+    </p>
+  </div>
+</section>

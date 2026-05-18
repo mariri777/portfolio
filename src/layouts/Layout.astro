@@ -1,0 +1,33 @@
+---
+import '../styles/global.css';
+export interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = 'うさぎ専門病院 | Rabbit Specialty Clinic',
+  description = 'うさぎのためだけに設計された、やさしく先端的な専門医療。院長 山田太郎・副院長 田中花子が小さな命に寄り添います。',
+} = Astro.props;
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+---
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#FDF6F2" />
+    <link rel="icon" type="image/svg+xml" href={`${BASE}/favicon.svg`} />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho+B1:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="font-sans text-ink antialiased">
+    <div class="noise" aria-hidden="true"></div>
+    <slot />
+  </body>
+</html>
