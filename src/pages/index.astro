@@ -6,30 +6,28 @@ const works = [
   {
     slug: 'beauty-clinic',
     no: '02',
-    title: 'Lume Aesthetic Clinic',
-    jp: '美容クリニック ランディングページ',
-    role: 'Design + Frontend',
+    title: '美容クリニック ランディングページ',
+    sub: 'Lume Aesthetic Clinic',
+    role: 'デザイン + 実装',
     year: '2026',
-    tags: ['Beauty', 'Clinic', 'Korean Minimal', 'LP'],
+    tags: ['美容医療', '韓国系ミニマル', 'LP'],
     summary:
       '韓国系ナチュラル × 高級感をテーマにした美容クリニック向けLP。二重整形・肌管理・小顔・医療脱毛・美容注射の5施術を訴求。Before/Afterスライダー、症例・料金・予約導線まで実装。',
     cover: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1600&q=80&auto=format&fit=crop',
     accent: 'from-[#E6D3C4] via-[#D9B6A2] to-[#7B5E4B]',
-    text: '#241A14',
   },
   {
     slug: 'rabbit-clinic',
     no: '01',
-    title: 'Rabbit Specialty Clinic',
-    jp: 'うさぎ専門病院 ブランドサイト',
-    role: 'Design + Frontend',
+    title: 'うさぎ専門病院 ブランドサイト',
+    sub: 'Rabbit Specialty Clinic',
+    role: 'デザイン + 実装',
     year: '2026',
-    tags: ['Animal', 'Clinic', 'Editorial', 'Astro + GSAP'],
+    tags: ['動物医療', 'エディトリアル', 'Astro + GSAP'],
     summary:
       'うさぎのためだけに設計された専門医療チームのブランドサイト。エディトリアル組版、GSAPによるリビールアニメーション、Lenisスムーススクロール、マグネティックボタンを採用。',
     cover: 'https://images.unsplash.com/photo-1535241749838-299277b6305f?w=1600&q=80&auto=format&fit=crop',
     accent: 'from-[#F9D9D4] via-[#E8A3A3] to-[#6B1F3D]',
-    text: '#1A0E14',
   },
 ];
 ---
@@ -38,23 +36,31 @@ const works = [
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="Mariri's portfolio — 美容クリニック / 動物病院 / ブランドLP 制作実績。" />
-    <meta name="theme-color" content="#0E0B09" />
+    <meta name="description" content="Mariri Portfolio — 美容クリニック / 動物病院 / ブランドLP 制作実績。" />
+    <meta name="theme-color" content="#F8F4ED" />
     <link rel="icon" type="image/svg+xml" href={`${BASE}/favicon.svg`} />
-    <title>Mariri — Portfolio / Web Design & Frontend</title>
+    <title>Mariri — ポートフォリオ / Web デザイン・実装</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Noto+Sans+JP:wght@300;400;500;600&family=Shippori+Mincho+B1:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Noto+Sans+JP:wght@300;400;500;600&family=Shippori+Mincho+B1:wght@400;500;600;800&display=swap"
       rel="stylesheet"
     />
     <style>
-      :root { --bg: #0E0B09; --ink: #F5EFE7; --muted: #8C8074; }
+      :root {
+        --bg: #FAF7F2;
+        --ink: #1F1A15;
+        --ink-2: #4A4138;
+        --muted: #8A7F72;
+        --hair: rgba(31, 26, 21, 0.12);
+        --accent: #A88974;
+        --accent-deep: #6E5644;
+      }
       html, body { background: var(--bg); color: var(--ink); cursor: auto; overflow-x: clip; }
-      body { font-family: "Noto Sans JP", system-ui, sans-serif; }
+      body { font-family: "Noto Sans JP", system-ui, sans-serif; font-weight: 400; }
       .font-display { font-family: "Cormorant Garamond", "Shippori Mincho B1", serif; }
       .font-mincho { font-family: "Shippori Mincho B1", serif; }
-      .hair { border-top: 1px solid rgba(245, 239, 231, 0.12); }
+      .hair { border-top: 1px solid var(--hair); }
       .work-card { transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
       .work-card:hover .cover-img { transform: scale(1.05); }
       .work-card:hover .arrow { transform: translateX(8px); }
@@ -63,29 +69,36 @@ const works = [
         content: "";
         position: absolute;
         inset: 0;
-        background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.4 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-        opacity: 0.08;
-        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.35 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+        opacity: 0.06;
+        mix-blend-mode: multiply;
         pointer-events: none;
       }
-      ::selection { background: #F5EFE7; color: #0E0B09; }
+      ::selection { background: var(--ink); color: var(--bg); }
+      .eyebrow-tag {
+        font-family: "Cormorant Garamond", serif;
+        font-style: italic;
+        font-size: 14px;
+        letter-spacing: 0.06em;
+        color: var(--accent-deep);
+      }
     </style>
   </head>
   <body class="antialiased">
     <!-- Nav -->
-    <header class="fixed top-0 inset-x-0 z-40 backdrop-blur bg-[rgba(14,11,9,0.6)]">
+    <header class="fixed top-0 inset-x-0 z-40 backdrop-blur bg-[rgba(250,247,242,0.78)] border-b border-[rgba(31,26,21,0.08)]">
       <div class="max-w-[1320px] mx-auto px-5 md:px-10 h-16 md:h-20 flex items-center justify-between">
-        <a href={BASE} class="flex items-baseline gap-2">
+        <a href={BASE} class="flex items-baseline gap-2 text-[var(--ink)]">
           <span class="font-display text-[22px] md:text-[26px] tracking-wide">Mariri</span>
-          <span class="font-display italic text-[12px] md:text-[14px] text-[#A89B8B] tracking-[0.18em]">portfolio</span>
+          <span class="font-display italic text-[12px] md:text-[14px] text-[var(--accent-deep)] tracking-[0.16em]">portfolio</span>
         </a>
-        <nav class="hidden md:flex items-center gap-9 text-[12px] tracking-[0.22em] text-[#D9D1C5]">
-          <a href="#works" class="hover:text-white transition-colors">Works</a>
-          <a href="#about" class="hover:text-white transition-colors">About</a>
-          <a href="#contact" class="hover:text-white transition-colors">Contact</a>
+        <nav class="hidden md:flex items-center gap-9 text-[12px] tracking-[0.18em] text-[var(--ink-2)]">
+          <a href="#works" class="hover:text-[var(--accent-deep)] transition-colors">制作実績</a>
+          <a href="#about" class="hover:text-[var(--accent-deep)] transition-colors">プロフィール</a>
+          <a href="#contact" class="hover:text-[var(--accent-deep)] transition-colors">お問い合わせ</a>
         </nav>
-        <a href="#contact" class="inline-flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-full bg-[#F5EFE7] text-[#0E0B09] text-[11px] tracking-[0.22em] hover:bg-white transition-colors">
-          <span>お問い合わせ</span>
+        <a href="#contact" class="inline-flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-full bg-[var(--ink)] text-[var(--bg)] text-[11px] tracking-[0.22em] hover:bg-[var(--accent-deep)] transition-colors">
+          <span>ご相談はこちら</span>
         </a>
       </div>
     </header>
@@ -93,30 +106,33 @@ const works = [
     <!-- Hero -->
     <section class="relative pt-32 md:pt-44 pb-20 md:pb-28 overflow-hidden">
       <div class="max-w-[1320px] mx-auto px-5 md:px-10">
-        <div class="text-[11px] tracking-[0.4em] text-[#A89B8B] uppercase mb-8">— portfolio / 2026</div>
-        <h1 class="font-display leading-[0.92] tracking-tight">
-          <span class="block text-[clamp(64px,12vw,200px)] italic">Quiet</span>
-          <span class="block text-[clamp(64px,12vw,200px)] -mt-2">design</span>
-          <span class="block text-[clamp(64px,12vw,200px)] -mt-2 italic text-[#C8A878]">for the web.</span>
+        <div class="eyebrow-tag mb-8">— portfolio 2026</div>
+        <h1 class="font-mincho leading-[1.18] tracking-tight text-[var(--ink)]">
+          <span class="block text-[clamp(34px,5.4vw,76px)] font-light">静かなデザインで、</span>
+          <span class="block text-[clamp(34px,5.4vw,76px)] font-light text-[var(--accent-deep)]">ブランドの世界観をつくる。</span>
         </h1>
+        <div class="mt-6 font-display italic text-[var(--accent)] text-[clamp(18px,2.2vw,28px)] tracking-wide">
+          — quiet design for the web.
+        </div>
+
         <div class="mt-12 md:mt-16 grid grid-cols-12 gap-6 md:gap-10 items-end">
-          <p class="col-span-12 md:col-span-7 font-mincho text-[15px] md:text-[17px] leading-[2.1] text-[#D9D1C5] max-w-[640px]">
-            Webデザインとフロントエンド実装。<br />
+          <p class="col-span-12 md:col-span-7 font-mincho text-[15px] md:text-[17px] leading-[2.1] text-[var(--ink-2)] max-w-[640px]">
+            Webデザインとフロントエンド実装を行っています。<br />
             ブランドの世界観を、静かに、確かに、ピクセル単位で。<br />
             美容クリニック・医療・ライフスタイル領域を中心に制作しています。
           </p>
-          <div class="col-span-12 md:col-span-5 grid grid-cols-3 gap-6 text-[#D9D1C5]">
+          <div class="col-span-12 md:col-span-5 grid grid-cols-3 gap-6">
             <div>
-              <div class="font-display text-[36px] md:text-[44px] text-[#F5EFE7] leading-none">02</div>
-              <div class="mt-2 text-[10px] tracking-[0.28em] uppercase text-[#A89B8B]">case studies</div>
+              <div class="font-display text-[36px] md:text-[44px] text-[var(--ink)] leading-none">02</div>
+              <div class="mt-2 text-[11px] tracking-[0.18em] text-[var(--muted)]">制作実績</div>
             </div>
             <div>
-              <div class="font-display text-[36px] md:text-[44px] text-[#F5EFE7] leading-none">100%</div>
-              <div class="mt-2 text-[10px] tracking-[0.28em] uppercase text-[#A89B8B]">handcrafted</div>
+              <div class="font-display text-[36px] md:text-[44px] text-[var(--ink)] leading-none">100%</div>
+              <div class="mt-2 text-[11px] tracking-[0.18em] text-[var(--muted)]">手仕事</div>
             </div>
             <div>
-              <div class="font-display text-[36px] md:text-[44px] text-[#F5EFE7] leading-none">2026</div>
-              <div class="mt-2 text-[10px] tracking-[0.28em] uppercase text-[#A89B8B]">latest</div>
+              <div class="font-display text-[36px] md:text-[44px] text-[var(--ink)] leading-none">2026</div>
+              <div class="mt-2 text-[11px] tracking-[0.18em] text-[var(--muted)]">最新公開</div>
             </div>
           </div>
         </div>
@@ -130,15 +146,16 @@ const works = [
       <div class="max-w-[1320px] mx-auto px-5 md:px-10">
         <div class="flex items-end justify-between flex-wrap gap-6 mb-12 md:mb-20">
           <div>
-            <div class="text-[11px] tracking-[0.4em] text-[#A89B8B] uppercase mb-5">— selected works</div>
-            <h2 class="font-display text-[clamp(40px,6vw,84px)] leading-[0.95]">
-              <span class="block">Selected</span>
-              <span class="block italic text-[#C8A878]">case studies.</span>
+            <div class="eyebrow-tag mb-5">— selected works</div>
+            <h2 class="font-mincho leading-[1.15] text-[clamp(30px,4.6vw,64px)] font-light">
+              <span class="block">これまでの</span>
+              <span class="block text-[var(--accent-deep)]">制作実績。</span>
             </h2>
           </div>
-          <p class="max-w-[420px] font-mincho text-[14px] leading-[2] text-[#A89B8B]">
-            ブランド設計からデザイン・コーディングまで一貫して担当した作品です。
-            画像をクリックすると実際のLPに遷移します。
+          <p class="max-w-[420px] font-mincho text-[14px] leading-[2] text-[var(--muted)]">
+            ブランド設計からデザイン・実装まで<br />
+            一貫して担当した作品です。<br />
+            カードをクリックすると実際のLPに移動します。
           </p>
         </div>
 
@@ -147,32 +164,32 @@ const works = [
             <a href={`${BASE}/works/${w.slug}`} class="work-card group block">
               <article class="grid grid-cols-12 gap-4 md:gap-8 items-center">
                 <div class={`col-span-12 md:col-span-7 ${i % 2 === 1 ? 'md:order-2' : ''}`}>
-                  <div class="relative aspect-[5/4] md:aspect-[16/11] overflow-hidden rounded-[2px] grain">
+                  <div class="relative aspect-[5/4] md:aspect-[16/11] overflow-hidden rounded-[2px] grain shadow-[0_30px_60px_-30px_rgba(31,26,21,0.25)]">
                     <img src={w.cover} alt={w.title} class="cover-img absolute inset-0 w-full h-full object-cover" loading={i === 0 ? 'eager' : 'lazy'} />
-                    <div class={`absolute inset-0 bg-gradient-to-br ${w.accent} mix-blend-overlay opacity-30`}></div>
+                    <div class={`absolute inset-0 bg-gradient-to-br ${w.accent} mix-blend-overlay opacity-25`}></div>
                     <div class="absolute top-4 left-4 right-4 flex items-start justify-between text-[10px] tracking-[0.3em] uppercase">
-                      <span class="text-white/85 mix-blend-difference">{`/ case ${w.no}`}</span>
+                      <span class="text-white/85 mix-blend-difference">{`no. ${w.no}`}</span>
                       <span class="text-white/85 mix-blend-difference">{w.year}</span>
                     </div>
                   </div>
                 </div>
                 <div class={`col-span-12 md:col-span-5 ${i % 2 === 1 ? 'md:order-1 md:pr-8' : 'md:pl-8'}`}>
                   <div class="flex items-baseline gap-3 mb-4">
-                    <span class="font-display italic text-[20px] text-[#C8A878]">{`(${w.no})`}</span>
-                    <span class="text-[10px] tracking-[0.32em] uppercase text-[#A89B8B]">{w.role}</span>
+                    <span class="font-display italic text-[22px] text-[var(--accent-deep)]">{`(${w.no})`}</span>
+                    <span class="text-[11px] tracking-[0.18em] text-[var(--muted)]">{w.role}</span>
                   </div>
-                  <h3 class="font-display text-[clamp(32px,4.4vw,56px)] leading-[1.02] text-[#F5EFE7]">
+                  <h3 class="font-mincho text-[clamp(24px,3.2vw,40px)] leading-[1.35] text-[var(--ink)] font-light">
                     {w.title}
                   </h3>
-                  <div class="mt-3 font-mincho text-[14px] md:text-[15px] text-[#D9D1C5]">{w.jp}</div>
-                  <p class="mt-6 font-mincho text-[14px] leading-[2] text-[#A89B8B] max-w-[460px]">{w.summary}</p>
+                  <div class="mt-3 font-display italic text-[var(--accent-deep)] text-[18px] md:text-[20px]">— {w.sub}</div>
+                  <p class="mt-6 font-mincho text-[14px] leading-[2] text-[var(--ink-2)] max-w-[460px]">{w.summary}</p>
                   <ul class="mt-6 flex flex-wrap gap-2">
                     {w.tags.map((t) => (
-                      <li class="px-3 py-1 rounded-full border border-[#F5EFE7]/15 text-[11px] tracking-[0.18em] text-[#D9D1C5]">{t}</li>
+                      <li class="px-3 py-1 rounded-full bg-white border border-[rgba(31,26,21,0.12)] text-[11px] tracking-wider text-[var(--ink-2)]">{t}</li>
                     ))}
                   </ul>
-                  <div class="mt-8 inline-flex items-center gap-3 text-[12px] tracking-[0.3em] uppercase text-[#F5EFE7] border-b border-[#F5EFE7]/30 pb-1">
-                    <span>View case study</span>
+                  <div class="mt-8 inline-flex items-center gap-3 text-[12px] tracking-[0.22em] text-[var(--ink)] border-b border-[rgba(31,26,21,0.3)] pb-1">
+                    <span>この作品を見る</span>
                     <svg class="arrow w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                       <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
@@ -191,34 +208,34 @@ const works = [
     <section id="about" class="relative py-20 md:py-32">
       <div class="max-w-[1320px] mx-auto px-5 md:px-10 grid grid-cols-12 gap-6 md:gap-10">
         <div class="col-span-12 lg:col-span-5">
-          <div class="text-[11px] tracking-[0.4em] text-[#A89B8B] uppercase mb-5">— about</div>
-          <h2 class="font-display text-[clamp(36px,5vw,72px)] leading-[0.95]">
-            <span class="block">About</span>
-            <span class="block italic text-[#C8A878]">the studio.</span>
+          <div class="eyebrow-tag mb-5">— about</div>
+          <h2 class="font-mincho leading-[1.15] text-[clamp(28px,4vw,56px)] font-light">
+            <span class="block">わたしのこと、</span>
+            <span class="block text-[var(--accent-deep)]">制作スタイル。</span>
           </h2>
         </div>
         <div class="col-span-12 lg:col-span-7">
-          <p class="font-mincho text-[15px] md:text-[17px] leading-[2.1] text-[#D9D1C5] max-w-[640px]">
+          <p class="font-mincho text-[15px] md:text-[17px] leading-[2.1] text-[var(--ink-2)] max-w-[640px]">
             Webデザインとフロントエンド実装を専門とする、ひとり制作のスタジオです。
             美容クリニック・医療・ライフスタイル領域を中心に、
-            ブランドの「静かな美しさ」を引き出すLP / ブランドサイト制作を行っています。
+            ブランドの「静かな美しさ」を引き出すLP・ブランドサイト制作を行っています。
           </p>
           <div class="mt-10 grid sm:grid-cols-2 gap-8">
             <div>
-              <div class="text-[10px] tracking-[0.32em] uppercase text-[#A89B8B] mb-3">/ services</div>
-              <ul class="space-y-2 font-mincho text-[14px] text-[#D9D1C5]">
-                <li>— ブランドサイト / LP デザイン</li>
-                <li>— フロントエンド実装 (Astro / Tailwind)</li>
+              <div class="text-[11px] tracking-[0.22em] text-[var(--muted)] mb-3">対応領域</div>
+              <ul class="space-y-2.5 font-mincho text-[14px] text-[var(--ink-2)]">
+                <li>— ブランドサイト・LPデザイン</li>
+                <li>— フロントエンド実装</li>
                 <li>— モーション・インタラクション設計</li>
                 <li>— アートディレクション</li>
               </ul>
             </div>
             <div>
-              <div class="text-[10px] tracking-[0.32em] uppercase text-[#A89B8B] mb-3">/ stack</div>
-              <ul class="space-y-2 font-mincho text-[14px] text-[#D9D1C5]">
+              <div class="text-[11px] tracking-[0.22em] text-[var(--muted)] mb-3">使用ツール</div>
+              <ul class="space-y-2.5 font-mincho text-[14px] text-[var(--ink-2)]">
                 <li>— Figma / Photoshop / Illustrator</li>
                 <li>— Astro / Tailwind CSS</li>
-                <li>— GSAP / Lenis / Three.js</li>
+                <li>— GSAP / Lenis</li>
                 <li>— Cloudflare / Vercel / GitHub Pages</li>
               </ul>
             </div>
@@ -228,37 +245,37 @@ const works = [
     </section>
 
     <!-- Contact CTA -->
-    <section id="contact" class="relative py-20 md:py-32 border-t border-[#F5EFE7]/10">
+    <section id="contact" class="relative py-20 md:py-32 border-t border-[rgba(31,26,21,0.08)]">
       <div class="max-w-[1320px] mx-auto px-5 md:px-10 text-center">
-        <div class="text-[11px] tracking-[0.4em] text-[#A89B8B] uppercase mb-8">— contact</div>
-        <h2 class="font-display text-[clamp(40px,7vw,108px)] leading-[0.95]">
-          <span class="block">Let's create</span>
-          <span class="block italic text-[#C8A878]">something quiet.</span>
+        <div class="eyebrow-tag mb-8">— contact</div>
+        <h2 class="font-mincho leading-[1.18] text-[clamp(32px,5vw,72px)] font-light">
+          <span class="block">静かな手仕事を、</span>
+          <span class="block text-[var(--accent-deep)]">ご一緒に。</span>
         </h2>
-        <p class="mt-8 font-mincho text-[15px] leading-[2.1] text-[#A89B8B] max-w-[520px] mx-auto">
+        <p class="mt-8 font-mincho text-[15px] leading-[2.1] text-[var(--ink-2)] max-w-[520px] mx-auto">
           制作のご相談・お見積もりはお気軽にどうぞ。<br />
           通常24時間以内にご返信いたします。
         </p>
         <div class="mt-12 flex flex-wrap items-center justify-center gap-4">
-          <a href="mailto:hello@example.com" class="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-[#F5EFE7] text-[#0E0B09] text-[12px] tracking-[0.28em] uppercase hover:bg-white transition-colors">
+          <a href="mailto:hello@example.com" class="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-[var(--ink)] text-[var(--bg)] text-[12px] tracking-[0.22em] hover:bg-[var(--accent-deep)] transition-colors">
             <span>hello@example.com</span>
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
               <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </a>
-          <a href="https://github.com/mariri777" target="_blank" rel="noopener" class="inline-flex items-center gap-3 px-7 py-4 rounded-full border border-[#F5EFE7]/30 text-[12px] tracking-[0.28em] uppercase hover:bg-[#F5EFE7] hover:text-[#0E0B09] transition-colors">
+          <a href="https://github.com/mariri777" target="_blank" rel="noopener" class="inline-flex items-center gap-3 px-7 py-4 rounded-full border border-[rgba(31,26,21,0.3)] text-[12px] tracking-[0.22em] text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--bg)] transition-colors">
             <span>GitHub</span>
           </a>
         </div>
       </div>
     </section>
 
-    <footer class="border-t border-[#F5EFE7]/10">
-      <div class="max-w-[1320px] mx-auto px-5 md:px-10 py-8 flex flex-wrap items-center justify-between gap-4 text-[11px] tracking-[0.22em] uppercase text-[#8C8074]">
+    <footer class="border-t border-[rgba(31,26,21,0.08)]">
+      <div class="max-w-[1320px] mx-auto px-5 md:px-10 py-8 flex flex-wrap items-center justify-between gap-4 text-[11px] tracking-[0.18em] text-[var(--muted)]">
         <div>© 2026 Mariri Portfolio. All rights reserved.</div>
         <div class="flex items-center gap-5">
-          <a href={`${BASE}/works/beauty-clinic`} class="hover:text-white">Beauty Clinic</a>
-          <a href={`${BASE}/works/rabbit-clinic`} class="hover:text-white">Rabbit Clinic</a>
+          <a href={`${BASE}/works/beauty-clinic`} class="hover:text-[var(--ink)] transition-colors">美容クリニック</a>
+          <a href={`${BASE}/works/rabbit-clinic`} class="hover:text-[var(--ink)] transition-colors">うさぎ病院</a>
         </div>
       </div>
     </footer>
