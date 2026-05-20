@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>紡 TSUMUGI — 全国の作り手から、旬を食卓へ</title>
+  <meta name="description" content="紡 TSUMUGIは、全国47都道府県の作り手から旬の味覚を一品ずつ丁寧にお届けする、お取り寄せのブランドです。" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bg: #f4ece0;
+      --bg-2: #ecdfca;
+      --paper: #fbf6ec;
+      --terra: #c54c2c;
+      --terra-deep: #8e2e16;
+      --gold: #c89858;
+      --plum: #5a2a3a;
+      --ink: #2a1a13;
+      --ink-soft: #75594a;
+      --line: rgba(42, 26, 19, 0.12);
+      --line-soft: rgba(42, 26, 19, 0.06);
+      --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+      --ease-fast: cubic-bezier(0.4, 0, 0.1, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Plus Jakarta Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* hide default cursor only on mouse devices */
+    @media (hover: hover) and (pointer: fine) {
+      body, a, button { cursor: none; }
+    }
+
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; border: none; background: none; color: inherit; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+    /* ============== PRELOADER ============== */
+    .loader {
+      position: fixed;
+      inset: 0;
+      background: var(--ink);
+      color: var(--paper);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      transition: transform 0.9s var(--ease-out), opacity 0.4s ease 0.6s;
+    }
+    .loader.done {
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loader-mark {
+      font-family: "Shippori Mincho", serif;
+      font-size: 96px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      animation: loaderPulse 1.4s ease infinite;
+    }
+    @keyframes loaderPulse {
+      0%, 100% { opacity: 0.6; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1.02); }
+    }
+    .loader-bar {
+      width: 200px;
+      height: 2px;
+      background: rgba(251, 246, 236, 0.12);
+      overflow: hidden;
+      border-radius: 999px;
+    }
+    .loader-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--gold), var(--terra));
+      animation: loaderFill 1.4s var(--ease-out) forwards;
+    }
+    @keyframes loaderFill {
+      to { width: 100%; }
+    }
+    .loader-text {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      opacity: 0.5;
+    }
+
+    /* ============== SCROLL PROGRESS BAR ============== */
+    .scroll-progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      width: 0;
+      background: linear-gradient(90deg, var(--gold), var(--terra));
+      z-index: 200;
+      transition: width 0.05s linear;
+    }
+
+    /* ============== CUSTOM CURSOR ============== */
+    .cursor-dot, .cursor-ring {
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9000;
+      mix-blend-mode: difference;
+      will-change: transform;
+    }
+    .cursor-dot {
+      width: 6px; height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      margin: -3px 0 0 -3px;
+    }
+    .cursor-ring {
+      width: 32px; height: 32px;
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 50%;
+      margin: -16px 0 0 -16px;
+      transition: width 0.25s var(--ease-out), height 0.25s var(--ease-out), margin 0.25s var(--ease-out), background 0.25s var(--ease-out);
+    }
+    .cursor-ring.hover {
+      width: 56px; height: 56px;
+      margin: -28px 0 0 -28px;
+      background: rgba(255,255,255,0.08);
+    }
+    @media (hover: none), (pointer: coarse) {
+      .cursor-dot, .cursor-ring { display: none !important; }
+    }
+
+    /* ============== NAVIGATION ============== */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 18px 0;
+      transition: padding 0.3s ease, background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+    }
+    .nav.scrolled {
+      padding: 12px 0;
+      background: rgba(244, 236, 224, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 1px 0 var(--line-soft);
+    }
+    .nav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .nav-logo .logo-jp {
+      font-family: "Shippori Mincho", serif;
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--terra);
+      line-height: 1;
+    }
+    .nav-logo .logo-en {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.32em;
+      color: var(--ink);
+    }
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+    .nav-links a {
+      position: relative;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      color: var(--ink-soft);
+      padding: 6px 0;
+      transition: color 0.3s ease;
+    }
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--terra);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.4s var(--ease-out);
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-links a:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 22px;
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      transition: background 0.3s ease, transform 0.3s ease, gap 0.3s ease;
+    }
+    .nav-cta:hover {
+      background: var(--terra);
+      gap: 14px;
+    }
+    .nav-cta .arrow { transition: transform 0.3s ease; }
+    .nav-cta:hover .arrow { transform: translateX(3px); }
+    @media (max-width: 880px) {
+      .nav-links { display: none; }
+    }
+
+    /* ============== HERO ============== */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      padding: 140px 0 100px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    .hero-blob {
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(197,76,44,0.5) 0%, rgba(200,152,88,0.2) 40%, transparent 65%);
+      filter: blur(50px);
+      pointer-events: none;
+      left: -350px; top: -250px;
+      mix-blend-mode: multiply;
+      will-change: transform;
+    }
+    .hero-bg-text {
+      position: absolute;
+      bottom: -3vw;
+      left: -1vw;
+      right: -1vw;
+      font-family: "Shippori Mincho", serif;
+      font-weight: 800;
+      font-size: 26vw;
+      color: rgba(42, 26, 19, 0.045);
+      line-height: 0.85;
+      letter-spacing: -0.06em;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px;
+      width: 100%;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      color: var(--ink-soft);
+      padding: 9px 16px;
+      background: var(--paper);
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: heroUp 0.9s var(--ease-out) 1.2s forwards;
+    }
+    .hero-eyebrow .dot {
+      width: 6px; height: 6px;
+      background: var(--terra);
+      border-radius: 50%;
+      animation: blink 2s ease infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .hero-title {
+      font-family: "Shippori Mincho", serif;
+      font-weight: 800;
+      font-size: clamp(56px, 12vw, 168px);
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      margin: 32px 0 36px;
+      color: var(--ink);
+    }
+    .hero-title .line {
+      display: block;
+      overflow: hidden;
+      padding-bottom: 0.06em;
+    }
+    .hero-title .line > span {
+      display: inline-block;
+      transform: translateY(110%);
+      animation: heroLineUp 1.15s var(--ease-out) forwards;
+    }
+    .hero-title .line:nth-child(1) > span { animation-delay: 0.45s; }
+    .hero-title .line:nth-child(2) > span { animation-delay: 0.7s; }
+    .hero-title em {
+      color: var(--terra);
+      font-style: normal;
+      position: relative;
+    }
+    .hero-title em::after {
+      content: "";
+      position: absolute;
+      left: -0.06em; right: -0.06em;
+      bottom: 0.1em;
+      height: 0.08em;
+      background: var(--terra);
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: heroLineDraw 0.9s var(--ease-out) 1.5s forwards;
+    }
+    @keyframes heroLineUp { to { transform: translateY(0); } }
+    @keyframes heroLineDraw { to { transform: scaleX(1); } }
+    .hero-sub {
+      max-width: 480px;
+      font-size: 16px;
+      color: var(--ink-soft);
+      line-height: 1.9;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: heroUp 0.9s var(--ease-out) 1.5s forwards;
+    }
+    @keyframes heroUp { to { opacity: 1; transform: translateY(0); } }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 40px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: heroUp 0.9s var(--ease-out) 1.7s forwards;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 28px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      transition: all 0.35s var(--ease-out);
+      will-change: transform;
+    }
+    .btn-primary {
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .btn-primary:hover {
+      background: var(--terra);
+      gap: 16px;
+    }
+    .btn-primary .ic { transition: transform 0.35s var(--ease-out); }
+    .btn-primary:hover .ic { transform: translateX(4px); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .btn-ghost:hover {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+    .btn-big {
+      padding: 22px 44px;
+      font-size: 14px;
+      background: var(--paper);
+      color: var(--ink);
+    }
+    .btn-big:hover {
+      background: var(--terra);
+      color: var(--paper);
+      gap: 18px;
+    }
+    .hero-scroll {
+      position: absolute;
+      right: 32px;
+      bottom: 36px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: var(--ink-soft);
+      opacity: 0;
+      animation: heroUp 0.9s var(--ease-out) 2s forwards;
+    }
+    .hero-scroll .line-v {
+      width: 1px;
+      height: 60px;
+      background: var(--ink-soft);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-scroll .line-v::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 30%;
+      background: var(--terra);
+      animation: scrollLine 2s ease infinite;
+    }
+    @keyframes scrollLine {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(333%); }
+    }
+
+    /* ============== MARQUEE ============== */
+    .marquee {
+      overflow: hidden;
+      padding: 28px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+      position: relative;
+    }
+    .marquee::before, .marquee::after {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 100px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .marquee::before {
+      left: 0;
+      background: linear-gradient(90deg, var(--paper), transparent);
+    }
+    .marquee::after {
+      right: 0;
+      background: linear-gradient(-90deg, var(--paper), transparent);
+    }
+    .marquee-track {
+      display: flex;
+      gap: 48px;
+      width: max-content;
+      animation: marqueeRoll 35s linear infinite;
+      align-items: center;
+      font-family: "Shippori Mincho", serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+    .marquee-track .star {
+      color: var(--terra);
+      font-size: 16px;
+    }
+    @keyframes marqueeRoll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ============== SECTION HEAD ============== */
+    .section-num {
+      display: inline-block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      color: var(--ink-soft);
+      margin-bottom: 22px;
+    }
+    .section-num::before {
+      content: "";
+      display: inline-block;
+      width: 28px; height: 1px;
+      background: var(--terra);
+      vertical-align: middle;
+      margin-right: 12px;
+    }
+    .section-title {
+      font-family: "Shippori Mincho", serif;
+      font-weight: 800;
+      font-size: clamp(36px, 5.5vw, 72px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .section-title em {
+      font-style: normal;
+      color: var(--terra);
+    }
+    .section-head {
+      max-width: 800px;
+      margin-bottom: 64px;
+    }
+
+    /* ============== REVEAL ANIMATION ============== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-l {
+      opacity: 0;
+      transform: translateX(-60px);
+      transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    }
+    .reveal-l.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .reveal-r {
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    }
+    .reveal-r.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .reveal-stagger > * {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+    }
+    .reveal-stagger.visible > * {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-stagger.visible > *:nth-child(1) { transition-delay: 0.05s; }
+    .reveal-stagger.visible > *:nth-child(2) { transition-delay: 0.15s; }
+    .reveal-stagger.visible > *:nth-child(3) { transition-delay: 0.25s; }
+    .reveal-stagger.visible > *:nth-child(4) { transition-delay: 0.35s; }
+    .reveal-stagger.visible > *:nth-child(5) { transition-delay: 0.45s; }
+    .reveal-stagger.visible > *:nth-child(6) { transition-delay: 0.55s; }
+
+    /* ============== CONCEPT ============== */
+    .concept {
+      padding: 140px 0 120px;
+      position: relative;
+    }
+    .concept::before {
+      content: "";
+      position: absolute;
+      top: 10%; right: -120px;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,152,88,0.35), transparent 70%);
+      filter: blur(20px);
+      animation: floatBlob 12s ease-in-out infinite;
+    }
+    @keyframes floatBlob {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-30px, 40px); }
+    }
+    .concept-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 80px;
+      align-items: start;
+    }
+    @media (max-width: 880px) {
+      .concept-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
+    .concept-body p {
+      font-size: 16px;
+      color: var(--ink-soft);
+      line-height: 2;
+      margin-bottom: 24px;
+    }
+    .concept-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 32px;
+    }
+    .concept-tags span {
+      padding: 8px 16px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink);
+      transition: all 0.3s ease;
+    }
+    .concept-tags span:hover {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+    .concept-quote {
+      font-family: "Shippori Mincho", serif;
+      font-size: 18px;
+      line-height: 2;
+      color: var(--ink);
+      padding-left: 24px;
+      border-left: 2px solid var(--terra);
+      margin-top: 36px;
+    }
+    .concept-quote cite {
+      display: block;
+      font-style: normal;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      color: var(--ink-soft);
+      letter-spacing: 0.16em;
+      margin-top: 16px;
+    }
+
+    /* ============== PRODUCTS ============== */
+    .products {
+      padding: 120px 0 140px;
+      background: var(--bg-2);
+      position: relative;
+      overflow: hidden;
+    }
+    .products::before {
+      content: "TSUMUGI";
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: "Shippori Mincho", serif;
+      font-weight: 800;
+      font-size: 26vw;
+      color: rgba(42, 26, 19, 0.03);
+      letter-spacing: -0.04em;
+      line-height: 1;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .products .container { position: relative; z-index: 1; }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    @media (max-width: 980px) {
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .product-grid { grid-template-columns: 1fr; }
+    }
+
+    .product {
+      position: relative;
+      background: var(--paper);
+      border-radius: 22px;
+      overflow: hidden;
+      transition: box-shadow 0.4s var(--ease-out);
+      will-change: transform;
+      transform-style: preserve-3d;
+    }
+    .product:hover {
+      box-shadow: 0 30px 60px -30px rgba(42, 26, 19, 0.25);
+    }
+    .product-img {
+      aspect-ratio: 4 / 5;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.55) 0%, transparent 35%),
+        radial-gradient(circle at 70% 75%, var(--g1, #e8c5a3) 0%, var(--g2, #b56e3e) 80%);
+    }
+    .product-img::before {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 38% 38%, rgba(255,255,255,0.45), transparent 55%),
+        radial-gradient(circle at 60% 60%, var(--g3, rgba(42,26,19,0.2)), transparent 65%),
+        var(--g4, rgba(255,255,255,0.1));
+      box-shadow: inset 0 0 40px rgba(42,26,19,0.15);
+      transition: transform 0.6s var(--ease-out), filter 0.6s ease;
+    }
+    .product:hover .product-img::before {
+      transform: scale(1.08) rotate(-3deg);
+      filter: brightness(1.05);
+    }
+    .product-img::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 60%, rgba(42,26,19,0.2) 100%);
+    }
+    .product-tag {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      z-index: 2;
+      padding: 6px 12px;
+      background: var(--paper);
+      color: var(--terra);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      font-weight: 600;
+      border-radius: 999px;
+    }
+    .product-tag.new { color: var(--plum); }
+    .product-tag.limited { background: var(--terra); color: var(--paper); }
+    .product-body {
+      padding: 26px 24px 28px;
+    }
+    .product-loc {
+      display: block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--ink-soft);
+      margin-bottom: 12px;
+    }
+    .product h3 {
+      font-family: "Shippori Mincho", serif;
+      font-weight: 700;
+      font-size: 22px;
+      line-height: 1.4;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+    .product p {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.8;
+      min-height: 3.6em;
+    }
+    .product-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line-soft);
+    }
+    .price {
+      font-family: "Shippori Mincho", serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .price .yen { font-size: 13px; color: var(--ink-soft); margin-right: 2px; }
+    .price-note {
+      display: block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 9px;
+      color: var(--ink-soft);
+      letter-spacing: 0.15em;
+    }
+    .cta-mini {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--terra);
+      transition: gap 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .product:hover .cta-mini { gap: 10px; }
+
+    /* ============== PRODUCERS ============== */
+    .producers {
+      padding: 140px 0 120px;
+      overflow: hidden;
+    }
+    .producers .section-head {
+      padding: 0 32px;
+      max-width: 1200px;
+      margin: 0 auto 56px;
+    }
+    .producer-track {
+      display: flex;
+      gap: 24px;
+      padding: 12px 32px 24px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      cursor: grab;
+    }
+    .producer-track.dragging { cursor: grabbing; }
+    .producer-track::-webkit-scrollbar { display: none; }
+    .producer {
+      flex: 0 0 320px;
+      background: var(--paper);
+      border-radius: 20px;
+      overflow: hidden;
+      scroll-snap-align: start;
+      transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+      user-select: none;
+    }
+    .producer:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 50px -28px rgba(42, 26, 19, 0.3);
+    }
+    .producer-img {
+      aspect-ratio: 4 / 3;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 40%),
+        linear-gradient(135deg, var(--p1, #d6b896), var(--p2, #7c5439));
+      position: relative;
+    }
+    .producer-img::after {
+      content: "";
+      position: absolute;
+      inset: 25%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+    }
+    .producer-body { padding: 24px; }
+    .producer-loc {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--terra);
+    }
+    .producer h3 {
+      font-family: "Shippori Mincho", serif;
+      font-weight: 700;
+      font-size: 22px;
+      line-height: 1.3;
+      color: var(--ink);
+      margin: 6px 0 14px;
+    }
+    .producer-quote {
+      font-family: "Shippori Mincho", serif;
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.8;
+      padding-left: 12px;
+      border-left: 2px solid var(--terra);
+    }
+    .producer-track-hint {
+      max-width: 1200px;
+      margin: 24px auto 0;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.24em;
+      color: var(--ink-soft);
+    }
+    .producer-track-hint .arrow-wave {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--line) 0%, var(--line) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .producer-track-hint .arrow-wave::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 40%;
+      background: linear-gradient(90deg, transparent, var(--terra), transparent);
+      animation: trackHint 3.5s linear infinite;
+    }
+    @keyframes trackHint {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(300%); }
+    }
+
+    /* ============== HOW IT WORKS ============== */
+    .how {
+      padding: 140px 0;
+      background: var(--ink);
+      color: var(--paper);
+      position: relative;
+      overflow: hidden;
+    }
+    .how::before {
+      content: "";
+      position: absolute;
+      top: -20%; right: -10%;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(197,76,44,0.35), transparent 65%);
+      filter: blur(40px);
+      animation: floatBlob 14s ease-in-out infinite;
+    }
+    .how .section-num { color: rgba(251, 246, 236, 0.5); }
+    .how .section-num::before { background: var(--gold); }
+    .how .section-title { color: var(--paper); }
+    .how .section-title em { color: var(--gold); }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    @media (max-width: 880px) {
+      .steps { grid-template-columns: 1fr; }
+    }
+    .step {
+      padding: 36px 32px 40px;
+      border-radius: 22px;
+      background: rgba(251, 246, 236, 0.05);
+      border: 1px solid rgba(251, 246, 236, 0.1);
+      backdrop-filter: blur(8px);
+      transition: all 0.4s var(--ease-out);
+      position: relative;
+      overflow: hidden;
+    }
+    .step::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gold);
+      transition: width 0.7s var(--ease-out);
+    }
+    .step:hover {
+      background: rgba(251, 246, 236, 0.08);
+      transform: translateY(-6px);
+    }
+    .step:hover::before { width: 100%; }
+    .step-num {
+      font-family: "Shippori Mincho", serif;
+      font-size: 64px;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1;
+      display: block;
+      margin-bottom: 28px;
+      letter-spacing: -0.02em;
+    }
+    .step h3 {
+      font-family: "Shippori Mincho", serif;
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .step p {
+      font-size: 14px;
+      color: rgba(251, 246, 236, 0.7);
+      line-height: 1.9;
+    }
+
+    /* ============== STATS ============== */
+    .stats {
+      padding: 120px 0;
+      position: relative;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    @media (max-width: 880px) {
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+      .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+    }
+    @media (max-width: 480px) {
+      .stat-grid { grid-template-columns: 1fr; }
+    }
+    .stat {
+      padding: 44px 28px;
+      border-right: 1px solid var(--line);
+      position: relative;
+      transition: background 0.4s ease;
+    }
+    .stat:last-child { border-right: none; }
+    .stat:hover { background: var(--paper); }
+    @media (max-width: 880px) {
+      .stat:nth-child(2n) { border-right: none; }
+    }
+    .stat-num {
+      display: block;
+      font-family: "Shippori Mincho", serif;
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--terra);
+      margin-bottom: 10px;
+    }
+    .stat-suffix {
+      font-size: 22px;
+      color: var(--ink);
+      margin-left: 4px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--ink-soft);
+      letter-spacing: 0.04em;
+    }
+
+    /* ============== VOICES ============== */
+    .voices {
+      padding: 140px 0 120px;
+      background: var(--paper);
+    }
+    .voice-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    @media (max-width: 880px) {
+      .voice-grid { grid-template-columns: 1fr; }
+    }
+    .voice {
+      padding: 36px 32px;
+      background: var(--bg);
+      border-radius: 20px;
+      position: relative;
+      transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+    }
+    .voice:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 50px -28px rgba(42, 26, 19, 0.2);
+    }
+    .voice::before {
+      content: "\201C";
+      position: absolute;
+      top: 8px;
+      left: 24px;
+      font-family: "Shippori Mincho", serif;
+      font-size: 80px;
+      color: var(--terra);
+      line-height: 1;
+      opacity: 0.4;
+    }
+    .voice p {
+      font-family: "Shippori Mincho", serif;
+      font-size: 16px;
+      color: var(--ink);
+      line-height: 1.9;
+      margin-bottom: 18px;
+      padding-top: 12px;
+      position: relative;
+    }
+    .voice footer {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      color: var(--ink-soft);
+      letter-spacing: 0.12em;
+    }
+    .voice-rating {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 16px;
+    }
+    .voice-rating span {
+      color: var(--gold);
+      font-size: 14px;
+    }
+
+    /* ============== CTA ============== */
+    .cta-section {
+      padding: 160px 0;
+      background: var(--terra);
+      color: var(--paper);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .cta-section::before, .cta-section::after {
+      content: "";
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(251, 246, 236, 0.15), transparent 65%);
+      filter: blur(40px);
+    }
+    .cta-section::before { top: -200px; left: -100px; animation: floatBlob 11s ease-in-out infinite; }
+    .cta-section::after { bottom: -200px; right: -100px; animation: floatBlob 13s ease-in-out infinite reverse; }
+    .cta-title {
+      font-family: "Shippori Mincho", serif;
+      font-weight: 800;
+      font-size: clamp(40px, 7vw, 88px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 40px;
+      color: var(--paper);
+      position: relative;
+      z-index: 1;
+    }
+    .cta-section .container { position: relative; z-index: 1; }
+    .cta-note {
+      margin-top: 24px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      color: rgba(251, 246, 236, 0.7);
+    }
+
+    /* ============== FOOTER ============== */
+    .site-foot {
+      background: var(--ink);
+      color: rgba(251, 246, 236, 0.8);
+      padding: 80px 0 32px;
+    }
+    .foot-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 60px;
+    }
+    @media (max-width: 880px) {
+      .foot-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .foot-grid { grid-template-columns: 1fr; }
+    }
+    .foot-brand .logo-jp {
+      font-family: "Shippori Mincho", serif;
+      font-weight: 800;
+      font-size: 44px;
+      color: var(--gold);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .foot-brand .logo-en {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.32em;
+      color: var(--paper);
+      margin-left: 10px;
+    }
+    .foot-brand p {
+      margin-top: 20px;
+      font-size: 13px;
+      max-width: 320px;
+      line-height: 1.9;
+    }
+    .foot-col h4 {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      color: var(--gold);
+      margin-bottom: 18px;
+      font-weight: 500;
+    }
+    .foot-col a {
+      display: block;
+      font-size: 13px;
+      padding: 5px 0;
+      color: rgba(251, 246, 236, 0.75);
+      transition: color 0.3s ease, transform 0.3s ease;
+    }
+    .foot-col a:hover {
+      color: var(--gold);
+      transform: translateX(4px);
+    }
+    .foot-bottom {
+      padding-top: 28px;
+      border-top: 1px solid rgba(251, 246, 236, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: rgba(251, 246, 236, 0.5);
+    }
+
+    /* ============== BACK LINK ============== */
+    .back-link {
+      position: fixed;
+      left: 24px;
+      bottom: 24px;
+      z-index: 90;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 999px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      box-shadow: 0 8px 24px -10px rgba(42, 26, 19, 0.3);
+      transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+    }
+    .back-link:hover {
+      background: var(--ink);
+      color: var(--paper);
+      transform: translateY(-2px);
+    }
+
+    /* ============== MOBILE ============== */
+    @media (max-width: 640px) {
+      .container { padding: 0 20px; }
+      .hero { padding: 110px 0 80px; }
+      .hero-inner { padding: 0 20px; }
+      .hero-scroll { display: none; }
+      .marquee-track { font-size: 16px; gap: 32px; }
+      .concept, .products, .producers, .how, .stats, .voices { padding: 80px 0; }
+      .cta-section { padding: 100px 0; }
+      .section-head { margin-bottom: 40px; }
+      .step { padding: 28px 24px 30px; }
+      .step-num { font-size: 48px; margin-bottom: 18px; }
+      .producer-track { padding: 12px 20px 24px; }
+      .producers .section-head { padding: 0 20px; }
+      .stat { padding: 32px 20px; }
+      .stat-num { font-size: 42px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== PRELOADER ========== -->
+  <div class="loader" id="loader">
+    <div class="loader-mark">紡</div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+    <div class="loader-text">TSUMUGI ・ LOADING</div>
+  </div>
+
+  <!-- ========== SCROLL PROGRESS ========== -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- ========== CUSTOM CURSOR ========== -->
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- ========== NAV ========== -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <span class="logo-jp">紡</span>
+        <span class="logo-en">TSUMUGI</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#concept">コンセプト</a></li>
+        <li><a href="#products">特集</a></li>
+        <li><a href="#producers">作り手</a></li>
+        <li><a href="#how">使い方</a></li>
+      </ul>
+      <a href="#cta" class="nav-cta">注文する<span class="arrow">→</span></a>
+    </div>
+  </nav>
+
+  <!-- ========== HERO ========== -->
+  <section class="hero">
+    <div class="hero-blob" id="heroBlob"></div>
+    <div class="hero-bg-text">tsumugi</div>
+    <div class="hero-inner">
+      <span class="hero-eyebrow">
+        <span class="dot"></span>
+        全国47都道府県の作り手から
+      </span>
+      <h1 class="hero-title">
+        <span class="line"><span>おいしさを、</span></span>
+        <span class="line"><span><em>紡</em>ぐ。</span></span>
+      </h1>
+      <p class="hero-sub">
+        旬の味覚を、産地のひととともに。<br />
+        一品ずつ、丁寧に届ける<br />
+        季節のお取り寄せ。
+      </p>
+      <div class="hero-actions">
+        <a href="#products" class="btn btn-primary">特集を見る <span class="ic">→</span></a>
+        <a href="#concept" class="btn btn-ghost">ブランドを知る</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>SCROLL</span>
+      <span class="line-v"></span>
+    </div>
+  </section>
+
+  <!-- ========== MARQUEE ========== -->
+  <section class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marqueeTrack">
+      <span>北海道 / 余市の牡蠣</span>
+      <span class="star">✦</span>
+      <span>京都 / 西陣の桜あいす</span>
+      <span class="star">✦</span>
+      <span>千葉 / 房総の春野菜</span>
+      <span class="star">✦</span>
+      <span>神奈川 / 三浦の朝あじ</span>
+      <span class="star">✦</span>
+      <span>東京 / 焙煎たちのコーヒー</span>
+      <span class="star">✦</span>
+      <span>福岡 / 八女の春菓</span>
+      <span class="star">✦</span>
+      <span>島根 / 隠岐の海塩</span>
+      <span class="star">✦</span>
+      <span>沖縄 / 久米島のもずく</span>
+      <span class="star">✦</span>
+    </div>
+  </section>
+
+  <!-- ========== CONCEPT ========== -->
+  <section class="concept" id="concept">
+    <div class="container">
+      <div class="concept-grid">
+        <div class="concept-side">
+          <span class="section-num reveal">01 / Concept</span>
+          <h2 class="section-title reveal">
+            毎日に、<br />
+            <em>"ちょっといい日"</em>を。
+          </h2>
+        </div>
+        <div class="concept-body">
+          <p class="reveal">
+            日本にはまだまだ、知られていない美味しいものがあります。私たち紡は、47都道府県の作り手と直接つながり、その想いと共に旬の味覚を一品ずつ丁寧に届けます。
+          </p>
+          <p class="reveal">
+            遠くの食卓と、近くの作り手を結ぶ。届くたびに、季節の物語がひとつ増えていくような、そんな体験を。
+          </p>
+          <div class="concept-tags reveal-stagger">
+            <span>産地直送</span>
+            <span>季節限定</span>
+            <span>少量生産</span>
+            <span>作り手の物語付き</span>
+            <span>送料無料 / 全国一律</span>
+          </div>
+          <blockquote class="concept-quote reveal">
+            「土地のものは、土地のひとが、いちばん知っている。<br />私たちは、その手を借りる側でありたい。」
+            <cite>— 代表 / 上路 ルイ</cite>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PRODUCTS ========== -->
+  <section class="products" id="products">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="section-num">02 / Featured</span>
+        <h2 class="section-title">この春、<em>おすすめ</em>。</h2>
+      </div>
+
+      <div class="product-grid">
+        <article class="product reveal" data-tilt style="--g1:#a8c4c8;--g2:#3e6470;--g3:rgba(20,40,50,0.4);--g4:rgba(255,255,255,0.18)">
+          <div class="product-img">
+            <span class="product-tag limited">期間限定</span>
+          </div>
+          <div class="product-body">
+            <span class="product-loc">/ 北海道 余市</span>
+            <h3>はじまりの牡蠣</h3>
+            <p>春の余市の冷たい海で育つ、濃厚な味わいの一年牡蠣。20粒入り。</p>
+            <div class="product-foot">
+              <span class="price"><span class="yen">¥</span>4,800</span>
+              <span class="cta-mini">View →</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="product reveal" data-tilt style="--g1:#f8d2d8;--g2:#d96f88;--g3:rgba(160,40,80,0.35);--g4:rgba(255,255,255,0.22)">
+          <div class="product-img">
+            <span class="product-tag new">新作</span>
+          </div>
+          <div class="product-body">
+            <span class="product-loc">/ 京都 西陣</span>
+            <h3>桜のあいす</h3>
+            <p>桜の塩漬けを煮詰めた、手作りのジェラート。6個入り化粧箱仕立て。</p>
+            <div class="product-foot">
+              <span class="price"><span class="yen">¥</span>3,600</span>
+              <span class="cta-mini">View →</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="product reveal" data-tilt style="--g1:#d8e4b8;--g2:#6e8a3a;--g3:rgba(60,90,30,0.4);--g4:rgba(255,255,255,0.15)">
+          <div class="product-img">
+            <span class="product-tag">人気</span>
+          </div>
+          <div class="product-body">
+            <span class="product-loc">/ 千葉 房総</span>
+            <h3>春野菜のピクルス</h3>
+            <p>朝採れの春野菜を、米酢と海塩で漬け込んだ瓶詰め。3瓶セット。</p>
+            <div class="product-foot">
+              <span class="price"><span class="yen">¥</span>2,800</span>
+              <span class="cta-mini">View →</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="product reveal" data-tilt style="--g1:#c8d6dc;--g2:#5a7a8c;--g3:rgba(40,60,80,0.4);--g4:rgba(255,255,255,0.2)">
+          <div class="product-img">
+            <span class="product-tag limited">朝便</span>
+          </div>
+          <div class="product-body">
+            <span class="product-loc">/ 神奈川 三浦</span>
+            <h3>朝採れのあじ</h3>
+            <p>当日朝に水揚げした真鯵を、その日のうちに直送。6枚開き。</p>
+            <div class="product-foot">
+              <span class="price"><span class="yen">¥</span>3,200</span>
+              <span class="cta-mini">View →</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="product reveal" data-tilt style="--g1:#e8c6a0;--g2:#7d4f2c;--g3:rgba(80,40,10,0.45);--g4:rgba(255,255,255,0.12)">
+          <div class="product-img">
+            <span class="product-tag new">深煎り</span>
+          </div>
+          <div class="product-body">
+            <span class="product-loc">/ 東京 蔵前</span>
+            <h3>焙煎たちのコーヒー</h3>
+            <p>都内3つの焙煎所から、3種200gずつ。月替わりの味の旅。</p>
+            <div class="product-foot">
+              <span class="price"><span class="yen">¥</span>4,200</span>
+              <span class="cta-mini">View →</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="product reveal" data-tilt style="--g1:#fbd8c2;--g2:#c98a5a;--g3:rgba(140,80,40,0.35);--g4:rgba(255,255,255,0.2)">
+          <div class="product-img">
+            <span class="product-tag">春菓</span>
+          </div>
+          <div class="product-body">
+            <span class="product-loc">/ 福岡 八女</span>
+            <h3>春菓 — 詰め合わせ</h3>
+            <p>八女茶と八女栗を使った和菓子の詰め合わせ。8種入り。</p>
+            <div class="product-foot">
+              <span class="price"><span class="yen">¥</span>3,800</span>
+              <span class="cta-mini">View →</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PRODUCERS ========== -->
+  <section class="producers" id="producers">
+    <div class="section-head reveal">
+      <span class="section-num">03 / Producers</span>
+      <h2 class="section-title">作り手の、<em>物語</em>。</h2>
+    </div>
+
+    <div class="producer-track" id="producerTrack">
+      <article class="producer" style="--p1:#a8c4c8;--p2:#3e6470">
+        <div class="producer-img"></div>
+        <div class="producer-body">
+          <span class="producer-loc">北海道 / 余市</span>
+          <h3>佐藤 そうた</h3>
+          <p class="producer-quote">「冬の海は、人を試す。だから、夏の牡蠣はあんなに優しい味がする。」</p>
+        </div>
+      </article>
+
+      <article class="producer" style="--p1:#f8d2d8;--p2:#d96f88">
+        <div class="producer-img"></div>
+        <div class="producer-body">
+          <span class="producer-loc">京都 / 西陣</span>
+          <h3>松井 千景</h3>
+          <p class="producer-quote">「桜は、見るものじゃない。食べると、春が体の中を通っていく。」</p>
+        </div>
+      </article>
+
+      <article class="producer" style="--p1:#d8e4b8;--p2:#6e8a3a">
+        <div class="producer-img"></div>
+        <div class="producer-body">
+          <span class="producer-loc">千葉 / 房総</span>
+          <h3>山口 まり</h3>
+          <p class="producer-quote">「3代続けて、土と話してる。野菜は、毎年違うんですよ、本当に。」</p>
+        </div>
+      </article>
+
+      <article class="producer" style="--p1:#c8d6dc;--p2:#5a7a8c">
+        <div class="producer-img"></div>
+        <div class="producer-body">
+          <span class="producer-loc">神奈川 / 三浦</span>
+          <h3>三浦 けんすけ</h3>
+          <p class="producer-quote">「朝3時に出て、9時には食卓に。スピードも、味のうち。」</p>
+        </div>
+      </article>
+
+      <article class="producer" style="--p1:#e8c6a0;--p2:#7d4f2c">
+        <div class="producer-img"></div>
+        <div class="producer-body">
+          <span class="producer-loc">島根 / 隠岐</span>
+          <h3>大野 さおり</h3>
+          <p class="producer-quote">「風と火だけで、海と向き合う。海塩は、海の手紙だと思ってる。」</p>
+        </div>
+      </article>
+
+      <article class="producer" style="--p1:#fbd8c2;--p2:#c98a5a">
+        <div class="producer-img"></div>
+        <div class="producer-body">
+          <span class="producer-loc">福岡 / 八女</span>
+          <h3>古賀 ひろし</h3>
+          <p class="producer-quote">「茶は、待つもの。和菓子は、待たせるもの。両方やってます。」</p>
+        </div>
+      </article>
+    </div>
+
+    <div class="producer-track-hint">
+      <span>← DRAG TO EXPLORE</span>
+      <span class="arrow-wave"></span>
+      <span>06 OF 47</span>
+    </div>
+  </section>
+
+  <!-- ========== HOW IT WORKS ========== -->
+  <section class="how" id="how">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="section-num">04 / How it works</span>
+        <h2 class="section-title">3ステップで、<em>食卓へ</em>。</h2>
+      </div>
+      <div class="steps">
+        <div class="step reveal">
+          <span class="step-num">01</span>
+          <h3>選ぶ</h3>
+          <p>季節の特集、または月替わりの定期便から、気になる一品を選びます。</p>
+        </div>
+        <div class="step reveal">
+          <span class="step-num">02</span>
+          <h3>つながる</h3>
+          <p>注文と同時に、作り手にメッセージが届きます。物語が、ここから始まります。</p>
+        </div>
+        <div class="step reveal">
+          <span class="step-num">03</span>
+          <h3>届く</h3>
+          <p>産地から直接、最短翌日到着。作り手の手紙と共に、ご自宅へ。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== STATS ========== -->
+  <section class="stats">
+    <div class="container">
+      <div class="stat-grid">
+        <div class="stat reveal">
+          <span class="stat-num" data-count="47">0</span>
+          <span class="stat-label">都道府県の作り手とつながっています</span>
+        </div>
+        <div class="stat reveal">
+          <span class="stat-num" data-count="2400">0</span>
+          <span class="stat-label">これまでにお届けした品数</span>
+        </div>
+        <div class="stat reveal">
+          <span class="stat-num" data-count="98"><span class="stat-suffix">%</span></span>
+          <span class="stat-label">お客様の継続購入率</span>
+        </div>
+        <div class="stat reveal">
+          <span class="stat-num" data-count="24"><span class="stat-suffix">h</span></span>
+          <span class="stat-label">産地から食卓までの最短時間</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== VOICES ========== -->
+  <section class="voices">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="section-num">05 / Voices</span>
+        <h2 class="section-title">お客様の、<em>声</em>。</h2>
+      </div>
+      <div class="voice-grid">
+        <blockquote class="voice reveal">
+          <div class="voice-rating"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <p>季節を待つ楽しみができました。家族で開ける箱が、毎月のごちそうです。作り手さんの手紙も、子どもと一緒に読んでいます。</p>
+          <footer>— 東京都 / 32歳 / Tさん</footer>
+        </blockquote>
+        <blockquote class="voice reveal">
+          <div class="voice-rating"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <p>桜のあいすが、本当に春の味がして驚きました。実家の母に送ったら、「久しぶりに京都の春を思い出した」と泣いていました。</p>
+          <footer>— 大阪府 / 45歳 / Mさん</footer>
+        </blockquote>
+        <blockquote class="voice reveal">
+          <div class="voice-rating"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <p>定期便にしてから、季節の移ろいに敏感になりました。日々の食卓が少しずつ豊かになっていく、そんなお取り寄せです。</p>
+          <footer>— 神奈川県 / 28歳 / Sさん</footer>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CTA ========== -->
+  <section class="cta-section" id="cta">
+    <div class="container">
+      <h2 class="cta-title reveal">
+        この春、<br />
+        最初の一品を。
+      </h2>
+      <a href="#" class="btn btn-big reveal">注文する <span class="ic">→</span></a>
+      <p class="cta-note reveal">初回限定 / 送料無料 / 30日返金保証</p>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="site-foot">
+    <div class="container">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <span class="logo-jp">紡</span>
+          <span class="logo-en">TSUMUGI</span>
+          <p>全国の作り手から、旬を食卓へ。<br />届くたびに、季節の物語がひとつ増えていく、そんなお取り寄せのブランドです。</p>
+        </div>
+        <div class="foot-col">
+          <h4>SHOP</h4>
+          <a href="#">季節の特集</a>
+          <a href="#">月替わり定期便</a>
+          <a href="#">ギフトを贈る</a>
+          <a href="#">ランキング</a>
+        </div>
+        <div class="foot-col">
+          <h4>ABOUT</h4>
+          <a href="#">私たちについて</a>
+          <a href="#">作り手紹介</a>
+          <a href="#">採用情報</a>
+          <a href="#">お問い合わせ</a>
+        </div>
+        <div class="foot-col">
+          <h4>HELP</h4>
+          <a href="#">よくあるご質問</a>
+          <a href="#">配送について</a>
+          <a href="#">返品・交換</a>
+          <a href="#">プライバシー</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 TSUMUGI Inc.</span>
+        <span>Built by usami_louis ・ Day 09</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== BACK LINK ========== -->
+  <a href="index.html" class="back-link">← INDEX</a>
+
+  <script>
+    /* =====================================================
+       PRELOADER — finish after window load + min display
+    ===================================================== */
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('done');
+      }, 1400);
+    });
+
+    /* =====================================================
+       SCROLL PROGRESS — top thin bar
+    ===================================================== */
+    const scrollProgressEl = document.getElementById('scrollProgress');
+    function updateScrollProgress() {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = max > 0 ? window.scrollY / max : 0;
+      scrollProgressEl.style.width = (ratio * 100) + '%';
+    }
+    window.addEventListener('scroll', updateScrollProgress, { passive: true });
+    updateScrollProgress();
+
+    /* =====================================================
+       CUSTOM CURSOR — dot + delayed ring (interpolated)
+    ===================================================== */
+    const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const cursorDot = document.getElementById('cursorDot');
+    const cursorRing = document.getElementById('cursorRing');
+    if (isFinePointer) {
+      let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+      let rx = mx, ry = my;
+      let visible = false;
+
+      window.addEventListener('mousemove', (e) => {
+        mx = e.clientX; my = e.clientY;
+        if (!visible) {
+          cursorDot.style.opacity = '1';
+          cursorRing.style.opacity = '1';
+          visible = true;
+        }
+      });
+
+      function cursorLoop() {
+        cursorDot.style.transform = `translate(${mx}px, ${my}px)`;
+        rx += (mx - rx) * 0.18;
+        ry += (my - ry) * 0.18;
+        cursorRing.style.transform = `translate(${rx}px, ${ry}px)`;
+        requestAnimationFrame(cursorLoop);
+      }
+      cursorLoop();
+
+      document.querySelectorAll('a, button, [data-tilt], .product, .voice, .step').forEach(el => {
+        el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+      });
+    } else {
+      cursorDot.style.display = 'none';
+      cursorRing.style.display = 'none';
+    }
+
+    /* =====================================================
+       HERO BLOB — follows cursor smoothly inside hero
+    ===================================================== */
+    const heroBlob = document.getElementById('heroBlob');
+    const heroEl = document.querySelector('.hero');
+    if (heroBlob && heroEl) {
+      let btx = 0, bty = 0, bx = 0, by = 0;
+      heroEl.addEventListener('mousemove', (e) => {
+        const r = heroEl.getBoundingClientRect();
+        btx = e.clientX - r.left - 350; // offset to center the 700px blob
+        bty = e.clientY - r.top - 350;
+      });
+      heroEl.addEventListener('mouseleave', () => {
+        btx = 0; bty = 0;
+      });
+      function blobLoop() {
+        bx += (btx - bx) * 0.06;
+        by += (bty - by) * 0.06;
+        heroBlob.style.transform = `translate(${bx}px, ${by}px)`;
+        requestAnimationFrame(blobLoop);
+      }
+      blobLoop();
+    }
+
+    /* =====================================================
+       NAV BLUR — toggle on scroll
+    ===================================================== */
+    const navEl = document.getElementById('nav');
+    function updateNav() {
+      navEl.classList.toggle('scrolled', window.scrollY > 60);
+    }
+    window.addEventListener('scroll', updateNav, { passive: true });
+    updateNav();
+
+    /* =====================================================
+       REVEAL ON SCROLL — IntersectionObserver
+    ===================================================== */
+    const revealIO = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealIO.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal, .reveal-l, .reveal-r, .reveal-stagger').forEach(el => {
+      revealIO.observe(el);
+    });
+
+    /* =====================================================
+       PRODUCT CARD TILT — 3D perspective on mouse move
+    ===================================================== */
+    document.querySelectorAll('[data-tilt]').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = `perspective(1000px) rotateX(${-y * 7}deg) rotateY(${x * 7}deg) translateY(-6px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+
+    /* =====================================================
+       COUNTER ANIMATION — easeOutCubic
+    ===================================================== */
+    const counterIO = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.dataset.count, 10) || 0;
+          const duration = 1800;
+          const startTime = performance.now();
+          const suffix = el.querySelector('.stat-suffix');
+
+          function tick(now) {
+            const t = Math.min(1, (now - startTime) / duration);
+            const eased = 1 - Math.pow(1 - t, 3);
+            const val = Math.round(target * eased).toLocaleString('en-US');
+            // Preserve suffix element if present
+            if (suffix) {
+              el.firstChild.nodeValue = val;
+            } else {
+              el.textContent = val;
+            }
+            if (t < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+          counterIO.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('[data-count]').forEach(el => {
+      // If element contains a suffix span, set first text node to "0"
+      if (el.querySelector('.stat-suffix')) {
+        el.insertBefore(document.createTextNode('0'), el.firstChild);
+        // Remove the original "0" text that was there before suffix
+        // (the next sibling after our inserted "0" is the original "0" text node)
+        if (el.childNodes[1] && el.childNodes[1].nodeType === 3) {
+          el.removeChild(el.childNodes[1]);
+        }
+      }
+      counterIO.observe(el);
+    });
+
+    /* =====================================================
+       PRODUCER TRACK — drag to scroll horizontally
+    ===================================================== */
+    const track = document.getElementById('producerTrack');
+    if (track) {
+      let isDown = false, startX = 0, scrollStart = 0;
+
+      track.addEventListener('mousedown', (e) => {
+        isDown = true;
+        track.classList.add('dragging');
+        startX = e.pageX - track.offsetLeft;
+        scrollStart = track.scrollLeft;
+      });
+      ['mouseleave', 'mouseup'].forEach(ev => {
+        track.addEventListener(ev, () => {
+          isDown = false;
+          track.classList.remove('dragging');
+        });
+      });
+      track.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - track.offsetLeft;
+        const delta = (x - startX) * 1.6;
+        track.scrollLeft = scrollStart - delta;
+      });
+
+      // Wheel: convert vertical wheel to horizontal scroll when hovering track
+      track.addEventListener('wheel', (e) => {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          e.preventDefault();
+          track.scrollLeft += e.deltaY;
+        }
+      }, { passive: false });
+    }
+
+    /* =====================================================
+       MARQUEE — duplicate content for seamless infinite loop
+    ===================================================== */
+    const marqueeTrack = document.getElementById('marqueeTrack');
+    if (marqueeTrack) {
+      marqueeTrack.innerHTML += marqueeTrack.innerHTML;
+    }
+  </script>
+</body>
+</html>
