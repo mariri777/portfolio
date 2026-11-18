@@ -159,6 +159,7 @@ const spots = [
   { id: 'services', label: 'サービス・ツール', x: 3, y: 1, name: 'サービス・ツール', kind: 'STAGE 1', text: '語学ツールや セルフチェックなど、まいにち つかえるものを ならべているよ。', href: '#services', cta: 'サービス・ツールを見る' },
   { id: 'days', label: '100日チャレンジ', x: 11, y: 1, name: '100日チャレンジ', kind: `Lv.${days.done} / 100`, text: `まいにち ひとつ つくって公開する塔。いま ${days.done}かいまで のぼったよ。`, href: '#days', cta: '100日チャレンジを見る' },
   { id: 'games', label: 'ゲーム', x: 3, y: 7, name: 'ゲーム', kind: 'STAGE 2', text: 'ブラウザで すぐ あそべる ゲームの おしろ。監督になったり、英雄になったり。', href: '#games', cta: 'ゲームを見る' },
+  { id: 'home', label: 'mariri のいえ', x: 7, y: 7, name: 'mariri のいえ', kind: 'じこしょうかい', text: 'mariri です。サービスも ゲームも デザインも、おもいついたら つくって 公開しているよ。', href: '#about', cta: 'じこしょうかいを見る' },
   { id: 'design', label: 'Webデザイン', x: 11, y: 7, name: 'Webデザイン', kind: 'STAGE 3', text: 'クリニックやパティスリーなど、世界観からつくったサイトを かざっているよ。', href: '#design', cta: 'Webデザインを見る' },
 ];
 ---
@@ -266,6 +267,13 @@ const spots = [
       .dialog .say { margin-top: 4px; min-height: 3.8em; }
       .dialog .act { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
       .howto { margin-top: 14px; text-align: center; font-size: 12px; color: var(--muted); }
+      .tools { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 16px; }
+      .about { padding: 22px 20px; display: grid; gap: 20px; grid-template-columns: 1fr; justify-items: start; }
+      @media (min-width: 640px) { .about { grid-template-columns: 96px 1fr; padding: 28px; gap: 28px; } }
+      .about img { width: 96px; height: 96px; image-rendering: pixelated; image-rendering: crisp-edges; }
+      .about dl { margin-top: 12px; display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; font-size: 14px; }
+      .about dt { color: var(--yellow); white-space: nowrap; }
+      .about-links { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px 12px; }
       .fishbook { margin-top: 14px; text-align: center; }
       #book { margin-top: 18px; padding: 16px; text-align: left; }
       #book-list { display: grid; gap: 14px 18px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
@@ -353,14 +361,36 @@ const spots = [
           </div>
         </div>
         <p class="howto">タップ / やじるしキー / WASD で あるく ・ たてものの名前をおすと そこまで あるきます<br />いけの ちかくに いくと…？<br /><a href="#zukan">あるかずに 一覧でみる ▼</a></p>
-        <div class="fishbook" id="fishbook" hidden>
-          <button type="button" class="btn" id="book-btn" aria-expanded="false" aria-controls="book">▶ つりずかん</button>
+        <div class="fishbook">
+          <div class="tools">
+            <button type="button" class="btn" id="bgm-btn" aria-pressed="false">♪ おんがく：OFF</button>
+            <button type="button" class="btn" id="book-btn" aria-expanded="false" aria-controls="book" hidden>▶ つりずかん</button>
+          </div>
           <div class="win" id="book" hidden><ul id="book-list"></ul></div>
         </div>
       </section>
 
       <!-- 作品ずかん -->
       <div id="zukan">
+        <section class="sec" id="about">
+          <div class="sec-h"><span class="no">PLAYER</span><h2>mariri について</h2></div>
+          <div class="win about">
+            <img src={`${BASE}/favicon.svg`} alt="mariri のうさぎ" width="96" height="96" />
+            <div>
+              <p>mariri です。思いついたものを、つくって公開しています。</p>
+              <dl>
+                <dt>つくるもの</dt><dd>Webサービス・ツール / ブラウザゲーム / Webサイトのデザインと実装</dd>
+                <dt>いま</dt><dd>毎日ひとつ作品をつくる「100日チャレンジ」に挑戦中（{days.done} / 100）</dd>
+                <dt>れんらく</dt><dd>X からどうぞ。</dd>
+              </dl>
+              <div class="about-links">
+                <a class="btn" href="https://x.com/mariri_7777777" target="_blank" rel="noopener">X @mariri_7777777</a>
+                <a class="btn" href="https://github.com/mariri777" target="_blank" rel="noopener">GitHub</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section class="sec" id="services">
           <div class="sec-h"><span class="no">STAGE 1</span><h2>サービス・ツール</h2></div>
           <div class="grid">
@@ -449,11 +479,11 @@ const spots = [
           'T.f............T',
           'T..pp..p...pp..T',
           'TppppppppppppppT',
-          'T.f....pp...ww.T',
-          'T......pp.f.ww.T',
-          'T......pp......T',
-          'T.f....pp......T',
-          'T..pp..pp..pp..T',
+          'T.f...p..p..ww.T',
+          'T.....p..p.fww.T',
+          'T.....p..p.....T',
+          'T.f...p..p.....T',
+          'T..pp.pppp.pp..T',
           'TppppppppppppppT',
           'TTTTTTTTTTTTTTTT'
         ];
@@ -522,6 +552,11 @@ const spots = [
           }
         }
         var draw = {
+          home: function (X, Y) {
+            house(X, Y, { wall: '#fff3e0', roof: '#e0457b', roofDark: '#b83280', door: '#b5805e', glass: '#ffe58a' });
+            r(X + 22, Y - 2, 4, 8, '#b83280'); r(X + 21, Y - 3, 6, 2, '#fffafc');
+            r(X + 14, Y + 15, 1, 1, '#e0457b'); r(X + 17, Y + 15, 1, 1, '#e0457b'); r(X + 13, Y + 16, 6, 2, '#e0457b'); r(X + 14, Y + 18, 4, 1, '#e0457b'); r(X + 15, Y + 19, 2, 1, '#e0457b');
+          },
           services: function (X, Y) {
             house(X, Y, { wall: '#7d84a6', roof: '#4a4f73', roofType: 'flat', windows: false, door: '#2a2c40' });
             for (var j = 0; j < 2; j++) for (var i = 0; i < 4; i++) r(X + 4 + i * 7, Y + 6 + j * 6, 4, 3, (i + j) % 2 ? '#ffe58a' : '#2a2c40');
@@ -615,7 +650,7 @@ const spots = [
           else { r(X + 2, Y + 1, 5, 4, it.col); r(X + 1, Y + 2, 7, 2, it.col); r(X + 8, Y + 1, 1, 4, it.col); r(X + 7, Y + 2, 1, 2, it.col); r(X + 2, Y + 2, 1, 1, '#2a2440'); }
         }
 
-        var P = { tx: 7, ty: 5, px: 7 * T, py: 5 * T, dir: 'down', path: [], moving: false, dist: 0 };
+        var P = { tx: 7, ty: 4, px: 7 * T, py: 4 * T, dir: 'down', path: [], moving: false, dist: 0 };
         var keys = {};
         var current = null;
 
@@ -676,6 +711,55 @@ const spots = [
         ];
         var bag = { total: 0, kinds: {} };
         try { var saved = JSON.parse(localStorage.getItem('mariri-town-fish') || 'null'); if (saved && saved.kinds) bag = saved; } catch (e) {}
+        // おんがく（その場で音をつくるチップチューン。音声ファイルは使わない）
+        var bgmBtn = document.getElementById('bgm-btn'), AC = null, bgmOn = false, bgmTimer = null, step8 = 0, nextTime = 0;
+        var E8 = 0.24; // 8分音符の長さ（秒）
+        var MELODY = [[64,2],[67,2],[72,2],[67,2], [69,2],[67,1],[64,1],[67,4], [65,2],[69,2],[67,2],[64,2], [62,3],[64,1],[62,4],
+                      [64,2],[67,2],[72,2],[76,2], [74,2],[72,1],[69,1],[67,4], [69,2],[72,2],[71,2],[67,2], [72,6],[0,2]];
+        var BASS = [48,55, 45,52, 41,48, 43,50, 48,55, 45,52, 41,43, 48,48];
+        var melAt = {}; (function () { var t = 0; MELODY.forEach(function (n) { melAt[t] = n; t += n[1]; }); })();
+        function tone(midi, when, dur, type, vol) {
+          var o = AC.createOscillator(), g = AC.createGain();
+          o.type = type; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
+          g.gain.setValueAtTime(0.0001, when);
+          g.gain.linearRampToValueAtTime(vol, when + 0.015);
+          g.gain.setValueAtTime(vol, when + dur * 0.6);
+          g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+          o.connect(g); g.connect(AC.destination); o.start(when); o.stop(when + dur + 0.02);
+        }
+        function schedule() {
+          while (nextTime < AC.currentTime + 0.4) {
+            var m = melAt[step8];
+            if (m && m[0]) tone(m[0], nextTime, m[1] * E8 * 0.95, 'square', 0.13);
+            if (step8 % 4 === 0) tone(BASS[step8 / 4] + 12, nextTime, E8 * 3.6, 'triangle', 0.3);
+            if (step8 % 2 === 1) tone(BASS[Math.floor(step8 / 4)] + 24, nextTime, E8 * 0.8, 'triangle', 0.12);
+            step8 = (step8 + 1) % 64; nextTime += E8;
+          }
+        }
+        function setBgm(on) {
+          var Ctor = window.AudioContext || window.webkitAudioContext;
+          if (on && !Ctor) return;
+          bgmOn = on;
+          if (on) {
+            if (!AC) AC = new Ctor();
+            if (AC.resume) AC.resume();
+            step8 = 0; nextTime = AC.currentTime + 0.08;
+            clearInterval(bgmTimer); bgmTimer = setInterval(schedule, 100); schedule();
+          } else { clearInterval(bgmTimer); }
+          bgmBtn.textContent = '♪ おんがく：' + (on ? 'ON' : 'OFF');
+          bgmBtn.setAttribute('aria-pressed', String(on));
+        }
+        function jingle() { // つれたときの みじかい音（おんがくONのときだけ）
+          if (!bgmOn || !AC) return;
+          var t = AC.currentTime + 0.02; [76, 79, 84, 88].forEach(function (n, i) { tone(n, t + i * 0.08, 0.18, 'square', 0.14); });
+        }
+        bgmBtn.addEventListener('click', function () { setBgm(!bgmOn); });
+        if (document.addEventListener) document.addEventListener('visibilitychange', function () {
+          if (!bgmOn || !AC) return;
+          if (document.hidden) { clearInterval(bgmTimer); }
+          else { nextTime = AC.currentTime + 0.08; clearInterval(bgmTimer); bgmTimer = setInterval(schedule, 100); }
+        });
+
         // つりずかん
         var bookBtn = document.getElementById('book-btn'), book = document.getElementById('book'), bookList = document.getElementById('book-list');
         function renderBook() {
@@ -696,7 +780,7 @@ const spots = [
             d.appendChild(nm); d.appendChild(cm); li.appendChild(c); li.appendChild(d); bookList.appendChild(li);
           });
           // ずかんは、はじめて なにかを つるまで かくしておく
-          document.getElementById('fishbook').hidden = !bag.total && book.hidden;
+          bookBtn.hidden = !bag.total && book.hidden;
           bookBtn.textContent = (book.hidden ? '▶' : '▼') + ' つりずかん ' + got + '/' + CATCH.length;
         }
         bookBtn.addEventListener('click', function () { book.hidden = !book.hidden; bookBtn.setAttribute('aria-expanded', String(!book.hidden)); renderBook(); });
@@ -727,7 +811,7 @@ const spots = [
               fishing = null; caught = { item: pick, until: lastT + 3500 };
               speak('「' + pick.n + '」が つれた！ ' + pick.c + '（これまでに ' + bag.total + 'かい・ずかん ' + Object.keys(bag.kinds).length + '/' + CATCH.length + '）');
               act.hidden = false; act.textContent = '▶ もういちど つる';
-              renderBook();
+              renderBook(); jingle();
             }, 600);
           }, 1200 + Math.random() * 1800);
         }
