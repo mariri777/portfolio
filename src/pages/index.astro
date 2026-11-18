@@ -728,6 +728,9 @@ const spots = [
           o.connect(g); g.connect(AC.destination); o.start(when); o.stop(when + dur + 0.02);
         }
         function schedule() {
+          // スマホでは、音の準備がおわるまで（state が running になるまで）待つ
+          if (AC.state !== 'running') { nextTime = AC.currentTime + 0.1; return; }
+          if (nextTime < AC.currentTime) nextTime = AC.currentTime + 0.05;
           while (nextTime < AC.currentTime + 0.4) {
             var m = melAt[step8];
             if (m && m[0]) tone(m[0], nextTime, m[1] * E8 * 0.95, 'square', 0.13);
@@ -736,13 +739,24 @@ const spots = [
             step8 = (step8 + 1) % 64; nextTime += E8;
           }
         }
+        // iPhone などは、指でふれた瞬間に「無音を1回鳴らす」と音が出せるようになる
+        function unlockAudio() {
+          if (!AC) return;
+          try {
+            if (AC.state !== 'running' && AC.resume) AC.resume();
+            var src = AC.createBufferSource(); src.buffer = AC.createBuffer(1, 1, 22050); src.connect(AC.destination); src.start(0);
+          } catch (e) {}
+        }
+        ['touchend', 'pointerup', 'click', 'keydown'].forEach(function (ev) {
+          if (document.addEventListener) document.addEventListener(ev, function () { if (bgmOn && AC && AC.state !== 'running') unlockAudio(); }, true);
+        });
         function setBgm(on) {
           var Ctor = window.AudioContext || window.webkitAudioContext;
           if (on && !Ctor) return;
           bgmOn = on;
           if (on) {
             if (!AC) AC = new Ctor();
-            if (AC.resume) AC.resume();
+            unlockAudio();
             step8 = 0; nextTime = AC.currentTime + 0.08;
             clearInterval(bgmTimer); bgmTimer = setInterval(schedule, 100); schedule();
           } else { clearInterval(bgmTimer); }
