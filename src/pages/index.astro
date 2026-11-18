@@ -772,6 +772,10 @@ const spots = [
           if (!bgmOn || !AC) return;
           var t = AC.currentTime + 0.02; [76, 79, 84, 88].forEach(function (n, i) { tone(n, t + i * 0.08, 0.18, 'square', 0.14); });
         }
+        // iPhone 対策：音の土台はページを開いた時点で作っておき（この時点では無音・停止中）、
+        // おんがくボタンに指がふれた瞬間（click より前の pointerup / touchend）から準備をはじめる
+        try { var Ctor0 = window.AudioContext || window.webkitAudioContext; if (Ctor0) AC = new Ctor0(); } catch (e) {}
+        ['pointerup', 'touchend'].forEach(function (ev) { bgmBtn.addEventListener(ev, function () { if (!bgmOn) unlockAudio(); }); });
         bgmBtn.addEventListener('click', function () { setBgm(!bgmOn); });
         if (document.addEventListener) document.addEventListener('visibilitychange', function () {
           if (!bgmOn || !AC) return;
