@@ -1,0 +1,721 @@
+<title>気血水カルテ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;600;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --paper:#E9ECE3;
+    --surface:#F3F5EE;
+    --line:#C7CEBF;
+    --line-soft:#D8DDD0;
+    --ink:#1E241E;
+    --ink-2:#5B6459;
+    --ki:#4C6B4F;
+    --ketsu:#8E3A4C;
+    --sui:#3C6379;
+    --inyo:#9C6E28;
+    --seal:#8E3A4C;
+    --seal-ink:#F3F5EE;
+    --mincho:"Zen Old Mincho",'Hiragino Mincho ProN',"Yu Mincho",serif;
+    --gothic:"Zen Kaku Gothic New",'Hiragino Sans',"Yu Gothic",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#15180F;
+      --surface:#1E2219;
+      --line:#39402F;
+      --line-soft:#2A2F22;
+      --ink:#E7EBDC;
+      --ink-2:#9CA692;
+      --ki:#8CB08C;
+      --ketsu:#D5798B;
+      --sui:#7DABC3;
+      --inyo:#D2A052;
+      --seal:#A84457;
+      --seal-ink:#F2F0E4;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#15180F;
+    --surface:#1E2219;
+    --line:#39402F;
+    --line-soft:#2A2F22;
+    --ink:#E7EBDC;
+    --ink-2:#9CA692;
+    --ki:#8CB08C;
+    --ketsu:#D5798B;
+    --sui:#7DABC3;
+    --inyo:#D2A052;
+    --seal:#A84457;
+    --seal-ink:#F2F0E4;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--gothic);
+    font-size:15px;
+    line-height:1.9;
+    padding-block:40px 64px;
+    padding-left:20px;
+    padding-right:20px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:800px;margin:0 auto;display:flex;flex-direction:column;gap:42px}
+  h1,h2,h3{margin:0;font-family:var(--mincho);font-weight:600;text-wrap:balance;line-height:1.4}
+  p{margin:0}
+  ul{margin:0;padding:0;list-style:none}
+
+  .eyebrow{
+    font-size:.7rem;letter-spacing:.22em;color:var(--ink-2);
+    font-weight:500;margin:0;
+  }
+
+  /* --- header --- */
+  .masthead{display:flex;gap:24px;align-items:flex-start;justify-content:space-between}
+  .masthead h1{font-size:clamp(2.1rem,7vw,2.8rem);font-weight:900;letter-spacing:.06em;margin-top:.35rem}
+  .masthead .lede{color:var(--ink-2);font-size:.9rem;margin-top:.6rem;max-width:34em}
+  .seal{
+    flex:none;width:56px;height:56px;background:var(--seal);color:var(--seal-ink);
+    font-family:var(--mincho);font-weight:900;font-size:1.6rem;line-height:1;
+    display:grid;place-items:center;margin-top:.5rem;
+  }
+
+  /* --- 暦 --- */
+  .koyomi{
+    border-top:2px solid var(--ink);border-bottom:1px solid var(--line);
+    padding-block:18px;display:grid;grid-template-columns:auto 1fr;gap:6px 26px;align-items:start;
+  }
+  .sekki{display:flex;align-items:baseline;gap:.55rem}
+  .sekki b{font-family:var(--mincho);font-size:1.9rem;font-weight:600;letter-spacing:.08em}
+  .sekki .yomi{font-size:.72rem;color:var(--ink-2);letter-spacing:.1em}
+  .koyomi .span{font-family:var(--mono);font-size:.74rem;color:var(--ink-2);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+  .koyomi .notes{display:flex;flex-direction:column;gap:4px;font-size:.84rem}
+  .koyomi .gogyo{color:var(--ink-2)}
+  .koyomi .gogyo em{font-style:normal;color:var(--ink);font-family:var(--mincho)}
+  .koyomi .keiraku{color:var(--ink-2)}
+  .koyomi .keiraku time{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+
+  /* --- 問診 --- */
+  .qsec{display:flex;flex-direction:column;gap:14px}
+  .qhead{display:flex;align-items:center;gap:12px}
+  .kanji{
+    flex:none;width:30px;height:30px;display:grid;place-items:center;
+    border:1px solid var(--g,var(--line));color:var(--g,var(--ink));
+    font-family:var(--mincho);font-size:1rem;line-height:1;
+  }
+  .qhead h2{font-size:1.05rem;letter-spacing:.1em}
+  .qhead .hint{margin-left:auto;font-size:.74rem;color:var(--ink-2)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    display:inline-flex;align-items:center;gap:8px;
+    border:1px solid var(--line);background:var(--surface);
+    padding:7px 12px 7px 10px;font-size:.855rem;line-height:1.5;cursor:pointer;
+    transition:border-color .15s ease,background .15s ease;
+  }
+  .chip input{position:absolute;opacity:0;width:0;height:0}
+  .mark{flex:none;width:9px;height:9px;border:1px solid var(--ink-2);transition:background .15s ease,border-color .15s ease}
+  .chip:hover{border-color:var(--ink-2)}
+  .chip:has(input:checked){border-color:var(--g);background:color-mix(in srgb,var(--g) 13%,var(--surface))}
+  .chip:has(input:checked) .mark{background:var(--g);border-color:var(--g)}
+  .chip:has(input:focus-visible){outline:2px solid var(--seal);outline-offset:2px}
+
+  /* --- 舌診 --- */
+  .tongue{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .tgroup{display:flex;flex-direction:column;gap:7px}
+  .tgroup .lbl{font-size:.73rem;letter-spacing:.16em;color:var(--ink-2)}
+  .tgroup .chip{width:100%}
+
+  /* --- 結果 --- */
+  .result{display:flex;flex-direction:column;gap:30px}
+  .verdict{border-left:3px solid var(--seal);padding-left:18px;display:flex;flex-direction:column;gap:8px}
+  .verdict .name{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
+  .verdict .name b{font-family:var(--mincho);font-size:2rem;font-weight:600;letter-spacing:.08em;line-height:1.2}
+  .verdict .name .yomi{font-size:.74rem;letter-spacing:.14em;color:var(--ink-2)}
+  .verdict .name .pct{font-family:var(--mono);font-size:.78rem;color:var(--seal);font-variant-numeric:tabular-nums}
+  .verdict .sub{font-size:.88rem;color:var(--ink-2)}
+  .verdict .body{font-size:.93rem}
+
+  .bars{display:flex;flex-direction:column;gap:20px}
+  .bargroup{display:flex;flex-direction:column;gap:9px}
+  .bargroup .gl{font-size:.72rem;letter-spacing:.18em;color:var(--ink-2);display:flex;align-items:center;gap:10px}
+  .bargroup .gl::after{content:"";flex:1;height:1px;background:var(--line-soft)}
+  .bar{display:grid;grid-template-columns:5.5em 1fr 3.2em;gap:12px;align-items:center}
+  .bar .bn{font-family:var(--mincho);font-size:.95rem;letter-spacing:.06em}
+  .bar .track{height:9px;background:color-mix(in srgb,var(--line) 60%,transparent)}
+  .bar .fill{height:100%;background:var(--g);width:0;transition:width .55s cubic-bezier(.2,.7,.3,1)}
+  .bar .bp{font-family:var(--mono);font-size:.76rem;text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .bar[data-top="1"] .bn{color:var(--g)}
+  .bar[data-top="1"] .bp{color:var(--ink)}
+
+  .care{display:flex;flex-direction:column}
+  .care .row{display:grid;grid-template-columns:6em 1fr;gap:4px 18px;padding-block:14px;border-top:1px solid var(--line-soft)}
+  .care .row:first-child{border-top:1px solid var(--line)}
+  .care dt{font-size:.73rem;letter-spacing:.16em;color:var(--ink-2);padding-top:.35rem}
+  .care dd{margin:0;font-size:.9rem}
+  .care .items{display:flex;flex-wrap:wrap;gap:6px 8px}
+  .care .items span{border-bottom:1px solid var(--line);padding-bottom:1px}
+  .tsubo{display:flex;flex-direction:column;gap:6px}
+  .tsubo li b{font-family:var(--mincho);font-weight:600;letter-spacing:.06em}
+  .tsubo li span{color:var(--ink-2);font-size:.85rem}
+
+  .season-note{
+    background:var(--surface);border:1px solid var(--line-soft);
+    padding:14px 16px;font-size:.88rem;display:flex;gap:12px;align-items:flex-start;
+  }
+  .season-note .tag{
+    flex:none;font-family:var(--mincho);font-size:.8rem;letter-spacing:.1em;
+    color:var(--seal);border:1px solid var(--seal);padding:1px 7px;margin-top:2px;
+  }
+
+  .tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  button{
+    font-family:var(--gothic);font-size:.8rem;color:var(--ink);
+    background:transparent;border:1px solid var(--line);padding:7px 14px;cursor:pointer;
+    transition:border-color .15s ease,color .15s ease;
+  }
+  button:hover{border-color:var(--ink-2)}
+  button:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+  .status{font-size:.78rem;color:var(--ink-2)}
+  .example-note{font-size:.8rem;color:var(--ink-2)}
+
+  footer{border-top:1px solid var(--line);padding-top:18px;font-size:.78rem;color:var(--ink-2);display:flex;flex-direction:column;gap:8px}
+  footer b{color:var(--ink);font-weight:500}
+
+  @media (max-width:640px){
+    .tongue{grid-template-columns:1fr}
+    .koyomi{grid-template-columns:1fr;gap:12px}
+    .care .row{grid-template-columns:1fr}
+    .care dt{padding-top:0}
+    .bar{grid-template-columns:4.6em 1fr 3em;gap:9px}
+    .masthead{gap:14px}
+    .seal{width:46px;height:46px;font-size:1.3rem}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important}
+  }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">中医学のものさしで、いまの体をみる</p>
+      <h1>気血水カルテ</h1>
+      <p class="lede">あてはまるものに印をつけると、いまかたよっている「証（しょう）」と、今日からできる養生が出ます。暦と時刻は自動で入ります。</p>
+    </div>
+    <div class="seal" aria-hidden="true">証</div>
+  </header>
+
+  <section class="koyomi" aria-label="今日の暦">
+    <div>
+      <div class="sekki"><b id="sekki-name">—</b><span class="yomi" id="sekki-yomi"></span></div>
+      <div class="span" id="sekki-span"></div>
+    </div>
+    <div class="notes">
+      <p class="gogyo" id="gogyo"></p>
+      <p id="sekki-note"></p>
+      <p class="keiraku" id="keiraku"></p>
+    </div>
+  </section>
+
+  <main id="monshin"></main>
+
+  <section class="result" id="result" aria-live="polite"></section>
+
+  <div class="tools">
+    <button type="button" id="clear">すべての印を外す</button>
+    <button type="button" id="copy">結果を書き出す</button>
+    <span class="status" id="status"></span>
+  </div>
+
+  <footer>
+    <p><b>このカルテについて</b>　中医学の考え方にもとづくセルフチェックで、診断や治療ではありません。証は日によって動くもので、ひとつに決まらないこともあります。</p>
+    <p>強い症状・長引く不調・急な変化があるときは、医療機関へ。妊娠中の方、持病や服薬のある方は、食養生やツボも含めて主治医・薬剤師にご相談ください。印の内容はこの端末のブラウザにだけ保存され、どこにも送られません。</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var SEKKI = [
+    ["立春","りっしゅん",2,4,"陽気が動きだす。早寝早起きで、肝をのびやかに。"],
+    ["雨水","うすい",2,19,"寒暖の差が大きい。首元をゆるめすぎず、湿を寄せつけない。"],
+    ["啓蟄","けいちつ",3,5,"気が上へ動く季節。伸びとため息で、つまりをほどく。"],
+    ["春分","しゅんぶん",3,20,"昼夜が半々。甘味を少し足して、脾をいたわる。"],
+    ["清明","せいめい",4,4,"風が強い日は、頭とうなじを冷やさない。"],
+    ["穀雨","こくう",4,20,"湿が増える。甘いもの・脂ものを一段ひかえめに。"],
+    ["立夏","りっか",5,5,"心の季節。昼寝は短く、汗をかきすぎない。"],
+    ["小満","しょうまん",5,21,"湿と熱が同居する。豆類ときゅうりで熱をさます。"],
+    ["芒種","ぼうしゅ",6,6,"梅雨のはじまり。体が重い日ほど、歩いて湿を動かす。"],
+    ["夏至","げし",6,21,"陽が極まる。冷たい飲みものを一杯だけ減らす。"],
+    ["小暑","しょうしょ",7,7,"汗で気も失われる。朝のお粥で補っておく。"],
+    ["大暑","たいしょ",7,22,"長夏は脾の季節。生ものより、温かい食事を。"],
+    ["立秋","りっしゅう",8,7,"残暑のうちから、秋の乾きに備えて潤す。"],
+    ["処暑","しょしょ",8,23,"朝夕が涼しくなる。寝冷えに注意。"],
+    ["白露","はくろ",9,7,"燥が肺をいためる。梨・白きくらげで潤いを足す。"],
+    ["秋分","しゅうぶん",9,23,"昼夜が半々。早めに寝て、陰を養う。"],
+    ["寒露","かんろ",10,8,"冷えは足元から入る。靴下を一枚。"],
+    ["霜降","そうこう",10,23,"乾燥と冷えの両方。温かい汁ものを。"],
+    ["立冬","りっとう",11,7,"腎の季節。腰と足首を温める。"],
+    ["小雪","しょうせつ",11,22,"早寝おそ起き。陽気を内に閉じこめる。"],
+    ["大雪","たいせつ",12,7,"黒い食材（黒豆・黒ごま）で腎を養う。"],
+    ["冬至","とうじ",12,21,"陰が極まり、陽が生まれる。ゆず湯と休息を。"],
+    ["小寒","しょうかん",1,5,"いちばん冷える頃。汗をかく運動はひかえめに。"],
+    ["大寒","だいかん",1,20,"温める食事で、春に備える。"]
+  ];
+  var SEASON = [
+    {from:0,to:5,label:"春",zo:"肝",gyo:"木",ja:"風"},
+    {from:6,to:9,label:"夏",zo:"心",gyo:"火",ja:"暑"},
+    {from:10,to:13,label:"長夏",zo:"脾",gyo:"土",ja:"湿"},
+    {from:14,to:17,label:"秋",zo:"肺",gyo:"金",ja:"燥"},
+    {from:18,to:23,label:"冬",zo:"腎",gyo:"水",ja:"寒"}
+  ];
+  var KEIRAKU = [
+    [23,"胆","決断と眠りの入口。日付が変わる前に横になりたい時間。"],
+    [1,"肝","血が肝に戻る時間。起きていると血を消耗する。"],
+    [3,"肺","呼吸が深くなる時間。咳や喘息が出やすい。"],
+    [5,"大腸","起きて白湯を一杯。便通の時間。"],
+    [7,"胃","朝食をとる時間。抜くと一日分の気が作れない。"],
+    [9,"脾","頭がいちばん働く。大事な仕事はここに置く。"],
+    [11,"心","短い昼寝が心を養う。"],
+    [13,"小腸","食べたものを分ける時間。水分をとる。"],
+    [15,"膀胱","だるさが出やすい時間。少し歩く。"],
+    [17,"腎","精を蓄える時間。夕食は軽めに。"],
+    [19,"心包","くつろぐ時間。画面から離れる。"],
+    [21,"三焦","体を温めて、寝る準備をはじめる。"]
+  ];
+
+  var P = {
+    kikyo:{n:"気虚",y:"ききょ",g:"ki",gl:"気",
+      one:"エネルギーそのものが足りていない状態。",
+      body:"食べたものから気を作る脾胃の力が落ちて、体を動かす・守る・温めるための気が不足しています。休んでも抜けない疲れ、風邪のひきやすさ、動いただけで出る汗はどれも同じ根から来ています。",
+      eat:["山いも","かぼちゃ","うるち米（お粥）","鶏肉","なつめ","いんげん豆","味噌"],
+      avoid:["生もの・冷たい飲みもの","食事を抜くこと","汗だくになる運動","夜ふかし"],
+      tsubo:[["足三里","膝の皿の外下、指四本ぶん下のくぼみ。親指で5秒ずつ押す。"],["気海","へそから指二本ぶん下。手のひらで温める。"]],
+      life:"がんばれる日に動いて、疲れる前にやめるのが養生です。朝食を温かいものにして、20分早く寝るだけでも気は戻ります。"},
+    kitai:{n:"気滞",y:"きたい",g:"ki",gl:"気",
+      one:"気は足りているが、流れがとどこおっている状態。",
+      body:"肝の疏泄（そせつ＝巡らせる働き）が滞り、気が一か所にたまっています。張るような痛み、喉のつかえ（梅核気）、気分で症状が変わるのが目印。量の問題ではなく、流れの問題です。",
+      eat:["みかん・グレープフルーツなど柑橘","しそ","みつば","セロリ","ミント","ジャスミン茶","そば"],
+      avoid:["食べながらの作業","我慢して黙りこむこと","寝る前のニュース","ドカ食い"],
+      tsubo:[["太衝","足の甲、親指と人さし指の骨が合わさる手前のくぼみ。"],["膻中","左右の乳頭を結んだ線の中央。指の腹でさする。"]],
+      life:"香りと深呼吸がいちばんの薬です。大きく伸びをする、外を10分歩く、声に出して話す。とどこおりは動かせばほどけます。"},
+    kekkyo:{n:"血虚",y:"けっきょ",g:"ketsu",gl:"血",
+      one:"体をうるおし、養う血が足りない状態。",
+      body:"血は臓腑・目・爪・髪をやしない、心を落ちつかせます。不足すると顔色がさえず、めまい、浅い眠りと多い夢、かすみ目、割れる爪として出ます。血は夜のあいだに肝で養われるため、睡眠が直接ひびきます。",
+      eat:["黒ごま","なつめ","クコの実","ほうれん草","にんじん","黒豆","レバー","卵"],
+      avoid:["夜ふかし","長時間の画面（目は血を使う）","過度なダイエット","濃いコーヒーの飲みすぎ"],
+      tsubo:[["三陰交","内くるぶしの上、指四本ぶん。冷やさず温める。"],["血海","膝の皿の内上角から指三本ぶん上。"]],
+      life:"23時までに横になること。目を休めることが、そのまま血を養うことになります。"},
+    oketsu:{n:"瘀血",y:"おけつ",g:"ketsu",gl:"血",
+      one:"血の流れが滞り、古い血がたまっている状態。",
+      body:"流れが悪くなった血が一か所にとどまり、刺すような固定した痛み、夜に強まる症状、あざ、くすみ、経血の塊として現れます。冷えと運動不足、長い座り姿勢が下地になります。",
+      eat:["玉ねぎ","青魚（さば・いわし）","酢","黒きくらげ","納豆","紅花茶","シナモン"],
+      avoid:["冷え（特に腰と足）","長時間同じ姿勢","脂っこい食事","喫煙"],
+      tsubo:[["血海","膝の皿の内上角から指三本ぶん上。ややもむように。"],["膈兪","肩甲骨の下角の高さ、背骨の両わき。蒸しタオルで温める。"]],
+      life:"汗ばむ手前までの運動を、毎日少しずつ。入浴は湯船で、腰まわりを温めてください。"},
+    inkyo:{n:"陰虚",y:"いんきょ",g:"inyo",gl:"陰陽",
+      one:"体をひやし、うるおす陰が減り、熱がこもる状態。",
+      body:"陰液が不足すると、相対的に熱が余ります（虚熱）。手のひら・足の裏のほてり、寝汗、口や目の乾き、夕方から夜にかけての悪化が特徴です。暑がりでも、体力があるわけではありません。",
+      eat:["白きくらげ","梨","豆腐","百合根","はちみつ","山いも","黒豆","牛乳"],
+      avoid:["辛いもの・アルコール","サウナや長時間の半身浴","夜ふかし（陰をいちばん削る）","激しい運動"],
+      tsubo:[["太渓","内くるぶしとアキレス腱のあいだのくぼみ。"],["照海","内くるぶしのすぐ下。乾きとのぼせに。"]],
+      life:"熱をさますより、うるおすのが先です。汗をかきすぎない運動（ヨガ・散歩）を選んでください。"},
+    yokyo:{n:"陽虚",y:"ようきょ",g:"inyo",gl:"陰陽",
+      one:"体を温める力が落ち、芯から冷えている状態。",
+      body:"気虚が進み、温める働き（温煦）まで不足した状態です。腰から下の冷え、温めると楽になること、薄い尿や夜間のトイレ、朝のつらさ、軟便として出ます。冷えは症状ではなく、土台の問題です。",
+      eat:["生姜","シナモン","にら","ねぎ","羊肉・鶏肉","くるみ","山椒","えび"],
+      avoid:["生野菜・刺身・冷たい飲みもの","薄着","濡れた髪で寝ること","夏の冷房直撃"],
+      tsubo:[["関元","へそから指四本ぶん下。カイロや手のひらで温める。"],["命門","おへその真裏、背骨の上。腰を温める要。"]],
+      life:"冷やさないことが最大の治療です。飲みものは常温以上、腹巻きと靴下を味方に。"},
+    tanshitsu:{n:"痰湿",y:"たんしつ",g:"sui",gl:"水",
+      one:"余分な水分がたまり、体が重くなっている状態。",
+      body:"脾の運化（水をさばく働き）が追いつかず、水湿がよどんで痰湿になります。体と頭の重だるさ（頭重如裹）、むくみ、痰、口のねばり、雨の日の不調が目印。甘いもの・脂もの・お酒が材料になります。",
+      eat:["はと麦","小豆","冬瓜","とうもろこしのひげ茶","大根","海藻","しょうが"],
+      avoid:["甘いもの・乳製品","脂っこい食事","夜遅い食事","水の飲みすぎ","運動不足"],
+      tsubo:[["豊隆","膝と外くるぶしの中間、すねの外側。痰の要穴。"],["陰陵泉","すねの内側を下から上へなで上げ、止まるくぼみ。むくみに。"]],
+      life:"重い日こそ動くと軽くなります。まず甘い飲みものをやめ、汗ばむ程度に歩いてください。"},
+    shitsunetsu:{n:"湿熱",y:"しつねつ",g:"sui",gl:"水",
+      one:"湿に熱がこもり、体の中が蒸れている状態。",
+      body:"停滞した湿が熱をもち、蒸れたような不快感になります。口の苦みとねばり、脂っぽい肌とにきび、濃い尿、粘って残る便、黄色くねばる舌苔が特徴。お酒・揚げもの・辛いものが火をくべます。",
+      eat:["緑豆","はと麦","きゅうり","セロリ","ゴーヤ","どくだみ茶","豆もやし"],
+      avoid:["アルコール（最優先）","揚げもの","辛いもの","甘い菓子","夜ふかし"],
+      tsubo:[["陰陵泉","すねの内側のくぼみ。湿をさばく。"],["曲池","肘を曲げたときのしわの外端。熱をさます。"]],
+      life:"まずは10日、お酒と揚げものを止めてみてください。湿熱はもっとも食事で動きます。"}
+  };
+  var GROUPS = [
+    {key:"ki",label:"気",members:["kikyo","kitai"]},
+    {key:"ketsu",label:"血",members:["kekkyo","oketsu"]},
+    {key:"sui",label:"水",members:["tanshitsu","shitsunetsu"]},
+    {key:"inyo",label:"陰陽",members:["inkyo","yokyo"]}
+  ];
+
+  var SECTIONS = [
+    {kanji:"温",title:"寒さと熱",g:"inyo",hint:"体温のかたより",items:[
+      ["手足や腰が冷える。人より厚着になりがち",{yokyo:3}],
+      ["冷たい飲みもの・生ものでお腹をこわす",{yokyo:2,tanshitsu:1}],
+      ["温めると症状がらくになる",{yokyo:2}],
+      ["夜中や明け方にトイレに起きる／尿が薄い",{yokyo:2}],
+      ["手のひらや足の裏がほてる。布団から足を出す",{inkyo:3}],
+      ["寝汗をかく",{inkyo:2}],
+      ["夕方から夜にかけて調子が落ちる",{inkyo:2}],
+      ["口・喉・目・肌が乾く",{inkyo:2}],
+      ["のぼせて顔がほてる",{inkyo:2,shitsunetsu:1}],
+      ["少し動いただけで汗が出る",{kikyo:2}]
+    ]},
+    {kanji:"気",title:"気のめぐり",g:"ki",hint:"力と流れ",items:[
+      ["疲れやすく、夕方には力が出ない",{kikyo:3}],
+      ["声が小さい・息切れしやすい",{kikyo:2}],
+      ["風邪をひきやすく、治りにくい",{kikyo:2}],
+      ["食後に強い眠気が出る",{kikyo:2,tanshitsu:1}],
+      ["胃が弱く、少し食べるとお腹が張る",{kikyo:2}],
+      ["ため息が多い。胸やみぞおちがつまる",{kitai:3}],
+      ["喉に何かひっかかる感じがする",{kitai:3}],
+      ["お腹や脇が、張るように痛む",{kitai:2}],
+      ["気分によって症状の重さが変わる",{kitai:3}],
+      ["イライラしやすく、怒りっぽい",{kitai:2}]
+    ]},
+    {kanji:"血",title:"血のめぐり",g:"ketsu",hint:"養いと流れ",items:[
+      ["顔色が白い・黄色っぽく、つやがない",{kekkyo:3}],
+      ["立ちくらみやめまいがある",{kekkyo:2}],
+      ["眠りが浅く、夢をよく見る",{kekkyo:2}],
+      ["目がかすむ・疲れ目がひどい",{kekkyo:2}],
+      ["爪が割れやすい、髪がパサつく",{kekkyo:2}],
+      ["手足がしびれる、こむら返りを起こす",{kekkyo:2}],
+      ["唇や歯ぐきの色が暗い",{oketsu:3}],
+      ["同じ場所に、刺すような痛みが出る",{oketsu:3}],
+      ["肩こり・頭痛が頑固で、夜に強くなる",{oketsu:2}],
+      ["あざができやすい。肌のくすみ・シミが気になる",{oketsu:2}],
+      ["月経痛が強い／経血に塊がある（あてはまる方）",{oketsu:2}]
+    ]},
+    {kanji:"水",title:"水のめぐり",g:"sui",hint:"重さと湿り",items:[
+      ["体が重だるい。頭が重く、しめつけられる",{tanshitsu:3}],
+      ["むくみやすい（脚・まぶた）",{tanshitsu:2}],
+      ["痰がからむ、鼻水が出やすい",{tanshitsu:2}],
+      ["雨や湿気の日に調子が悪い",{tanshitsu:3}],
+      ["口の中がねばる。甘いものがほしくなる",{tanshitsu:2}],
+      ["軟便・下痢しやすい",{tanshitsu:1,kikyo:1,yokyo:1}],
+      ["口が苦い。口臭が気になる",{shitsunetsu:3}],
+      ["肌や髪が脂っぽい。にきび・湿疹が出る",{shitsunetsu:2}],
+      ["尿の色が濃く、においが強い",{shitsunetsu:2}],
+      ["便がすっきり出ず、粘る",{shitsunetsu:2}],
+      ["お酒や揚げものですぐ体調が崩れる",{shitsunetsu:2}]
+    ]}
+  ];
+
+  var TONGUE = [
+    {id:"tcolor",label:"舌の色",opts:[
+      ["淡く白っぽい",{kikyo:2,yokyo:2,kekkyo:2}],
+      ["淡い紅（ふつう）",{}],
+      ["赤い",{inkyo:3,shitsunetsu:1}],
+      ["暗い紫・点がある",{oketsu:3}]
+    ]},
+    {id:"tshape",label:"舌の形",opts:[
+      ["ふちに歯のあとがつく",{kikyo:2,tanshitsu:2}],
+      ["ふつう",{}],
+      ["小さく薄い",{kekkyo:2,inkyo:1}],
+      ["ぼてっと大きい",{tanshitsu:3}]
+    ]},
+    {id:"tcoat",label:"舌の苔",opts:[
+      ["薄く白い（ふつう）",{}],
+      ["白く厚い",{tanshitsu:3,yokyo:1}],
+      ["黄色くねばる",{shitsunetsu:3}],
+      ["ほとんどない・まだら",{inkyo:3}]
+    ]}
+  ];
+
+  var EXAMPLE = {checks:["s1q0","s1q3","s3q0","s3q1","s3q3","s3q4"],radios:{tcolor:1,tshape:0,tcoat:1}};
+  var STORE = "kikketsusui.v1";
+
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+
+  /* ---------- 暦 ---------- */
+  function sekkiIndex(d){
+    var m=d.getMonth()+1, day=d.getDate(), key=m*100+day;
+    var order=[];
+    for(var i=0;i<24;i++){order.push({i:i,k:SEKKI[i][2]*100+SEKKI[i][3]});}
+    order.sort(function(a,b){return a.k-b.k;});
+    var idx=21; /* 元日〜小寒の前日は冬至のうち */
+    for(var j=0;j<order.length;j++){ if(key>=order[j].k) idx=order[j].i; }
+    return idx;
+  }
+  function seasonOf(i){for(var k=0;k<SEASON.length;k++){if(i>=SEASON[k].from&&i<=SEASON[k].to)return SEASON[k];}return SEASON[0];}
+  function keirakuOf(h){
+    var cur=KEIRAKU[0];
+    for(var i=0;i<KEIRAKU.length;i++){var s=KEIRAKU[i][0],e=(s+2)%24;
+      if(s===23){ if(h===23||h===0) cur=KEIRAKU[i]; }
+      else if(h>=s&&h<s+2) cur=KEIRAKU[i];
+    }
+    return cur;
+  }
+  var now=new Date();
+  var si=sekkiIndex(now), sek=SEKKI[si], nxt=SEKKI[(si+1)%24], sea=seasonOf(si), kei=keirakuOf(now.getHours());
+  document.getElementById("sekki-name").textContent=sek[0];
+  document.getElementById("sekki-yomi").textContent=sek[1];
+  document.getElementById("sekki-span").textContent=sek[2]+"月"+sek[3]+"日 — "+nxt[2]+"月"+(nxt[3]-1)+"日ごろ";
+  document.getElementById("gogyo").innerHTML='季節は<em>'+sea.label+'</em>、五行は<em>'+sea.gyo+'</em>、いたわる臓は<em>'+sea.zo+'</em>。外からくる邪は<em>'+sea.ja+'</em>。';
+  document.getElementById("sekki-note").textContent=sek[4];
+  var hh=("0"+now.getHours()).slice(-2)+":"+("0"+now.getMinutes()).slice(-2);
+  document.getElementById("keiraku").innerHTML='いま <time>'+hh+'</time> は<em>'+kei[1]+'</em>の時間 — '+kei[2];
+
+  /* ---------- 問診を組み立てる ---------- */
+  var monshin=document.getElementById("monshin");
+  monshin.style.display="flex";monshin.style.flexDirection="column";monshin.style.gap="34px";
+  SECTIONS.forEach(function(sec,si2){
+    var s=el("section","qsec");
+    s.style.setProperty("--g","var(--"+sec.g+")");
+    var head=el("div","qhead");
+    head.appendChild(el("span","kanji",sec.kanji));
+    var h=el("h2",null,sec.title);head.appendChild(h);
+    head.appendChild(el("span","hint",sec.hint));
+    s.appendChild(head);
+    var chips=el("div","chips");
+    sec.items.forEach(function(it,qi){
+      var id="s"+si2+"q"+qi;
+      var lab=el("label","chip");lab.setAttribute("for",id);
+      var inp=document.createElement("input");
+      inp.type="checkbox";inp.id=id;inp.dataset.w=JSON.stringify(it[1]);
+      lab.appendChild(inp);
+      lab.appendChild(el("span","mark"));
+      lab.appendChild(el("span","txt",it[0]));
+      chips.appendChild(lab);
+    });
+    s.appendChild(chips);
+    monshin.appendChild(s);
+  });
+  var ts=el("section","qsec");
+  ts.style.setProperty("--g","var(--ketsu)");
+  var th=el("div","qhead");
+  th.appendChild(el("span","kanji","舌"));
+  th.appendChild(el("h2",null,"舌をみる"));
+  th.appendChild(el("span","hint","起きてすぐ、自然光で"));
+  ts.appendChild(th);
+  var tg=el("div","tongue");
+  TONGUE.forEach(function(grp){
+    var box=el("div","tgroup");
+    box.appendChild(el("span","lbl",grp.label));
+    grp.opts.forEach(function(o,oi){
+      var id=grp.id+"-"+oi;
+      var lab=el("label","chip");lab.setAttribute("for",id);
+      var inp=document.createElement("input");
+      inp.type="radio";inp.name=grp.id;inp.id=id;inp.value=String(oi);
+      inp.dataset.w=JSON.stringify(o[1]);
+      lab.appendChild(inp);lab.appendChild(el("span","mark"));lab.appendChild(el("span","txt",o[0]));
+      box.appendChild(lab);
+    });
+    tg.appendChild(box);
+  });
+  ts.appendChild(tg);
+  monshin.appendChild(ts);
+
+  /* ---------- 最大値 ---------- */
+  var MAX={};
+  Object.keys(P).forEach(function(k){MAX[k]=0;});
+  SECTIONS.forEach(function(sec){sec.items.forEach(function(it){
+    Object.keys(it[1]).forEach(function(k){MAX[k]+=it[1][k];});
+  });});
+  TONGUE.forEach(function(grp){
+    Object.keys(P).forEach(function(k){
+      var m=0;grp.opts.forEach(function(o){if(o[1][k]>m)m=o[1][k];});
+      MAX[k]+=m;
+    });
+  });
+
+  /* ---------- 状態 ---------- */
+  function readState(){
+    var checks=[],radios={};
+    document.querySelectorAll('#monshin input[type=checkbox]').forEach(function(i){if(i.checked)checks.push(i.id);});
+    TONGUE.forEach(function(g){
+      var sel=document.querySelector('input[name="'+g.id+'"]:checked');
+      if(sel)radios[g.id]=Number(sel.value);
+    });
+    return {checks:checks,radios:radios};
+  }
+  function applyState(st){
+    document.querySelectorAll('#monshin input[type=checkbox]').forEach(function(i){i.checked=st.checks.indexOf(i.id)>-1;});
+    TONGUE.forEach(function(g){
+      var v=st.radios[g.id];
+      if(v==null)return;
+      var r=document.getElementById(g.id+"-"+v);
+      if(r)r.checked=true;
+    });
+  }
+  function save(){try{localStorage.setItem(STORE,JSON.stringify(readState()));}catch(e){}}
+  function load(){try{var s=localStorage.getItem(STORE);return s?JSON.parse(s):null;}catch(e){return null;}}
+
+  /* ---------- 採点 ---------- */
+  function score(){
+    var sc={};Object.keys(P).forEach(function(k){sc[k]=0;});
+    document.querySelectorAll('#monshin input:checked').forEach(function(i){
+      var w=JSON.parse(i.dataset.w||"{}");
+      Object.keys(w).forEach(function(k){sc[k]+=w[k];});
+    });
+    var out=[];
+    Object.keys(P).forEach(function(k){
+      out.push({key:k,pct:MAX[k]?Math.round(sc[k]/MAX[k]*100):0,raw:sc[k]});
+    });
+    return out;
+  }
+
+  /* ---------- 結果を描く ---------- */
+  var resultEl=document.getElementById("result");
+  var lastTop=null;
+  function render(){
+    var rows=score();
+    var byKey={};rows.forEach(function(r){byKey[r.key]=r;});
+    var sorted=rows.slice().sort(function(a,b){return b.pct-a.pct;});
+    var top=sorted[0], second=sorted[1];
+    resultEl.textContent="";
+
+    var head=el("div");
+    head.appendChild(el("p","eyebrow","いまの証"));
+    resultEl.appendChild(head);
+
+    if(top.pct<12){
+      var calm=el("div","verdict");
+      var cn=el("div","name");
+      var cb=el("b","","平和質");cb.textContent="平和質";
+      cn.appendChild(cb);
+      var cy=el("span","yomi","へいわしつ");cn.appendChild(cy);
+      calm.appendChild(cn);
+      calm.appendChild(el("p","sub","大きなかたよりは出ていません"));
+      calm.appendChild(el("p","body","いまの過ごし方が体に合っています。季節の変わり目に一度見直すくらいで十分です。印をつけ足すと、傾きが見えてきます。"));
+      resultEl.appendChild(calm);
+    }else{
+      var p=P[top.key];
+      var v=el("div","verdict");
+      var nm=el("div","name");
+      var b=document.createElement("b");b.textContent=p.n;nm.appendChild(b);
+      nm.appendChild(el("span","yomi",p.y));
+      nm.appendChild(el("span","pct",top.pct+"%"));
+      v.appendChild(nm);
+      var subTxt=p.one;
+      if(second.pct>=20&&second.pct>=top.pct-25){subTxt+="　＋ 兼証として「"+P[second.key].n+"（"+P[second.key].y+"）」の傾きもあります。";}
+      v.appendChild(el("p","sub",subTxt));
+      v.appendChild(el("p","body",p.body));
+      resultEl.appendChild(v);
+    }
+
+    /* 節気との重なり */
+    var seasonRisk={"春":["kitai"],"夏":["inkyo","shitsunetsu"],"長夏":["tanshitsu","shitsunetsu"],"秋":["inkyo"],"冬":["yokyo","kekkyo"]};
+    var risk=seasonRisk[sea.label]||[];
+    var note=el("div","season-note");
+    note.appendChild(el("span","tag",sek[0]));
+    var hit=risk.filter(function(k){return byKey[k].pct>=25;});
+    var msg;
+    if(hit.length){
+      msg="いまは"+sea.label+"（"+sea.ja+"）の時期。"+hit.map(function(k){return P[k].n;}).join("と")+"はこの季節にいちばん出やすく、放っておくと長びきます。"+sek[4];
+    }else{
+      msg=sea.label+"は"+sea.zo+"をいたわる季節です。"+sek[4]+"　"+kei[1]+"の時間にあたるいまは、"+kei[2];
+    }
+    note.appendChild(el("p",null,msg));
+    resultEl.appendChild(note);
+
+    /* バー */
+    var bars=el("div","bars");
+    GROUPS.forEach(function(g){
+      var grp=el("div","bargroup");
+      grp.style.setProperty("--g","var(--"+g.key+")");
+      grp.appendChild(el("span","gl",g.label));
+      g.members.forEach(function(k){
+        var r=byKey[k];
+        var row=el("div","bar");
+        if(k===top.key&&top.pct>=12)row.dataset.top="1";
+        row.appendChild(el("span","bn",P[k].n));
+        var tr=el("span","track");
+        var fl=el("span","fill");
+        tr.appendChild(fl);
+        row.appendChild(tr);
+        row.appendChild(el("span","bp",r.pct+"%"));
+        grp.appendChild(row);
+        requestAnimationFrame(function(){fl.style.width=Math.max(r.pct,0)+"%";});
+      });
+      bars.appendChild(grp);
+    });
+    resultEl.appendChild(bars);
+
+    /* 養生 */
+    if(top.pct>=12){
+      var p2=P[top.key];
+      var care=el("dl","care");
+      function row(label,build){
+        var r=el("div","row");
+        r.appendChild(el("dt",null,label));
+        var dd=el("dd");build(dd);r.appendChild(dd);
+        care.appendChild(r);
+      }
+      row("食べる",function(dd){
+        var w=el("div","items");
+        p2.eat.forEach(function(x){w.appendChild(el("span",null,x));});
+        dd.appendChild(w);
+      });
+      row("ひかえる",function(dd){
+        var w=el("div","items");
+        p2.avoid.forEach(function(x){w.appendChild(el("span",null,x));});
+        dd.appendChild(w);
+      });
+      row("つぼ",function(dd){
+        var ul=el("ul","tsubo");
+        p2.tsubo.forEach(function(t){
+          var li=document.createElement("li");
+          var bb=document.createElement("b");bb.textContent=t[0];
+          li.appendChild(bb);li.appendChild(document.createTextNode(" "));
+          li.appendChild(el("span",null,t[1]));
+          ul.appendChild(li);
+        });
+        dd.appendChild(ul);
+      });
+      row("過ごし方",function(dd){dd.textContent=p2.life;});
+      resultEl.appendChild(care);
+    }
+    lastTop=top;
+  }
+
+  /* ---------- イベント ---------- */
+  monshin.addEventListener("change",function(){save();render();});
+  document.getElementById("clear").addEventListener("click",function(){
+    applyState({checks:[],radios:{}});
+    document.querySelectorAll('#monshin input[type=radio]').forEach(function(r){r.checked=false;});
+    save();render();
+    document.getElementById("status").textContent="印を外しました";
+  });
+  document.getElementById("copy").addEventListener("click",function(){
+    var rows=score().sort(function(a,b){return b.pct-a.pct;});
+    var t=[];
+    t.push("気血水カルテ　"+now.getFullYear()+"/"+(now.getMonth()+1)+"/"+now.getDate()+"（"+sek[0]+"・"+sea.label+"）");
+    t.push("");
+    rows.forEach(function(r){t.push(P[r.key].n+"　"+r.pct+"%");});
+    var topk=rows[0];
+    if(topk.pct>=12){
+      var p=P[topk.key];
+      t.push("");
+      t.push("【主証】"+p.n+"（"+p.y+"）— "+p.one);
+      t.push("食べる：/"+p.eat.join("・"));
+      t.push("ひかえる：/"+p.avoid.join("・"));
+      t.push("つぼ：/"+p.tsubo.map(function(x){return x[0];}).join("・"));
+      t.push("過ごし方：/"+p.life);
+    }else{
+      t.push("");
+      t.push("大きなかたよりなし（平和質）");
+    }
+    var text=t.join("\n").replace(/：\//g,"：");
+    var st=document.getElementById("status");
+    try{
+      navigator.clipboard.writeText(text).then(function(){st.textContent="クリップボードに書き出しました";},function(){st.textContent="コピーできませんでした。画面から書き写してください";});
+    }catch(e){st.textContent="コピーできませんでした。画面から書き写してください";}
+  });
+
+  /* ---------- 起動 ---------- */
+  var saved=load();
+  if(saved&&saved.checks){applyState(saved);}
+  else{
+    applyState(EXAMPLE);
+    var ex=el("p","example-note","例としていくつか印をつけてあります。自分の状態に合わせて付け替えてください。");
+    monshin.insertBefore(ex,monshin.firstChild);
+  }
+  render();
+})();
+</script>

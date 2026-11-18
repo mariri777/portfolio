@@ -1,8 +1,73 @@
 ---
 import '../styles/global.css';
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const SITE = 'https://mariri777.github.io/portfolio';
 
-const works = [
+// サービス・ツール
+const services = [
+  {
+    // いまは見られない状態なので、リンクなしで「おやすみ中」と表示する。再開したら URL を戻す
+    href: null,
+    title: '超!企業DB',
+    sub: 'AI が掘る、日本株の発見。',
+    kind: 'Webサービス',
+    summary:
+      '東証上場企業の有報・決算資料・適時開示を AI が読み込み、「ひとことで言うと何の会社か」「似たビジネスの会社」「市場が見落としていそうな論点」を銘柄ごとに一枚で見せる、個人投資家向けの銘柄分析サービス。業界マップ、スクリーニング、当たりも外れも公開する AI 予測トラッカーまで運営しています。',
+    tags: ['Next.js', 'Cloudflare Workers', 'D1', 'AI 解析'],
+    cover: null,
+    cta: 'サービスを見る',
+  },
+  {
+    href: 'https://mariri777.github.io/language-practice/',
+    title: '日々.',
+    sub: 'ことばを、すこしずつ、毎日。',
+    kind: '語学ツール集',
+    summary:
+      '中国語・韓国語・日本語を学ぶためのツール集。作文ドリル、書写と音読のジャーナル、聞き取り4択、AI による読解補助と作文添削、手書きの漢字検索まで、母国語ごとのチャンネルに揃えました。記録は端末に保存され、オフラインでも使えます。',
+    tags: ['3言語対応', 'HSK / TOPIK / JLPT', 'オフライン対応'],
+    cover: `${BASE}/covers/hibi.png`,
+    cta: 'ツールを使う',
+  },
+  {
+    href: `${BASE}/tools/kikketsusui.html`,
+    title: '気血水カルテ',
+    sub: '中医学のものさしで、いまの体をみる。',
+    kind: 'セルフチェックツール',
+    summary:
+      '中医学の問診と舌診から、いまかたよっている「証」と、今日からできる養生法を出すセルフチェック。二十四節気と時刻に合わせた一言も自動で入ります。1枚のHTMLだけで動きます。',
+    tags: ['中医学', '問診・舌診', '単体HTML'],
+    cover: `${BASE}/covers/kikketsusui.png`,
+    cta: 'チェックしてみる',
+  },
+];
+
+// ゲーム
+const games = [
+  {
+    href: 'https://sono-hantei.pages.dev/',
+    title: 'その判定、言うか。',
+    sub: 'サッカー監督シミュレーション',
+    summary:
+      '2部リーグのクラブの監督になって、1シーズンで昇格を目指すゲーム。敵は相手チームだけでなく、ときどき起きる「怪しい判定」。怒るのか、飲み込むのか。1プレイ約15分、結末は何通りもあります。',
+    tags: ['3D', 'マルチエンディング', '約15分'],
+    cover: `${BASE}/covers/soccer-og.jpg`,
+  },
+  {
+    href: 'https://mariri777.github.io/eiketsu-tairan/',
+    title: '英傑大乱',
+    sub: 'WORLD HEROES RAMPAGE',
+    summary:
+      '世界史の英雄になって史実の合戦に乱入する、一人称視点の一騎当千アクション。第1ステージはワーテルローの戦い。実際の戦闘経過がそのままゲームの進行になっていて、遊ぶほど世界史に詳しくなります。',
+    tags: ['一人称アクション', '世界史', 'Three.js'],
+    cover: `${BASE}/covers/eiketsu.png`,
+  },
+];
+
+// 100日チャレンジ（2026-11-15 時点）
+const days = { done: 47, tool: 34, game: 8, lp: 5, href: 'https://mariri777.github.io/100days_challenges/' };
+
+// Webデザイン
+const designs = [
   {
     slug: 'kodo-gym',
     href: `${BASE}/lp/gym.html`,
@@ -88,176 +153,736 @@ const works = [
     accent: 'from-[#D8E7F3] via-[#4A8DC7] to-[#2F6BA0]',
   },
 ];
+
+// マップ上の建物（下の4つのカテゴリと対応）。x,y は 16x12 マスのうち建物の左上のマス
+const spots = [
+  { id: 'services', label: 'サービス・ツール', x: 3, y: 1, name: 'サービス・ツール', kind: 'STAGE 1', text: '語学ツールや セルフチェックなど、まいにち つかえるものを ならべているよ。', href: '#services', cta: 'サービス・ツールを見る' },
+  { id: 'days', label: '100日チャレンジ', x: 11, y: 1, name: '100日チャレンジ', kind: `Lv.${days.done} / 100`, text: `まいにち ひとつ つくって公開する塔。いま ${days.done}かいまで のぼったよ。`, href: '#days', cta: '100日チャレンジを見る' },
+  { id: 'games', label: 'ゲーム', x: 3, y: 7, name: 'ゲーム', kind: 'STAGE 2', text: 'ブラウザで すぐ あそべる ゲームの おしろ。監督になったり、英雄になったり。', href: '#games', cta: 'ゲームを見る' },
+  { id: 'design', label: 'Webデザイン', x: 11, y: 7, name: 'Webデザイン', kind: 'STAGE 3', text: 'クリニックやパティスリーなど、世界観からつくったサイトを かざっているよ。', href: '#design', cta: 'Webデザインを見る' },
+];
 ---
 <!doctype html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="Mariri Portfolio — 美容クリニック / 動物病院 / ブランドLP 制作実績。" />
-    <meta name="theme-color" content="#F8F4ED" />
+    <title>mariri のまち — つくったものが集まるポートフォリオ</title>
+    <meta name="description" content="mariri のポートフォリオ。うさぎを歩かせて、語学ツール、ブラウザゲーム、Webデザイン、100日チャレンジの作品をめぐれます。" />
+    <meta name="theme-color" content="#ffd3e2" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={`${SITE}/`} />
+    <meta property="og:title" content="mariri のまち — つくったものが集まるポートフォリオ" />
+    <meta property="og:description" content="うさぎを歩かせて、サービスもゲームもデザインも、つくったものをめぐれます。" />
+    <meta property="og:image" content={`${SITE}/og.png`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@mariri_7777777" />
     <link rel="icon" type="image/svg+xml" href={`${BASE}/favicon.svg`} />
-    <title>Mariri — ポートフォリオ / Web デザイン・実装</title>
+    <link rel="apple-touch-icon" href={`${BASE}/apple-touch-icon.png`} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Noto+Sans+JP:wght@300;400;500;600&family=Shippori+Mincho+B1:wght@400;500;600;800&display=swap"
-      rel="stylesheet"
-    />
-    <style>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet" />
+    <style is:global>
       :root {
-        --bg: #FAF7F2;
-        --ink: #1F1A15;
-        --ink-2: #4A4138;
-        --muted: #8A7F72;
-        --hair: rgba(31, 26, 21, 0.12);
-        --accent: #A88974;
-        --accent-deep: #6E5644;
+        --bg: #ffd3e2;
+        --win: #fffafc;
+        --ink: #4a2340;
+        --muted: #96607e;
+        --yellow: #e0457b;
+        --pink: #b83280;
+        --green: #2f8a4f;
+        --cyan: #2a7fa0;
+        --line: #4a2340;
       }
+      html { scroll-behavior: smooth; scroll-padding-top: 16px; }
       html, body { background: var(--bg); color: var(--ink); cursor: auto; overflow-x: clip; }
-      body { font-family: "Noto Sans JP", system-ui, sans-serif; font-weight: 400; }
-      .font-display { font-family: "Cormorant Garamond", "Shippori Mincho B1", serif; }
-      .font-mincho { font-family: "Shippori Mincho B1", serif; }
-      .hair { border-top: 1px solid var(--hair); }
-      .work-card { transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
-      .work-card:hover .cover-img { transform: scale(1.05); }
-      .work-card:hover .arrow { transform: translateX(8px); }
-      .cover-img, .arrow { transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
-      .grain::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.35 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-        opacity: 0.06;
-        mix-blend-mode: multiply;
-        pointer-events: none;
+      body {
+        font-family: "DotGothic16", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+        font-size: 15px;
+        line-height: 1.9;
+        letter-spacing: 0.04em;
+        background-image:
+          radial-gradient(#ffffffd0 1px, transparent 1px),
+          radial-gradient(#ffffff99 2px, transparent 1px);
+        background-size: 120px 120px, 76px 76px;
+        background-position: 10px 20px, 40px 60px;
       }
-      ::selection { background: var(--ink); color: var(--bg); }
-      .eyebrow-tag {
-        font-family: "Cormorant Garamond", serif;
-        font-style: italic;
-        font-size: 14px;
-        letter-spacing: 0.06em;
-        color: var(--accent-deep);
+      a { color: inherit; }
+      [hidden] { display: none !important; }
+      .wrap { max-width: 960px; margin-inline: auto; padding-inline: 20px; }
+      /* ドット絵ふうのウィンドウ枠 */
+      .win {
+        background: var(--win);
+        box-shadow: 0 -4px var(--line), 0 4px var(--line), -4px 0 var(--line), 4px 0 var(--line);
+        margin: 4px;
+      }
+      .btn {
+        display: inline-block;
+        background: var(--yellow);
+        color: #fff;
+        padding: 6px 16px;
+        text-decoration: none;
+        box-shadow: 0 -4px var(--line), 0 4px var(--line), -4px 0 var(--line), 4px 0 var(--line), 4px 8px 0 #4a234033;
+        margin: 4px;
+        cursor: pointer;
+        border: 0;
+        font: inherit;
+      }
+      .btn:hover, .btn:focus-visible { background: #fff; color: var(--line); outline: none; }
+      .btn:active { transform: translateY(2px); }
+      :focus-visible { outline: 2px dashed var(--yellow); outline-offset: 3px; }
+
+      /* タイトル */
+      .title { text-align: center; padding: 28px 0 20px; }
+      .title .logo { font-size: clamp(40px, 11vw, 64px); line-height: 1.1; color: var(--yellow); text-shadow: 4px 4px 0 #fff, 8px 8px 0 #4a234026; letter-spacing: 0.06em; }
+      .title .sub { margin-top: 12px; font-size: clamp(14px, 3.6vw, 18px); color: var(--ink); }
+      .blink { animation: blink 1.1s steps(1) infinite; }
+      @keyframes blink { 50% { opacity: 0; } }
+
+      /* ゲーム画面 */
+      .stage { max-width: 776px; margin-inline: auto; }
+      .screen { position: relative; line-height: 0; }
+      .screen canvas { width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; display: block; touch-action: manipulation; cursor: pointer; }
+      .tag {
+        position: absolute;
+        transform: translate(-50%, -115%);
+        background: #fffafcf2;
+        color: var(--ink);
+        font: inherit;
+        font-size: clamp(9px, 2.3vw, 14px);
+        line-height: 1.3;
+        padding: 1px 6px;
+        border: 0;
+        white-space: nowrap;
+        cursor: pointer;
+        box-shadow: 0 -2px var(--line), 0 2px var(--line), -2px 0 var(--line), 2px 0 var(--line);
+      }
+      .tag:hover, .tag.on { background: var(--yellow); color: #fff; }
+      .dialog { margin-top: 16px; padding: 14px 18px 16px; min-height: 148px; }
+      .dialog .who { color: var(--yellow); font-size: 16px; }
+      .dialog .kind { color: var(--cyan); font-size: 12px; margin-left: 10px; }
+      .dialog .say { margin-top: 4px; min-height: 3.8em; }
+      .dialog .act { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+      .howto { margin-top: 14px; text-align: center; font-size: 12px; color: var(--muted); }
+      .fishbook { margin-top: 14px; text-align: center; }
+      #book { margin-top: 18px; padding: 16px; text-align: left; }
+      #book-list { display: grid; gap: 14px 18px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+      #book-list li { display: flex; align-items: center; gap: 12px; }
+      #book-list canvas { width: 64px; height: 40px; flex: none; image-rendering: pixelated; image-rendering: crisp-edges; background: #fffafc; box-shadow: 0 -2px var(--line), 0 2px var(--line), -2px 0 var(--line), 2px 0 var(--line); }
+      #book-list .nm { color: var(--yellow); line-height: 1.5; }
+      #book-list .cm { font-size: 12px; line-height: 1.6; }
+      #book-list .yet .nm, #book-list .yet .cm { color: var(--muted); }
+      /* パソコン幅では、マップの右にセリフ枠をならべて、スクロールなしで両方見えるようにする */
+      @media (min-width: 900px) {
+        .stage { max-width: none; display: grid; grid-template-columns: auto 290px; justify-content: center; align-items: stretch; gap: 0 20px; }
+        .stage .screen { width: clamp(400px, calc((100vh - 240px) * 4 / 3), 580px); align-self: start; }
+        .stage .dialog { margin-top: 4px; min-height: 0; display: flex; flex-direction: column; padding: 18px 20px 20px; }
+        .stage .dialog .say { flex: 1; margin-top: 10px; }
+        .stage .dialog .kind { display: block; margin-left: 0; }
+        .stage .howto, .stage .fishbook { grid-column: 1 / -1; }
+      }
+
+      /* 作品ずかん */
+      .sec { padding-top: 72px; }
+      .sec-h { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 16px; margin-bottom: 24px; }
+      .sec-h .no { color: var(--pink); font-size: 14px; }
+      .sec-h h2 { font-size: clamp(22px, 5.4vw, 30px); font-weight: 400; color: var(--yellow); line-height: 1.4; }
+      .sec-h p { font-size: 13px; color: var(--muted); width: 100%; }
+      .grid { display: grid; gap: 28px 24px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+      .grid.sm { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+      .item { display: block; text-decoration: none; padding: 12px 12px 16px; position: relative; }
+      a.item:hover, a.item:focus-visible { box-shadow: 0 -4px var(--yellow), 0 4px var(--yellow), -4px 0 var(--yellow), 4px 0 var(--yellow); outline: none; }
+      a.item:hover .go { color: var(--yellow); }
+      .item .pic { aspect-ratio: 16 / 10; overflow: hidden; background: #ffe6ef; position: relative; }
+      .item .pic img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+      .item .pic.center img { object-position: center; }
+      .item .pic.wide { aspect-ratio: 40 / 21; }
+      .item .kind { margin-top: 12px; font-size: 12px; color: var(--cyan); }
+      .item h3 { font-size: 20px; font-weight: 400; line-height: 1.5; }
+      .item .txt { margin-top: 6px; font-size: 13px; color: var(--ink); line-height: 1.8; }
+      .item .tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px; color: var(--green); }
+      .item .tags li::before { content: "#"; }
+      .item .go { margin-top: 12px; font-size: 13px; }
+      .closed-pic { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; background: repeating-linear-gradient(135deg, #ffe6ef 0 16px, #ffd3e2 16px 32px); color: var(--yellow); line-height: 1.6; }
+      .closed-pic b { display: block; font-weight: 400; font-size: 26px; color: var(--ink); }
+      .badge { display: inline-block; background: var(--pink); color: #fff; font-size: 11px; padding: 0 8px; margin-left: 8px; vertical-align: middle; }
+
+      /* 100日チャレンジ */
+      .days { padding: 22px 20px 24px; display: grid; gap: 22px; grid-template-columns: 1fr; align-items: center; text-decoration: none; }
+      @media (min-width: 720px) { .days { grid-template-columns: 1.1fr 1fr; padding: 28px; } }
+      .lv { font-size: clamp(36px, 9vw, 56px); line-height: 1.1; color: var(--yellow); }
+      .lv small { font-size: 16px; color: var(--muted); margin-left: 8px; }
+      .exp { margin-top: 14px; height: 20px; background: #ffd3e2; position: relative; box-shadow: 0 -2px var(--line), 0 2px var(--line), -2px 0 var(--line), 2px 0 var(--line); }
+      .exp i { position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(90deg, var(--green) 0 6px, #3f9a4b 6px 8px); }
+      .stats { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 14px; }
+      .stats b { font-weight: 400; color: var(--yellow); }
+
+      footer { margin-top: 88px; padding: 32px 0 48px; border-top: 4px dotted #4a234044; text-align: center; font-size: 13px; color: var(--muted); }
+      footer .links { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 20px; }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .blink { animation: none; }
       }
     </style>
   </head>
-  <body class="antialiased">
-    <!-- Nav -->
-    <header class="fixed top-0 inset-x-0 z-40 backdrop-blur bg-[rgba(250,247,242,0.78)] border-b border-[rgba(31,26,21,0.08)]">
-      <div class="max-w-[1320px] mx-auto px-5 md:px-10 h-16 md:h-20 flex items-center justify-between">
-        <a href={BASE} class="flex items-baseline gap-2 text-[var(--ink)]">
-          <span class="font-display text-[22px] md:text-[26px] tracking-wide">Mariri</span>
-          <span class="font-display italic text-[12px] md:text-[14px] text-[var(--accent-deep)] tracking-[0.16em]">portfolio</span>
-        </a>
-        <nav class="hidden md:flex items-center gap-9 text-[12px] tracking-[0.18em] text-[var(--ink-2)]">
-          <a href="#works" class="hover:text-[var(--accent-deep)] transition-colors">制作実績</a>
-        </nav>
-      </div>
-    </header>
+  <body id="top" class="antialiased">
+    <main class="wrap">
+      <header class="title">
+        <h1 class="logo">mariri のまち</h1>
+        <p class="sub">つくったものが あつまる ちいさなまち。</p>
+      </header>
 
-    <!-- Hero -->
-    <section class="relative pt-32 md:pt-44 pb-20 md:pb-28 overflow-hidden">
-      <div class="max-w-[1320px] mx-auto px-5 md:px-10">
-        <div class="eyebrow-tag mb-8">— portfolio 2026</div>
-        <h1 class="font-mincho leading-[1.18] tracking-tight text-[var(--ink)]">
-          <span class="block text-[clamp(34px,5.4vw,76px)] font-light">静かなデザインで、</span>
-          <span class="block text-[clamp(34px,5.4vw,76px)] font-light text-[var(--accent-deep)]">ブランドの世界観をつくる。</span>
-        </h1>
-        <div class="mt-6 font-display italic text-[var(--accent)] text-[clamp(18px,2.2vw,28px)] tracking-wide">
-          — quiet design for the web.
-        </div>
-
-        <div class="mt-12 md:mt-16 grid grid-cols-12 gap-6 md:gap-10 items-end">
-          <p class="col-span-12 md:col-span-7 font-mincho text-[15px] md:text-[17px] leading-[2.1] text-[var(--ink-2)] max-w-[640px]">
-            Webデザインとフロントエンド実装を行っています。<br />
-            ブランドの世界観を、静かに、確かに、ピクセル単位で。
-          </p>
-          <div class="col-span-12 md:col-span-5 grid grid-cols-2 gap-6">
-            <div>
-              <div class="font-display text-[36px] md:text-[44px] text-[var(--ink)] leading-none">100%</div>
-              <div class="mt-2 text-[11px] tracking-[0.18em] text-[var(--muted)]">手仕事</div>
-            </div>
-            <div>
-              <div class="font-display text-[36px] md:text-[44px] text-[var(--ink)] leading-none">2026</div>
-              <div class="mt-2 text-[11px] tracking-[0.18em] text-[var(--muted)]">最新公開</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="max-w-[1320px] mx-auto px-5 md:px-10"><div class="hair"></div></div>
-
-    <!-- Works -->
-    <section id="works" class="relative py-20 md:py-32">
-      <div class="max-w-[1320px] mx-auto px-5 md:px-10">
-        <div class="flex items-end justify-between flex-wrap gap-6 mb-12 md:mb-20">
-          <div>
-            <div class="eyebrow-tag mb-5">— selected works</div>
-            <h2 class="font-mincho leading-[1.15] text-[clamp(30px,4.6vw,64px)] font-light">
-              <span class="block">これまでの</span>
-              <span class="block text-[var(--accent-deep)]">制作実績。</span>
-            </h2>
-          </div>
-          <p class="max-w-[420px] font-mincho text-[14px] leading-[2] text-[var(--muted)]">
-            ブランド設計からデザイン・実装まで<br />
-            一貫して担当した作品です。<br />
-            カードをクリックすると実際のLPに移動します。
-          </p>
-        </div>
-
-        <div class="space-y-12 md:space-y-24">
-          {works.map((w, i) => (
-            <a href={w.href} class="work-card group block">
-              <article class="grid grid-cols-12 gap-4 md:gap-8 items-center">
-                <div class={`col-span-12 md:col-span-7 ${i % 2 === 1 ? 'md:order-2' : ''}`}>
-                  <div class="relative aspect-[5/4] md:aspect-[16/11] overflow-hidden rounded-[2px] grain shadow-[0_30px_60px_-30px_rgba(31,26,21,0.25)]">
-                    <img src={w.cover} alt={w.title} class="cover-img absolute inset-0 w-full h-full object-cover" loading={i === 0 ? 'eager' : 'lazy'} />
-                    <div class={`absolute inset-0 bg-gradient-to-br ${w.accent} mix-blend-overlay opacity-25`}></div>
-                    <div class="absolute top-4 left-4 right-4 flex items-start justify-between text-[10px] tracking-[0.3em] uppercase">
-                      <span class="text-white/85 mix-blend-difference">{`no. ${w.no}`}</span>
-                      <span class="text-white/85 mix-blend-difference">{w.year}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class={`col-span-12 md:col-span-5 ${i % 2 === 1 ? 'md:order-1 md:pr-8' : 'md:pl-8'}`}>
-                  <div class="flex items-baseline gap-3 mb-4">
-                    <span class="font-display italic text-[22px] text-[var(--accent-deep)]">{`(${w.no})`}</span>
-                    <span class="text-[11px] tracking-[0.18em] text-[var(--muted)]">{w.role}</span>
-                  </div>
-                  <h3 class="font-mincho text-[clamp(24px,3.2vw,40px)] leading-[1.35] text-[var(--ink)] font-light">
-                    {w.title}
-                  </h3>
-                  <div class="mt-3 font-display italic text-[var(--accent-deep)] text-[18px] md:text-[20px]">— {w.sub}</div>
-                  <p class="mt-6 font-mincho text-[14px] leading-[2] text-[var(--ink-2)] max-w-[460px]">{w.summary}</p>
-                  <ul class="mt-6 flex flex-wrap gap-2">
-                    {w.tags.map((t) => (
-                      <li class="px-3 py-1 rounded-full bg-white border border-[rgba(31,26,21,0.12)] text-[11px] tracking-wider text-[var(--ink-2)]">{t}</li>
-                    ))}
-                  </ul>
-                  <div class="mt-8 inline-flex items-center gap-3 text-[12px] tracking-[0.22em] text-[var(--ink)] border-b border-[rgba(31,26,21,0.3)] pb-1">
-                    <span>この作品を見る</span>
-                    <svg class="arrow w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                  </div>
-                </div>
-              </article>
-            </a>
+      <!-- あるけるマップ -->
+      <section class="stage" aria-label="作品をめぐるマップ">
+        <div class="win screen">
+          <canvas id="map" width="256" height="192" tabindex="0" aria-label="うさぎを歩かせて作品の建物をめぐるマップ。建物の名前ボタンからも移動できます。"></canvas>
+          {spots.map((s) => (
+            <button type="button" class="tag" data-spot={s.id} style={`left:${((s.x + 1) / 16) * 100}%;top:${(s.y / 12) * 100}%`}>{s.label}</button>
           ))}
         </div>
-      </div>
-    </section>
-
-    <footer class="border-t border-[rgba(31,26,21,0.08)] mt-12 md:mt-20">
-      <div class="max-w-[1320px] mx-auto px-5 md:px-10 py-8 flex flex-wrap items-center justify-between gap-4 text-[11px] tracking-[0.18em] text-[var(--muted)]">
-        <div>© 2026 Mariri Portfolio. All rights reserved.</div>
-        <div class="flex items-center gap-5">
-          <a href={`${BASE}/works/beauty-clinic`} class="hover:text-[var(--ink)] transition-colors">美容クリニック</a>
-          <a href={`${BASE}/works/rabbit-clinic`} class="hover:text-[var(--ink)] transition-colors">うさぎ病院</a>
+        <div class="win dialog" aria-live="polite">
+          <div><span class="who" id="dlg-who">うさぎ</span><span class="kind" id="dlg-kind"></span></div>
+          <p class="say" id="dlg-say">ようこそ、mariri のまちへ。たてものの まえに たつと、つくったものを しょうかいするよ。</p>
+          <div class="act">
+            <a class="btn" id="dlg-go" href="#zukan" hidden>▶ ひらく</a>
+            <button type="button" class="btn" id="dlg-act" hidden>▶ つりをする</button>
+            <span class="blink" id="dlg-next" aria-hidden="true">▼</span>
+          </div>
         </div>
+        <p class="howto">タップ / やじるしキー / WASD で あるく ・ たてものの名前をおすと そこまで あるきます<br />いけの ちかくに いくと…？<br /><a href="#zukan">あるかずに 一覧でみる ▼</a></p>
+        <div class="fishbook" id="fishbook" hidden>
+          <button type="button" class="btn" id="book-btn" aria-expanded="false" aria-controls="book">▶ つりずかん</button>
+          <div class="win" id="book" hidden><ul id="book-list"></ul></div>
+        </div>
+      </section>
+
+      <!-- 作品ずかん -->
+      <div id="zukan">
+        <section class="sec" id="services">
+          <div class="sec-h"><span class="no">STAGE 1</span><h2>サービス・ツール</h2></div>
+          <div class="grid">
+            {services.map((w) => {
+              const Tag = w.href ? 'a' : 'div';
+              const ext = w.href && w.href.startsWith('http');
+              return (
+                <Tag class="win item" href={w.href || undefined} target={ext ? '_blank' : undefined} rel={ext ? 'noopener' : undefined}>
+                  <div class="pic">
+                    {w.cover ? <img src={w.cover} alt={`${w.title} の画面`} loading="lazy" /> : <div class="closed-pic"><div><b>{w.title}</b>ただいま じゅんびちゅう</div></div>}
+                  </div>
+                  <div class="kind">{w.kind}</div>
+                  <h3>{w.title}{!w.href && <span class="badge">おやすみ中</span>}</h3>
+                  <p class="txt">{w.summary}</p>
+                  <ul class="tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
+                  {w.href && <div class="go">▶ {w.cta}</div>}
+                </Tag>
+              );
+            })}
+          </div>
+        </section>
+
+        <section class="sec" id="games">
+          <div class="sec-h"><span class="no">STAGE 2</span><h2>ゲーム</h2><p>インストール不要。ブラウザを開けば、そのまま遊べます。</p></div>
+          <div class="grid">
+            {games.map((w) => (
+              <a class="win item" href={w.href} target="_blank" rel="noopener">
+                <div class="pic center wide"><img src={w.cover} alt={`${w.title} のタイトル画面`} loading="lazy" /></div>
+                <div class="kind">{w.sub}</div>
+                <h3>{w.title}</h3>
+                <p class="txt">{w.summary}</p>
+                <ul class="tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
+                <div class="go">▶ 遊んでみる</div>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <section class="sec" id="design">
+          <div class="sec-h"><span class="no">STAGE 3</span><h2>Webデザイン</h2><p>世界観の設計から、デザイン、実装まで。すべて架空のブランドを題材にした試作です。</p></div>
+          <div class="grid sm">
+            {designs.map((w) => (
+              <a class="win item" href={w.href}>
+                <div class="pic center"><img src={w.cover.replace('w=1600', 'w=700')} alt={w.title} loading="lazy" /></div>
+                <div class="kind">{w.sub}</div>
+                <h3 style="font-size:16px">{w.title}</h3>
+                <ul class="tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <section class="sec" id="days">
+          <div class="sec-h"><span class="no">STAGE 4</span><h2>100日チャレンジ</h2><p>毎日ひとつ、ツールやゲームやLPをつくって公開していく記録です。</p></div>
+          <a class="win item days" href={days.href} target="_blank" rel="noopener">
+            <div>
+              <div class="lv">Lv.{days.done}<small>/ 100</small></div>
+              <div class="exp" role="img" aria-label={`100日のうち${days.done}日まで進行`}><i style={`width:${days.done}%`}></i></div>
+              <div class="stats"><span>ツール <b>{days.tool}</b></span><span>ゲーム <b>{days.game}</b></span><span>LP <b>{days.lp}</b></span></div>
+              <div class="go">▶ 全作品を見る</div>
+            </div>
+            <div class="pic"><img src={`${BASE}/covers/days.png`} alt="100 Days Challenges の一覧ページ" loading="lazy" /></div>
+          </a>
+        </section>
       </div>
-    </footer>
+
+      <footer>
+        <div class="links">
+          <a class="btn" href="https://x.com/mariri_7777777" target="_blank" rel="noopener">X @mariri_7777777</a>
+          <a class="btn" href="https://github.com/mariri777" target="_blank" rel="noopener">GitHub</a>
+          <a class="btn" href="#top">▲ まちに もどる</a>
+        </div>
+        <div>© 2026 mariri</div>
+      </footer>
+    </main>
+
+    <script is:inline define:vars={{ SPOTS: spots }}>
+      (function () {
+        var cv = document.getElementById('map');
+        var ctx = cv.getContext('2d');
+        var W = 16, H = 12, T = 16;
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var rows = [
+          'TTTTTTTTTTT..TTT',
+          'T..............T',
+          'T.f............T',
+          'T..pp..p...pp..T',
+          'TppppppppppppppT',
+          'T.f....pp...ww.T',
+          'T......pp.f.ww.T',
+          'T......pp......T',
+          'T.f....pp......T',
+          'T..pp..pp..pp..T',
+          'TppppppppppppppT',
+          'TTTTTTTTTTTTTTTT'
+        ];
+        var solid = [];
+        for (var y = 0; y < H; y++) { solid.push([]); for (var x = 0; x < W; x++) { var c = rows[y][x]; solid[y].push(c === 'T' || c === 'w'); } }
+        SPOTS.forEach(function (s) { for (var dy = 0; dy < 2; dy++) for (var dx = 0; dx < 2; dx++) solid[s.y + dy][s.x + dx] = true; });
+        solid[0][11] = solid[0][12] = true;
+        // かんばん（上の2軒のあいだ）。下のマスに立つと読める
+        var SIGN = { id: 'sign', x: 7, y: 2, name: 'かんばん', kind: '', text: '「ここは mariri のまち」　つくったものが あつまる ちいさなまち。', href: null };
+        solid[SIGN.y][SIGN.x] = true;
+        function drawSign(X, Y) {
+          r(X + 3, Y + 15, 10, 1, '#00000022');
+          r(X + 7, Y + 10, 2, 6, '#8a5a3a');
+          r(X + 1, Y + 2, 14, 9, '#8a5a3a'); r(X + 2, Y + 3, 12, 7, '#e8b877');
+          r(X + 4, Y + 5, 8, 1, '#8a5a3a'); r(X + 4, Y + 7, 6, 1, '#8a5a3a');
+        }
+
+        function r(x, y, w, h, c) { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); }
+        function hash(x, y) { var n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); }
+
+        function tile(x, y, t) {
+          var X = x * T, Y = y * T, c = rows[y][x];
+          r(X, Y, T, T, (x + y) % 2 ? '#c4ebb2' : '#cdf0bc');
+          if (hash(x, y) > 0.5) { r(X + 3, Y + 5, 1, 2, '#93d193'); r(X + 11, Y + 10, 1, 2, '#93d193'); }
+          if (c === 'p') {
+            r(X, Y, T, T, '#fff3e0');
+            r(X + 4, Y + 3, 2, 1, '#f0d6b4'); r(X + 10, Y + 11, 2, 1, '#f0d6b4'); r(X + 12, Y + 5, 1, 1, '#ffffff');
+          } else if (c === 'w') {
+            r(X, Y, T, T, '#9ed9f7');
+            var o = Math.floor(t / 500) % 2;
+            r(X + 2 + o * 2, Y + 4, 4, 1, '#ffffff'); r(X + 9 - o * 2, Y + 11, 4, 1, '#ffffff');
+          } else if (c === 'f') {
+            r(X + 4, Y + 6, 2, 2, '#ff7aa8'); r(X + 5, Y + 8, 1, 3, '#63b872');
+            r(X + 10, Y + 3, 2, 2, '#ffd23f'); r(X + 11, Y + 5, 1, 3, '#63b872');
+          } else if (c === 'T') {
+            r(X + 6, Y + 10, 4, 6, '#b5805e');
+            r(X + 3, Y + 1, 10, 10, '#63b872'); r(X + 1, Y + 3, 14, 6, '#63b872');
+            r(X + 4, Y + 2, 5, 3, '#8fd694'); r(X + 2, Y + 5, 3, 2, '#8fd694');
+            r(X + 3, Y + 10, 10, 1, '#4a9a5e');
+          }
+        }
+
+        // 建物（32x32）。roofH を変えると背が高くなる
+        function house(X, Y, o) {
+          var i;
+          r(X + 2, Y + 13, 28, 19, o.wall);
+          r(X + 2, Y + 13, 28, 2, o.shade || '#00000033');
+          r(X + 2, Y + 31, 28, 1, '#00000055');
+          if (o.roofType === 'flat') {
+            r(X + 1, Y + 2, 30, 12, o.wall); r(X, Y + 1, 32, 3, o.roof);
+          } else if (o.roofType === 'castle') {
+            r(X + 2, Y + 5, 28, 9, o.wall);
+            for (i = 0; i < 5; i++) r(X + 2 + i * 6, Y + 1, 4, 4, o.wall);
+            r(X + 2, Y + 5, 28, 1, o.roof);
+          } else if (o.roofType === 'pediment') {
+            for (i = 0; i < 6; i++) r(X + 14 - i * 3 + 1, Y + 2 + i * 2, 2 + i * 6, 2, o.roof);
+            r(X, Y + 12, 32, 2, o.roof);
+          } else {
+            for (i = 0; i < 12; i++) { var inset = Math.max(0, 11 - i); r(X + inset, Y + 1 + i, 32 - inset * 2, 1, i % 4 === 3 ? o.roofDark : o.roof); }
+            r(X, Y + 12, 32, 2, o.roofDark);
+          }
+          r(X + 13, Y + 21, 6, 11, o.door || '#6b3d1e'); r(X + 17, Y + 26, 1, 1, '#ffd23f');
+          if (o.windows !== false) {
+            r(X + 5, Y + 18, 5, 5, '#1b1d3a'); r(X + 6, Y + 19, 3, 3, o.glass || '#ffe58a');
+            r(X + 22, Y + 18, 5, 5, '#1b1d3a'); r(X + 23, Y + 19, 3, 3, o.glass || '#ffe58a');
+          }
+        }
+        var draw = {
+          services: function (X, Y) {
+            house(X, Y, { wall: '#7d84a6', roof: '#4a4f73', roofType: 'flat', windows: false, door: '#2a2c40' });
+            for (var j = 0; j < 2; j++) for (var i = 0; i < 4; i++) r(X + 4 + i * 7, Y + 6 + j * 6, 4, 3, (i + j) % 2 ? '#ffe58a' : '#2a2c40');
+            r(X + 4, Y + 19, 6, 5, '#ffe58a'); r(X + 22, Y + 19, 6, 5, '#ffe58a');
+          },
+          days: function (X, Y) {
+            r(X + 8, Y - 12, 16, 26, '#f4b6c8'); r(X + 8, Y - 12, 16, 2, '#00000022');
+            for (var i = 0; i < 6; i++) r(X + 6 + i * 2 - (i > 2 ? (i - 3) * 4 + 2 : 0) + (i > 2 ? 6 : 0), Y - 14 - i * 2 + (i > 2 ? (i - 3) * 4 + 2 : 0), 1, 1, '#0000');
+            for (i = 0; i < 5; i++) r(X + 6 + i * 2, Y - 14 - i * 2, 20 - i * 4, 2, '#d9486e');
+            r(X + 15, Y - 30, 1, 8, '#f4f1e8'); r(X + 16, Y - 30, 6, 4, '#ffd23f');
+            r(X + 11, Y - 7, 3, 4, '#1b1d3a'); r(X + 18, Y - 7, 3, 4, '#1b1d3a'); r(X + 11, Y + 2, 3, 4, '#1b1d3a'); r(X + 18, Y + 2, 3, 4, '#1b1d3a');
+            house(X, Y, { wall: '#ffd9e2', roof: '#d9486e', roofDark: '#a82f52', roofType: 'none-keep', glass: '#fff3b0' });
+            r(X + 8, Y - 2, 16, 3, '#f4b6c8'); r(X + 11, Y + 2, 3, 4, '#1b1d3a'); r(X + 18, Y + 2, 3, 4, '#1b1d3a');
+          },
+          games: function (X, Y) {
+            house(X, Y, { wall: '#8d93a6', roof: '#5a5f73', roofType: 'castle', door: '#3a2414', glass: '#ffb84a' });
+            r(X + 15, Y - 9, 1, 10, '#f4f1e8'); r(X + 16, Y - 9, 7, 5, '#d83a3a'); r(X + 18, Y - 7, 2, 1, '#ffd23f');
+            r(X + 12, Y + 19, 8, 2, '#3a2414');
+          },
+          design: function (X, Y) {
+            house(X, Y, { wall: '#faf7f2', roof: '#a88974', roofType: 'pediment', windows: false, door: '#6e5644' });
+            for (var i = 0; i < 4; i++) { r(X + 4 + i * 7 + (i > 1 ? 1 : 0), Y + 15, 3, 16, '#e3d8c8'); r(X + 4 + i * 7 + (i > 1 ? 1 : 0), Y + 15, 1, 16, '#ffffff'); }
+            r(X + 13, Y + 21, 6, 11, '#6e5644');
+          }
+        };
+
+        var bunny = [
+          '....kk....kk....', '...kwwk..kwwk...', '...kwpk..kpwk...', '...kwpk..kpwk...',
+          '...kwwk..kwwk...', '..kwwwwkkwwwwk..', '..kwwwwwwwwwwk..', '..kwwwwwwwwwwk..',
+          '..kwwwwwwwwwwk..', '...kwwwwwwwwk...', '..kkwwwwwwwwkk..', '..kwwwwwwwwwwk..',
+          '..kwwwwwwwwwwk..', '...kwwkkkkwwk...', '...kwwk..kwwk...', '...kkkk..kkkk...'
+        ];
+        var pal = { k: '#2a2440', w: '#ffffff', p: '#ffa6c4' };
+        function drawBunny(px, py, dir, step) {
+          var X = Math.round(px), Y = Math.round(py) - 5;
+          r(X + 3, Y + 15, 10, 2, '#00000033');
+          for (var y = 0; y < 16; y++) {
+            var row = bunny[y], yy = Y + y;
+            for (var x = 0; x < 16; x++) {
+              var c = row[x]; if (c === '.') continue;
+              var up = 0;
+              if (y >= 13 && step) up = (x < 8) === (step === 1) ? -1 : 0;
+              r(X + x, yy + up, 1, 1, pal[c]);
+            }
+          }
+          if (dir !== 'up') {
+            var sx = dir === 'left' ? -1 : dir === 'right' ? 1 : 0;
+            r(X + 5 + sx, Y + 7, 1, 2, '#2a2440'); r(X + 10 + sx, Y + 7, 1, 2, '#2a2440');
+            r(X + 7 + sx, Y + 9, 2, 1, '#ffa6c4');
+            r(X + 4 + sx, Y + 9, 1, 1, '#ffd0de'); r(X + 11 + sx, Y + 9, 1, 1, '#ffd0de');
+          } else {
+            r(X + 7, Y + 12, 3, 2, '#f0f0f0');
+          }
+        }
+
+        var PETS = {
+          dog: { pal: { k: '#4a2f22', o: '#c98a52', d: '#8a5a3a' }, nose: '#2a2440', rows: [
+            '................', '................', '................', '................',
+            '...kkkkkkkkkk...', 'kdkooooooooookdk', 'kdkooooooooookdk', 'kdkooooooooookdk',
+            '.kkooooooooookk.', '...kooooooook...', '..kkooooooookk..', '..koooooooooook.'.slice(0, 16),
+            '..kooooooooook..', '...kookkkkook...', '...kook..kook...', '...kkkk..kkkk...'
+          ] },
+          cat: { pal: { k: '#3a3340', o: '#b9b3c4', d: '#8d879a' }, nose: '#ff8fb0', rows: [
+            '................', '................', '..kk........kk..', '..kok......kok..',
+            '..kook....kook..', '..kooookkooook..', '..kooooooooook..', '..kooooooooook..',
+            '..kooooooooook..', '...kooooooook...', '..kkooooooookk..', '..kooooooooook..',
+            '..kooooooooookkk', '...kookkkkookkdk', '...kook..kook.kk', '...kkkk..kkkk...'
+          ] }
+        };
+        function drawPet(n) {
+          var sp = PETS[n.id], X = Math.round(n.px), Y = Math.round(n.py) - 4;
+          var step = n.moving ? (Math.floor(n.dist / 5) % 2) + 1 : 0;
+          r(X + 3, Y + 15, 10, 2, '#00000026');
+          for (var y = 0; y < 16; y++) {
+            var row = sp.rows[y];
+            for (var x = 0; x < 16; x++) {
+              var c = row[x]; if (!c || c === '.') continue;
+              var up = (y >= 13 && step && x < 13) ? ((x < 8) === (step === 1) ? -1 : 0) : 0;
+              r(X + x, Y + y + up, 1, 1, sp.pal[c]);
+            }
+          }
+          r(X + 5, Y + 7, 1, 2, '#2a2440'); r(X + 10, Y + 7, 1, 2, '#2a2440');
+          r(X + 7, Y + 9, 2, 1, sp.nose);
+          if (n.id === 'cat') { r(X + 3, Y + 9, 2, 1, '#ffffff'); r(X + 11, Y + 9, 2, 1, '#ffffff'); }
+          else r(X + 7, Y + 10, 2, 1, '#e86a8a');
+        }
+        function drawItem(it, X, Y) {
+          r(X - 1, Y - 1, 12, 8, '#fffafc'); r(X - 2, Y, 14, 6, '#fffafc');
+          if (it.k === 'boot') { r(X + 3, Y, 3, 5, it.col); r(X + 3, Y + 4, 6, 2, it.col); }
+          else if (it.k === 'carrot') { r(X + 1, Y + 2, 3, 2, '#4a9a5e'); r(X + 3, Y + 1, 4, 4, it.col); r(X + 7, Y + 2, 2, 2, it.col); }
+          else { r(X + 2, Y + 1, 5, 4, it.col); r(X + 1, Y + 2, 7, 2, it.col); r(X + 8, Y + 1, 1, 4, it.col); r(X + 7, Y + 2, 1, 2, it.col); r(X + 2, Y + 2, 1, 1, '#2a2440'); }
+        }
+
+        var P = { tx: 7, ty: 5, px: 7 * T, py: 5 * T, dir: 'down', path: [], moving: false, dist: 0 };
+        var keys = {};
+        var current = null;
+
+        function free(x, y) { return x >= 0 && y >= 0 && x < W && y < H && !solid[y][x]; }
+        function findPath(sx, sy, gx, gy) {
+          if (!free(gx, gy)) return [];
+          var prev = {}, q = [[sx, sy]], k = function (x, y) { return x + ',' + y; };
+          prev[k(sx, sy)] = null;
+          while (q.length) {
+            var n = q.shift();
+            if (n[0] === gx && n[1] === gy) break;
+            [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) {
+              var nx = n[0] + d[0], ny = n[1] + d[1];
+              if (free(nx, ny) && !(k(nx, ny) in prev)) { prev[k(nx, ny)] = n; q.push([nx, ny]); }
+            });
+          }
+          if (!(k(gx, gy) in prev)) return [];
+          var out = [], cur = [gx, gy];
+          while (cur && !(cur[0] === sx && cur[1] === sy)) { out.unshift(cur); cur = prev[k(cur[0], cur[1])]; }
+          return out;
+        }
+        function spotAt(x, y) {
+          for (var i = 0; i < SPOTS.length; i++) { var s = SPOTS[i]; if (x >= s.x && x < s.x + 2 && y >= s.y - 1 && y < s.y + 2) return s; }
+          return null;
+        }
+        function doorOf(x, y) {
+          for (var i = 0; i < SPOTS.length; i++) { var s = SPOTS[i]; if (y === s.y + 2 && (x === s.x || x === s.x + 1)) return s; }
+          if (x === SIGN.x && y === SIGN.y + 1) return SIGN;
+          return null;
+        }
+        function goToSpot(s) {
+          var a = findPath(P.tx, P.ty, s.x, s.y + 2), b = findPath(P.tx, P.ty, s.x + 1, s.y + 2);
+          if (P.tx === s.x + 1 && P.ty === s.y + 2 || P.tx === s.x && P.ty === s.y + 2) { arrive(); return; }
+          P.path = (b.length && b.length < a.length) ? b : a;
+        }
+
+        // せりふ
+        var who = document.getElementById('dlg-who'), kind = document.getElementById('dlg-kind'), say = document.getElementById('dlg-say'), go = document.getElementById('dlg-go'), act = document.getElementById('dlg-act'), next = document.getElementById('dlg-next');
+        var timer = null;
+        function speak(text) {
+          clearInterval(timer);
+          if (reduce) { say.textContent = text; return; }
+          var i = 0; say.textContent = '';
+          timer = setInterval(function () { i += 2; say.textContent = text.slice(0, i); if (i >= text.length) clearInterval(timer); }, 30);
+        }
+        var tags = document.querySelectorAll('.tag');
+        // いけ（つり）
+        var POND = { id: 'pond', name: 'いけ', kind: '', text: '……？ みずの なかで なにかが うごいた。つりを してみる？', href: null };
+        var CATCH = [
+          { n: 'メダカ', c: 'ちいさくて すばしっこい。', w: 30, col: '#ffb347', k: 'fish' },
+          { n: 'きんぎょ', c: 'あかくて ひらひら。', w: 22, col: '#ff5a5a', k: 'fish' },
+          { n: 'コイ', c: 'おおきい！ うでが つかれた。', w: 14, col: '#ffffff', k: 'fish' },
+          { n: 'ザリガニ', c: 'はさみに ちゅうい。', w: 12, col: '#d83a3a', k: 'fish' },
+          { n: 'ながぐつ', c: 'だれの だろう…。', w: 10, col: '#8d93a6', k: 'boot' },
+          { n: 'にんじん', c: 'なぜ いけに？ うさぎは うれしい。', w: 7, col: '#ff8c2a', k: 'carrot' },
+          { n: 'にじいろの さかな', c: 'きらきら ひかっている！ レア！', w: 4, col: '#b07aff', k: 'fish' },
+          { n: 'いけの ぬし', c: 'でんせつの おおもの！！ すごい！', w: 1, col: '#ffd23f', k: 'fish' }
+        ];
+        var bag = { total: 0, kinds: {} };
+        try { var saved = JSON.parse(localStorage.getItem('mariri-town-fish') || 'null'); if (saved && saved.kinds) bag = saved; } catch (e) {}
+        // つりずかん
+        var bookBtn = document.getElementById('book-btn'), book = document.getElementById('book'), bookList = document.getElementById('book-list');
+        function renderBook() {
+          var got = 0;
+          bookList.textContent = '';
+          CATCH.forEach(function (it, i) {
+            var n = bag.kinds[it.n] || 0; if (n) got++;
+            var li = document.createElement('li'), c = document.createElement('canvas'), d = document.createElement('div');
+            c.width = 16; c.height = 10;
+            var main = ctx; ctx = c.getContext('2d');
+            if (n) drawItem(it, 3, 2); else { r(0, 0, 16, 10, '#ffd3e2'); r(7, 2, 2, 3, '#96607e'); r(7, 6, 2, 2, '#96607e'); }
+            ctx = main;
+            var nm = document.createElement('div'), cm = document.createElement('div');
+            nm.className = 'nm'; cm.className = 'cm';
+            nm.textContent = 'No.' + (i + 1) + ' ' + (n ? it.n : '？？？');
+            cm.textContent = n ? it.c + ' （' + n + 'かい）' : 'まだ つれていない';
+            if (!n) li.className = 'yet';
+            d.appendChild(nm); d.appendChild(cm); li.appendChild(c); li.appendChild(d); bookList.appendChild(li);
+          });
+          // ずかんは、はじめて なにかを つるまで かくしておく
+          document.getElementById('fishbook').hidden = !bag.total && book.hidden;
+          bookBtn.textContent = (book.hidden ? '▶' : '▼') + ' つりずかん ' + got + '/' + CATCH.length;
+        }
+        bookBtn.addEventListener('click', function () { book.hidden = !book.hidden; bookBtn.setAttribute('aria-expanded', String(!book.hidden)); renderBook(); });
+        if (/[?&]book=1/.test(location.search)) book.hidden = false; // ?book=1 でずかんを開いた状態ではじまる
+        renderBook();
+        var fishing = null; // { timer, bite, wx, wy }
+        var caught = null;  // { item, until }
+        function waterDir(x, y) {
+          for (var k in DIRS) { var nx = x + DIRS[k][0], ny = y + DIRS[k][1]; if (rows[ny] && rows[ny][nx] === 'w') return k; }
+          return null;
+        }
+        function cancelFish() { if (fishing) { clearTimeout(fishing.timer); fishing = null; } caught = null; }
+        function startFish() {
+          var d = waterDir(P.tx, P.ty);
+          if (!d || fishing) return;
+          P.dir = d; caught = null; act.hidden = true;
+          speak('つりざおを ふった！ ………');
+          fishing = { bite: false, wx: (P.tx + DIRS[d][0]) * T + 7, wy: (P.ty + DIRS[d][1]) * T + 7 };
+          fishing.timer = setTimeout(function () {
+            fishing.bite = true;
+            fishing.timer = setTimeout(function () {
+              var sum = 0, i, pick = CATCH[0];
+              for (i = 0; i < CATCH.length; i++) sum += CATCH[i].w;
+              var roll = Math.random() * sum;
+              for (i = 0; i < CATCH.length; i++) { roll -= CATCH[i].w; if (roll < 0) { pick = CATCH[i]; break; } }
+              bag.total += 1; bag.kinds[pick.n] = (bag.kinds[pick.n] || 0) + 1;
+              try { localStorage.setItem('mariri-town-fish', JSON.stringify(bag)); } catch (e) {}
+              fishing = null; caught = { item: pick, until: lastT + 3500 };
+              speak('「' + pick.n + '」が つれた！ ' + pick.c + '（これまでに ' + bag.total + 'かい・ずかん ' + Object.keys(bag.kinds).length + '/' + CATCH.length + '）');
+              act.hidden = false; act.textContent = '▶ もういちど つる';
+              renderBook();
+            }, 600);
+          }, 1200 + Math.random() * 1800);
+        }
+
+        // いぬ と ねこ（まちを きままに あるく）
+        var NPCS = [
+          { id: 'dog', name: 'いぬ', kind: '', href: null, tx: 4, ty: 5, lines: ['わん！', 'わんわん！（しっぽを ふっている）', 'くぅーん。（なでて ほしそう）'] },
+          { id: 'cat', name: 'ねこ', kind: '', href: null, tx: 10, ty: 8, lines: ['にゃーん。', 'ごろごろ…。', '……。（ぷいっと そっぽを むいた）'] }
+        ];
+        NPCS.forEach(function (n) { n.px = n.tx * T; n.py = n.ty * T; n.wait = 1000 + Math.random() * 2000; n.dist = 0; n.moving = false; });
+        function npcNear() {
+          for (var i = 0; i < NPCS.length; i++) { var n = NPCS[i]; if (Math.abs(n.tx - P.tx) + Math.abs(n.ty - P.ty) <= 1) return n; }
+          return null;
+        }
+        function updateNpc(n, dt) {
+          var gx = n.tx * T, gy = n.ty * T;
+          if (n.px !== gx || n.py !== gy) {
+            var m = 28 * dt / 1000, dx = gx - n.px, dy = gy - n.py;
+            if (Math.abs(dx) + Math.abs(dy) <= m) { n.px = gx; n.py = gy; n.moving = false; }
+            else { n.px += Math.sign(dx) * m; n.py += Math.sign(dy) * m; n.dist += m; n.moving = true; }
+            return;
+          }
+          n.wait -= dt;
+          if (n.wait > 0 || reduce) return;
+          n.wait = 900 + Math.random() * 2600;
+          var ks = ['up', 'down', 'left', 'right'], d = DIRS[ks[Math.floor(Math.random() * 4)]];
+          var nx = n.tx + d[0], ny = n.ty + d[1];
+          if (free(nx, ny) && !(nx === P.tx && ny === P.ty) && !doorOf(nx, ny)) { n.tx = nx; n.ty = ny; }
+        }
+
+        function arrive() {
+          var s = doorOf(P.tx, P.ty), wd = null, npc = null;
+          if (!s) { wd = waterDir(P.tx, P.ty); if (wd) s = POND; }
+          if (!s) { npc = npcNear(); if (npc) s = npc; }
+          if (s === current) return;
+          current = s;
+          tags.forEach(function (t) { t.classList.toggle('on', !!s && t.dataset.spot === s.id); });
+          act.hidden = true;
+          if (!s) {
+            who.textContent = 'うさぎ'; kind.textContent = ''; go.hidden = true; next.hidden = false;
+            speak('きになる たてものの まえまで あるいてみてね。');
+            return;
+          }
+          if (npc) { npc.wait = 4000; npc.text = npc.lines[Math.floor(Math.random() * npc.lines.length)]; }
+          else if (wd) { P.dir = wd; act.hidden = false; act.textContent = '▶ つりをする'; }
+          else P.dir = 'up';
+          who.textContent = s.name; kind.textContent = s.kind; next.hidden = true;
+          speak(s.text);
+          if (s.href) {
+            go.hidden = false; go.href = s.href; go.textContent = '▶ ' + s.cta;
+            if (/^https?:/.test(s.href)) { go.target = '_blank'; go.rel = 'noopener'; } else { go.removeAttribute('target'); go.removeAttribute('rel'); }
+          } else { go.hidden = true; }
+        }
+        function walkTo(path) { if (path === null) return; if (!path.length) { current = undefined; arrive(); } else P.path = path; }
+        function pathToPond() {
+          if (waterDir(P.tx, P.ty)) return [];
+          var best = null;
+          for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) {
+            if (!free(x, y) || !waterDir(x, y)) continue;
+            var pth = findPath(P.tx, P.ty, x, y);
+            if (pth.length && (!best || pth.length < best.length)) best = pth;
+          }
+          return best;
+        }
+
+        cv.addEventListener('click', function (e) {
+          var b = cv.getBoundingClientRect();
+          var x = Math.floor((e.clientX - b.left) / b.width * W), y = Math.floor((e.clientY - b.top) / b.height * H);
+          var s = spotAt(x, y), i;
+          for (i = 0; i < NPCS.length; i++) {
+            var n = NPCS[i];
+            if (Math.round(n.px / T) === x && Math.round(n.py / T) === y) {
+              n.wait = 6000;
+              if (Math.abs(n.tx - P.tx) + Math.abs(n.ty - P.ty) <= 1) { walkTo([]); return; }
+              var pth = findPath(P.tx, P.ty, n.tx, n.ty); pth.pop(); walkTo(pth); return;
+            }
+          }
+          if (s) goToSpot(s);
+          else if (rows[y] && rows[y][x] === 'w') walkTo(pathToPond());
+          else if (x === SIGN.x && y === SIGN.y) { if (P.tx === SIGN.x && P.ty === SIGN.y + 1) arrive(); else P.path = findPath(P.tx, P.ty, SIGN.x, SIGN.y + 1); }
+          else P.path = findPath(P.tx, P.ty, x, y);
+        });
+        act.addEventListener('click', startFish);
+        tags.forEach(function (t) {
+          t.addEventListener('click', function () { var s = SPOTS.filter(function (v) { return v.id === t.dataset.spot; })[0]; if (s) goToSpot(s); });
+        });
+        var inView = true;
+        if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { inView = es[0].isIntersecting && es[0].intersectionRatio > 0.6; }, { threshold: [0, 0.6, 1] }).observe(cv);
+        var KEYMAP = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right' };
+        window.addEventListener('keydown', function (e) {
+          if (!inView || e.metaKey || e.ctrlKey || e.altKey) return;
+          var tg = e.target && e.target.tagName;
+          if (KEYMAP[e.key]) { keys[KEYMAP[e.key]] = true; P.path = []; e.preventDefault(); }
+          else if ((e.key === 'Enter' || e.key === ' ') && current && tg !== 'A' && tg !== 'BUTTON') {
+            if (!act.hidden) { e.preventDefault(); startFish(); }
+            else if (current.href) { e.preventDefault(); go.click(); }
+          }
+        });
+        window.addEventListener('keyup', function (e) { if (KEYMAP[e.key]) keys[KEYMAP[e.key]] = false; });
+        window.addEventListener('blur', function () { keys = {}; });
+
+        var DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+        function nextStep() {
+          var d = null, k;
+          if (P.path.length) {
+            var n = P.path.shift();
+            for (k in DIRS) if (DIRS[k][0] === n[0] - P.tx && DIRS[k][1] === n[1] - P.ty) d = k;
+          } else {
+            for (k in DIRS) if (keys[k]) { d = k; break; }
+            if (d) { P.dir = d; if (!free(P.tx + DIRS[d][0], P.ty + DIRS[d][1])) d = null; }
+          }
+          if (!d) { P.moving = false; return; }
+          cancelFish();
+          P.dir = d; P.tx += DIRS[d][0]; P.ty += DIRS[d][1]; P.moving = true;
+        }
+
+        var last = 0, lastT = 0;
+        function frame(t) {
+          var dt = Math.min(50, t - last); last = t; lastT = t;
+          var left = 80 * dt / 1000;
+          while (left > 0) {
+            var gx = P.tx * T, gy = P.ty * T, dx = gx - P.px, dy = gy - P.py, dist = Math.abs(dx) + Math.abs(dy);
+            if (dist === 0) { if (P.moving) { arrive(); } nextStep(); if (!P.moving) break; continue; }
+            var m = Math.min(left, dist);
+            P.px += Math.sign(dx) * m; P.py += Math.sign(dy) * m; P.dist += m; left -= m;
+          }
+          for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) tile(x, y, reduce ? 0 : t);
+          SPOTS.forEach(function (s) { draw[s.id](s.x * T, s.y * T); });
+          drawSign(SIGN.x * T, SIGN.y * T);
+          NPCS.forEach(function (n) { updateNpc(n, dt); });
+          var actors = NPCS.concat([P]).sort(function (a, b) { return a.py - b.py; });
+          actors.forEach(function (a) {
+            if (a === P) drawBunny(P.px, P.py, P.dir, P.moving ? (Math.floor(P.dist / 6) % 2) + 1 : 0);
+            else drawPet(a);
+          });
+          var hx = Math.round(P.px), hy = Math.round(P.py) - 5;
+          if (fishing) {
+            var bob = reduce ? 0 : Math.floor(t / 300) % 2;
+            var tipx = hx + 8 + DIRS[P.dir][0] * 8, tipy = hy + (P.dir === 'down' ? 12 : 0), i;
+            for (i = 0; i <= 8; i++) r(Math.round(hx + 8 + (tipx - hx - 8) * i / 8), Math.round(hy + 10 + (tipy - hy - 10) * i / 8), 2, 1, '#8a5a3a');
+            for (i = 0; i <= 10; i++) r(Math.round(tipx + (fishing.wx - tipx) * i / 10), Math.round(tipy + (fishing.wy + bob - tipy) * i / 10), 1, 1, '#4a2340');
+            r(fishing.wx - 1, fishing.wy + bob - 1, 3, 3, '#ff5a5a'); r(fishing.wx, fishing.wy + bob - 1, 1, 1, '#ffffff');
+            if (fishing.bite) { r(hx + 7, hy - 9, 2, 5, '#e0457b'); r(hx + 7, hy - 3, 2, 2, '#e0457b'); }
+          }
+          if (caught) {
+            if (t > caught.until) caught = null;
+            else drawItem(caught.item, hx + 3, hy - 9);
+          }
+          requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+        // ?spot=soccer のように付けると、その建物まで歩いた状態ではじまる
+        var m = /[?&]spot=([a-z]+)/.exec(location.search);
+        if (m) { var first = SPOTS.filter(function (v) { return v.id === m[1]; })[0]; if (first) goToSpot(first); else if (m[1] === 'sign') P.path = findPath(P.tx, P.ty, SIGN.x, SIGN.y + 1); }
+      })();
+    </script>
   </body>
 </html>

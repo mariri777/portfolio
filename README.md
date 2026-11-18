@@ -1,16 +1,24 @@
-# Mariri — Portfolio
+# mariri — Portfolio
 
-静かなWebデザインとフロントエンド実装のポートフォリオサイト。
+サービス・ゲーム・Webデザインをまとめたポートフォリオサイト。
 Astro + Tailwind CSS で構築し、GitHub Pages 上で配信しています。
 
 🌐 **Live**: https://mariri777.github.io/portfolio/
 
 ## 収録作品
 
-| No. | Title | Path | Description |
-| --- | --- | --- | --- |
-| 02 | Lume Aesthetic Clinic | [/works/beauty-clinic](https://mariri777.github.io/portfolio/works/beauty-clinic) | 韓国系ナチュラル × 高級感の美容クリニックLP |
-| 01 | Rabbit Specialty Clinic | [/works/rabbit-clinic](https://mariri777.github.io/portfolio/works/rabbit-clinic) | うさぎ専門病院のブランドサイト |
+トップページ（`src/pages/index.astro`）は、うさぎを歩かせて作品の建物をめぐるドット絵のまち。
+先頭にある配列を編集すると、掲載作品を増減できます。マップ上の建物は `spots` 配列で、
+URL に `?spot=games` のように付けると、その建物まで歩いた状態ではじまります。
+
+| 区分 | 配列 | 作品 |
+| --- | --- | --- |
+| サービス・ツール | `services` | 超!企業DB / 日々. / 気血水カルテ（`public/tools/kikketsusui.html`） |
+| ゲーム | `games` | その判定、言うか。 / 英傑大乱 |
+| Webデザイン | `designs` | 鼓動 KODO / TSUMUGI / Lume Aesthetic Clinic / Rabbit Specialty Clinic / Pâtisserie Hidamari / Aoyama Leaf Clinic |
+| 100日チャレンジ | `days` | 作品数は手書き。進んだら数字を更新する |
+
+サムネイルは `public/covers/`、X などで共有したときの画像は `public/og.png`。
 
 ## Stack
 
