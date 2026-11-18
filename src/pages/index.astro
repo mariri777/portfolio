@@ -467,7 +467,7 @@ const spots = [
       </footer>
     </main>
 
-    <script is:inline define:vars={{ SPOTS: spots }}>
+    <script is:inline define:vars={{ SPOTS: spots, BGM_URL: `${BASE}/bgm.wav`, CATCH_URL: `${BASE}/catch.wav` }}>
       (function () {
         var cv = document.getElementById('map');
         var ctx = cv.getContext('2d');
@@ -711,77 +711,51 @@ const spots = [
         ];
         var bag = { total: 0, kinds: {} };
         try { var saved = JSON.parse(localStorage.getItem('mariri-town-fish') || 'null'); if (saved && saved.kinds) bag = saved; } catch (e) {}
-        // おんがく（その場で音をつくるチップチューン。音声ファイルは使わない）
-        var bgmBtn = document.getElementById('bgm-btn'), AC = null, bgmOn = false, bgmTimer = null, step8 = 0, nextTime = 0;
-        var E8 = 0.24; // 8分音符の長さ（秒）
-        var MELODY = [[64,2],[67,2],[72,2],[67,2], [69,2],[67,1],[64,1],[67,4], [65,2],[69,2],[67,2],[64,2], [62,3],[64,1],[62,4],
-                      [64,2],[67,2],[72,2],[76,2], [74,2],[72,1],[69,1],[67,4], [69,2],[72,2],[71,2],[67,2], [72,6],[0,2]];
-        var BASS = [48,55, 45,52, 41,48, 43,50, 48,55, 45,52, 41,43, 48,48];
-        var melAt = {}; (function () { var t = 0; MELODY.forEach(function (n) { melAt[t] = n; t += n[1]; }); })();
-        function tone(midi, when, dur, type, vol) {
-          var o = AC.createOscillator(), g = AC.createGain();
-          o.type = type; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
-          g.gain.setValueAtTime(0.0001, when);
-          g.gain.linearRampToValueAtTime(vol, when + 0.015);
-          g.gain.setValueAtTime(vol, when + dur * 0.6);
-          g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
-          o.connect(g); g.connect(AC.destination); o.start(when); o.stop(when + dur + 0.02);
+        // おんがく。iPhone でも確実に鳴るよう、音声ファイル（tools/make-bgm.py で書き出した WAV）を再生する
+        var bgmBtn = document.getElementById('bgm-btn'), bgmOn = false, bgmEl = null, catchEl = null;
+        function bgmLabel(t) { bgmBtn.textContent = '♪ おんがく：' + t; }
+        function playBgm() {
+          var pr = bgmEl.play();
+          if (pr && pr.then) pr.then(function () { if (bgmOn) bgmLabel('ON'); }, function () { if (bgmOn) bgmLabel('がめんを タップしてね'); });
         }
-        function schedule() {
-          // 時計が進んでいない（＝まだ音が出せない）ときは、ボタンに「タップしてね」と出す
-          if (AC.currentTime > ctSeen) { ctSeen = AC.currentTime; if (stuck >= 12) bgmBtn.textContent = '♪ おんがく：ON'; stuck = 0; }
-          else if (++stuck === 12) bgmBtn.textContent = '♪ おんがく：がめんを タップしてね';
-          if (nextTime < AC.currentTime) nextTime = AC.currentTime + 0.05;
-          while (nextTime < AC.currentTime + 0.4) {
-            var m = melAt[step8];
-            if (m && m[0]) tone(m[0], nextTime, m[1] * E8 * 0.95, 'square', 0.13);
-            if (step8 % 4 === 0) tone(BASS[step8 / 4] + 12, nextTime, E8 * 3.6, 'triangle', 0.3);
-            if (step8 % 2 === 1) tone(BASS[Math.floor(step8 / 4)] + 24, nextTime, E8 * 0.8, 'triangle', 0.12);
-            step8 = (step8 + 1) % 64; nextTime += E8;
-          }
-        }
-        // iPhone などは、指でふれた瞬間に「無音を1回鳴らす」と音が出せるようになる
-        var ctSeen = -1, stuck = 0;
-        // iPhone は「指でふれた瞬間に音源をスタートさせる」と音が出せるようになる。聞こえない音を一瞬だけ鳴らす
-        function unlockAudio() {
-          if (!AC) return;
-          try { if (AC.resume) AC.resume(); } catch (e) {}
-          try {
-            var o = AC.createOscillator(), g = AC.createGain();
-            g.gain.value = 0.0001; o.connect(g); g.connect(AC.destination);
-            o.start(0); o.stop(AC.currentTime + 0.05);
-          } catch (e) {}
-        }
-        ['touchend', 'pointerup', 'click', 'keydown'].forEach(function (ev) {
-          if (document.addEventListener) document.addEventListener(ev, function () { if (bgmOn && AC && (AC.state !== 'running' || stuck >= 3)) unlockAudio(); }, true);
-        });
         function setBgm(on) {
-          var Ctor = window.AudioContext || window.webkitAudioContext;
-          if (on && !Ctor) return;
+          if (on && typeof Audio === 'undefined') return;
           bgmOn = on;
           if (on) {
-            if (!AC) AC = new Ctor();
-            unlockAudio();
-            step8 = 0; nextTime = AC.currentTime + 0.08; ctSeen = -1; stuck = 0;
-            clearInterval(bgmTimer); bgmTimer = setInterval(schedule, 100); schedule();
-          } else { clearInterval(bgmTimer); }
-          bgmBtn.textContent = '♪ おんがく：' + (on ? 'ON' : 'OFF');
+            if (!bgmEl) {
+              bgmEl = new Audio(BGM_URL); bgmEl.loop = true; bgmEl.preload = 'auto';
+              catchEl = new Audio(CATCH_URL); catchEl.preload = 'auto';
+            }
+            try { bgmEl.currentTime = 0; } catch (e) {}
+            bgmLabel('ON');
+            playBgm();
+          } else {
+            if (bgmEl) bgmEl.pause();
+            bgmLabel('OFF');
+          }
           bgmBtn.setAttribute('aria-pressed', String(on));
         }
-        function jingle() { // つれたときの みじかい音（おんがくONのときだけ）
-          if (!bgmOn || !AC) return;
-          var t = AC.currentTime + 0.02; [76, 79, 84, 88].forEach(function (n, i) { tone(n, t + i * 0.08, 0.18, 'square', 0.14); });
+        // つれたときの音。スマホでは「指でふれた時に一度再生した音」しか後から鳴らせないので、
+        // つりボタンを押した瞬間に無音で一度再生しておく
+        function primeJingle() {
+          if (!bgmOn || !catchEl) return;
+          try { catchEl.muted = true; var pr = catchEl.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {}
         }
-        // iPhone 対策：音の土台はページを開いた時点で作っておき（この時点では無音・停止中）、
-        // おんがくボタンに指がふれた瞬間（click より前の pointerup / touchend）から準備をはじめる
-        try { var Ctor0 = window.AudioContext || window.webkitAudioContext; if (Ctor0) AC = new Ctor0(); } catch (e) {}
-        ['pointerup', 'touchend'].forEach(function (ev) { bgmBtn.addEventListener(ev, function () { if (!bgmOn) unlockAudio(); }); });
+        function jingle() {
+          if (!bgmOn || !catchEl) return;
+          try { catchEl.pause(); catchEl.currentTime = 0; catchEl.muted = false; var pr = catchEl.play(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {}
+        }
         bgmBtn.addEventListener('click', function () { setBgm(!bgmOn); });
-        if (document.addEventListener) document.addEventListener('visibilitychange', function () {
-          if (!bgmOn || !AC) return;
-          if (document.hidden) { clearInterval(bgmTimer); }
-          else { nextTime = AC.currentTime + 0.08; clearInterval(bgmTimer); bgmTimer = setInterval(schedule, 100); }
-        });
+        if (document.addEventListener) {
+          // ONなのに止まっているとき（再生を止められた・タブから戻った）は、次にふれた時に鳴らしなおす
+          ['touchend', 'click', 'keydown'].forEach(function (ev) {
+            document.addEventListener(ev, function () { if (bgmOn && bgmEl && bgmEl.paused && !document.hidden) playBgm(); }, true);
+          });
+          document.addEventListener('visibilitychange', function () {
+            if (!bgmOn || !bgmEl) return;
+            if (document.hidden) bgmEl.pause(); else playBgm();
+          });
+        }
 
         // つりずかん
         var bookBtn = document.getElementById('book-btn'), book = document.getElementById('book'), bookList = document.getElementById('book-list');
@@ -819,7 +793,7 @@ const spots = [
         function startFish() {
           var d = waterDir(P.tx, P.ty);
           if (!d || fishing) return;
-          P.dir = d; caught = null; act.hidden = true;
+          P.dir = d; caught = null; act.hidden = true; primeJingle();
           speak('つりざおを ふった！ ………');
           fishing = { bite: false, wx: (P.tx + DIRS[d][0]) * T + 7, wy: (P.ty + DIRS[d][1]) * T + 7 };
           fishing.timer = setTimeout(function () {

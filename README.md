@@ -18,6 +18,8 @@ URL に `?spot=games` のように付けると、その建物まで歩いた状�
 | Webデザイン | `designs` | 鼓動 KODO / TSUMUGI / Lume Aesthetic Clinic / Rabbit Specialty Clinic / Pâtisserie Hidamari / Aoyama Leaf Clinic |
 | 100日チャレンジ | `days` | 作品数は手書き。進んだら数字を更新する |
 
+BGM と釣れたときの音は `python3 tools/make-bgm.py` で `public/bgm.wav` / `public/catch.wav` に書き出しています（曲を変えるときはこのスクリプトの音符を編集）。
+
 サムネイルは `public/covers/`、X などで共有したときの画像は `public/og.png`。
 
 ## Stack
