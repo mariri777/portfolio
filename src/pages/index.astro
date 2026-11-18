@@ -728,8 +728,9 @@ const spots = [
           o.connect(g); g.connect(AC.destination); o.start(when); o.stop(when + dur + 0.02);
         }
         function schedule() {
-          // スマホでは、音の準備がおわるまで（state が running になるまで）待つ
-          if (AC.state !== 'running') { nextTime = AC.currentTime + 0.1; return; }
+          // 時計が進んでいない（＝まだ音が出せない）ときは、ボタンに「タップしてね」と出す
+          if (AC.currentTime > ctSeen) { ctSeen = AC.currentTime; if (stuck >= 12) bgmBtn.textContent = '♪ おんがく：ON'; stuck = 0; }
+          else if (++stuck === 12) bgmBtn.textContent = '♪ おんがく：がめんを タップしてね';
           if (nextTime < AC.currentTime) nextTime = AC.currentTime + 0.05;
           while (nextTime < AC.currentTime + 0.4) {
             var m = melAt[step8];
@@ -740,15 +741,19 @@ const spots = [
           }
         }
         // iPhone などは、指でふれた瞬間に「無音を1回鳴らす」と音が出せるようになる
+        var ctSeen = -1, stuck = 0;
+        // iPhone は「指でふれた瞬間に音源をスタートさせる」と音が出せるようになる。聞こえない音を一瞬だけ鳴らす
         function unlockAudio() {
           if (!AC) return;
+          try { if (AC.resume) AC.resume(); } catch (e) {}
           try {
-            if (AC.state !== 'running' && AC.resume) AC.resume();
-            var src = AC.createBufferSource(); src.buffer = AC.createBuffer(1, 1, 22050); src.connect(AC.destination); src.start(0);
+            var o = AC.createOscillator(), g = AC.createGain();
+            g.gain.value = 0.0001; o.connect(g); g.connect(AC.destination);
+            o.start(0); o.stop(AC.currentTime + 0.05);
           } catch (e) {}
         }
         ['touchend', 'pointerup', 'click', 'keydown'].forEach(function (ev) {
-          if (document.addEventListener) document.addEventListener(ev, function () { if (bgmOn && AC && AC.state !== 'running') unlockAudio(); }, true);
+          if (document.addEventListener) document.addEventListener(ev, function () { if (bgmOn && AC && (AC.state !== 'running' || stuck >= 3)) unlockAudio(); }, true);
         });
         function setBgm(on) {
           var Ctor = window.AudioContext || window.webkitAudioContext;
@@ -757,7 +762,7 @@ const spots = [
           if (on) {
             if (!AC) AC = new Ctor();
             unlockAudio();
-            step8 = 0; nextTime = AC.currentTime + 0.08;
+            step8 = 0; nextTime = AC.currentTime + 0.08; ctSeen = -1; stuck = 0;
             clearInterval(bgmTimer); bgmTimer = setInterval(schedule, 100); schedule();
           } else { clearInterval(bgmTimer); }
           bgmBtn.textContent = '♪ おんがく：' + (on ? 'ON' : 'OFF');
