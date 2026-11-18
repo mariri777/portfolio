@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>冷蔵庫のこよみ — 賞味期限リマインダー</title>
+<meta name="description" content="食品と賞味期限をメモすると、近い順に並べて「あと何日」を色で知らせる。冷蔵庫の使い切りを助けるリマインダー。" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;500;700;900&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #efe9dc;
+    --bg-2: #e7dfce;
+    --paper: #faf6ec;
+    --paper-2: #f3ecdd;
+    --ink: #2f2a24;
+    --ink-soft: #766c5d;
+    --ink-faint: #a89d89;
+    --line: #e3d9c6;
+    --line-soft: #ece3d2;
+
+    --wakaba: #6f8a5f;      /* 若草：余裕 */
+    --wakaba-soft: #e7eede;
+    --daidai: #bd7a3a;      /* 橙：もうすぐ */
+    --daidai-soft: #f6e7d2;
+    --enji: #a04a42;        /* 臙脂：期限切れ */
+    --enji-soft: #f0ddd8;
+    --shadow: 0 22px 54px -30px rgba(60, 48, 28, .5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Shippori Mincho B1", serif;
+    color: var(--ink);
+    background:
+      radial-gradient(120% 90% at 50% -8%, #f4efe3 0%, var(--bg) 58%, var(--bg-2) 100%);
+    min-height: 100vh;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+    padding: 38px 18px 72px;
+  }
+  .wrap { width: 100%; max-width: 540px; margin: 0 auto; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; color: var(--ink-soft); text-decoration: none;
+    letter-spacing: .04em; margin-bottom: 26px;
+    border-bottom: 1px solid transparent; transition: border-color .2s, color .2s;
+  }
+  .home-link:hover { color: var(--ink); border-color: var(--line); }
+
+  /* ---- header ---- */
+  header.hero { text-align: center; margin-bottom: 26px; }
+  .eyebrow {
+    font-size: 11.5px; letter-spacing: .38em; color: var(--ink-faint);
+    margin-bottom: 12px; padding-left: .38em;
+  }
+  h1 {
+    font-family: "Zen Old Mincho", serif; font-weight: 900;
+    font-size: clamp(30px, 8vw, 42px); letter-spacing: .05em; line-height: 1.25;
+  }
+  .lead {
+    margin: 12px auto 0; max-width: 26em;
+    font-size: 13.5px; line-height: 1.9; color: var(--ink-soft);
+  }
+
+  /* ---- summary strip ---- */
+  .summary {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 4px; box-shadow: var(--shadow);
+    padding: 15px 18px; margin-bottom: 16px;
+  }
+  .summary .s-msg { flex: 1; font-size: 13.5px; letter-spacing: .02em; }
+  .summary .s-msg b { font-family: "Zen Old Mincho", serif; }
+  .summary .s-emoji { font-size: 22px; line-height: 1; }
+  .summary.tone-ok    { border-left: 3px solid var(--wakaba); }
+  .summary.tone-soon  { border-left: 3px solid var(--daidai); }
+  .summary.tone-over  { border-left: 3px solid var(--enji); }
+  .summary.tone-over .s-msg b { color: var(--enji); }
+  .summary.tone-soon .s-msg b { color: var(--daidai); }
+
+  /* ---- add card ---- */
+  .card {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 4px; box-shadow: var(--shadow);
+    padding: 18px 18px 20px; margin-bottom: 22px;
+  }
+  .card-title {
+    font-family: "Zen Old Mincho", serif; font-size: 15px; font-weight: 700;
+    letter-spacing: .08em; margin-bottom: 14px; color: var(--ink);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::before {
+    content: ""; width: 16px; height: 1px; background: var(--ink-faint);
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 15px; }
+  .chip {
+    font-family: inherit; font-size: 12.5px; color: var(--ink-soft);
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: 999px; padding: 6px 12px; cursor: pointer; letter-spacing: .02em;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .chip:hover { background: #fff; border-color: var(--wakaba); color: var(--ink); }
+
+  .form-grid { display: grid; gap: 12px; }
+  .row2 { display: flex; gap: 10px; }
+  .fld { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+  .fld label {
+    font-size: 10.5px; letter-spacing: .1em; color: var(--ink-faint);
+    text-transform: uppercase; padding-left: 2px;
+  }
+  input, select {
+    font-family: inherit; font-size: 15px; color: var(--ink);
+    padding: 11px 12px; border: 1px solid var(--line); border-radius: 3px;
+    background: #fffdf8; outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus, select:focus {
+    border-color: var(--wakaba); box-shadow: 0 0 0 3px var(--wakaba-soft);
+  }
+  input[type="date"] { min-height: 44px; }
+
+  .date-quick { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+  .dq {
+    font-family: inherit; font-size: 11.5px; color: var(--ink-soft);
+    background: transparent; border: 1px solid var(--line); border-radius: 999px;
+    padding: 4px 10px; cursor: pointer; transition: background .15s, color .15s;
+  }
+  .dq:hover { background: var(--wakaba-soft); color: var(--ink); }
+
+  .btn-add {
+    font-family: inherit; font-weight: 700; font-size: 15px; letter-spacing: .06em;
+    color: var(--paper); background: var(--ink); border: none;
+    padding: 13px; border-radius: 3px; cursor: pointer;
+    transition: background .2s, transform .08s;
+  }
+  .btn-add:hover { background: #423b32; }
+  .btn-add:active { transform: translateY(1px); }
+
+  /* ---- list ---- */
+  .list-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin: 0 4px 12px; font-size: 12.5px; color: var(--ink-soft);
+  }
+  .list-head .lh-title {
+    font-family: "Zen Old Mincho", serif; font-size: 15px; font-weight: 700;
+    letter-spacing: .06em; color: var(--ink);
+  }
+  .list-head .lh-count b { font-family: "Zen Old Mincho", serif; color: var(--ink); }
+
+  ul.items { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+
+  .item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--paper); border: 1px solid var(--line);
+    border-left-width: 3px; border-radius: 4px;
+    padding: 13px 15px; box-shadow: 0 10px 26px -22px rgba(60,48,28,.5);
+    animation: itemIn .35s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes itemIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .item .ico { font-size: 22px; line-height: 1; width: 26px; text-align: center; flex-shrink: 0; }
+  .item .meta { flex: 1; min-width: 0; }
+  .item .nm {
+    font-size: 15px; font-weight: 600; letter-spacing: .01em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .item .dt { font-size: 11.5px; color: var(--ink-faint); letter-spacing: .04em; margin-top: 1px; }
+  .item .badge {
+    font-family: "Zen Old Mincho", serif; font-size: 13px; font-weight: 700;
+    padding: 5px 11px; border-radius: 999px; white-space: nowrap; letter-spacing: .02em;
+    flex-shrink: 0;
+  }
+  .item .done {
+    font-family: inherit; font-size: 11.5px; color: var(--ink-faint);
+    background: transparent; border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 10px; cursor: pointer; flex-shrink: 0; letter-spacing: .02em;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .item .done:hover { background: var(--wakaba-soft); color: var(--wakaba); border-color: var(--wakaba); }
+
+  /* status tones */
+  .item.st-over  { border-left-color: var(--enji); }
+  .item.st-over  .badge { background: var(--enji-soft); color: var(--enji); }
+  .item.st-today { border-left-color: var(--enji); }
+  .item.st-today .badge { background: var(--enji-soft); color: var(--enji); }
+  .item.st-soon  { border-left-color: var(--daidai); }
+  .item.st-soon  .badge { background: var(--daidai-soft); color: var(--daidai); }
+  .item.st-near  { border-left-color: var(--daidai); }
+  .item.st-near  .badge { background: var(--paper-2); color: var(--daidai); }
+  .item.st-ok    { border-left-color: var(--wakaba); }
+  .item.st-ok    .badge { background: var(--wakaba-soft); color: var(--wakaba); }
+  .item.st-over .nm::after {
+    content: "要確認"; font-family: "Shippori Mincho B1", serif; font-size: 10px;
+    color: var(--enji); background: var(--enji-soft); border-radius: 4px;
+    padding: 1px 6px; margin-left: 8px; font-weight: 700; letter-spacing: .04em;
+    vertical-align: middle;
+  }
+
+  .empty {
+    text-align: center; color: var(--ink-faint); font-size: 13.5px;
+    padding: 34px 10px; line-height: 2;
+    border: 1px dashed var(--line); border-radius: 4px; background: var(--paper);
+  }
+  .empty .big { font-size: 26px; display: block; margin-bottom: 6px; }
+
+  footer {
+    text-align: center; margin-top: 40px; padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font-size: 11px; letter-spacing: .1em; color: var(--ink-faint); line-height: 2;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 26px 14px 56px; }
+    .item .done { padding: 6px 8px; }
+    .row2 { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="home-link" href="../">← 一覧へもどる</a>
+
+    <header class="hero">
+      <p class="eyebrow">FRIDGE ALMANAC</p>
+      <h1>冷蔵庫のこよみ</h1>
+      <p class="lead">
+        食品と賞味期限をメモすると、近い順に並べて「あと何日」をそっと知らせます。
+        冷蔵庫の奥で、静かに古びていくものを減らすために。
+      </p>
+    </header>
+
+    <!-- summary -->
+    <div class="summary tone-ok" id="summary">
+      <span class="s-emoji" id="sEmoji">🍃</span>
+      <span class="s-msg" id="sMsg">まだ何も登録されていません。下から食品を追加してみましょう。</span>
+    </div>
+
+    <!-- add form -->
+    <section class="card">
+      <div class="card-title">食品を追加する</div>
+
+      <div class="chips" id="chips"></div>
+
+      <div class="form-grid">
+        <div class="row2">
+          <div class="fld" style="flex:1.4">
+            <label>食品名 / name</label>
+            <input id="inName" type="text" placeholder="例：牛乳" maxlength="20" />
+          </div>
+          <div class="fld">
+            <label>種類 / type</label>
+            <select id="inCat"></select>
+          </div>
+        </div>
+
+        <div class="fld">
+          <label>賞味期限 / date</label>
+          <input id="inDate" type="date" />
+          <div class="date-quick">
+            <button class="dq" data-add="0">今日</button>
+            <button class="dq" data-add="3">+3日</button>
+            <button class="dq" data-add="7">+1週</button>
+            <button class="dq" data-add="14">+2週</button>
+            <button class="dq" data-add="30">+1か月</button>
+          </div>
+        </div>
+
+        <button class="btn-add" id="btnAdd">＋ こよみに書き込む</button>
+      </div>
+    </section>
+
+    <!-- list -->
+    <div class="list-head">
+      <span class="lh-title">期限が近い順</span>
+      <span class="lh-count">全 <b id="count">0</b> 件</span>
+    </div>
+    <ul class="items" id="list"></ul>
+
+    <footer>
+      冷蔵庫のこよみ・賞味期限リマインダー<br />
+      Built by mariri
+    </footer>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const KEY = "day46_fridge";
+
+  const CATS = [
+    { key: "milk",   emoji: "🥛", label: "乳製品" },
+    { key: "egg",    emoji: "🥚", label: "卵" },
+    { key: "meat",   emoji: "🥩", label: "肉" },
+    { key: "fish",   emoji: "🐟", label: "魚" },
+    { key: "veg",    emoji: "🥬", label: "野菜" },
+    { key: "fruit",  emoji: "🍎", label: "果物" },
+    { key: "bread",  emoji: "🍞", label: "パン" },
+    { key: "cooked", emoji: "🍲", label: "作り置き" },
+    { key: "drink",  emoji: "🧃", label: "飲み物" },
+    { key: "other",  emoji: "🍽", label: "その他" },
+  ];
+  const CAT_MAP = Object.fromEntries(CATS.map((c) => [c.key, c]));
+
+  // quick presets: fill name + category
+  const PRESETS = [
+    { name: "牛乳", cat: "milk" },
+    { name: "卵", cat: "egg" },
+    { name: "ヨーグルト", cat: "milk" },
+    { name: "豆腐", cat: "other" },
+    { name: "パン", cat: "bread" },
+    { name: "鶏肉", cat: "meat" },
+    { name: "作り置き", cat: "cooked" },
+  ];
+
+  let items = load();
+
+  // ---- date helpers (local, date-only) ----
+  function toYMD(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + day;
+  }
+  function todayMidnight() {
+    const t = new Date();
+    t.setHours(0, 0, 0, 0);
+    return t;
+  }
+  function daysLeft(ymd) {
+    const d = new Date(ymd + "T00:00:00");
+    return Math.round((d - todayMidnight()) / 86400000);
+  }
+  function prettyDate(ymd) {
+    return ymd.replace(/-/g, ".");
+  }
+
+  // ---- status ----
+  function statusOf(n) {
+    if (n < 0) return "over";
+    if (n === 0) return "today";
+    if (n <= 2) return "soon";
+    if (n <= 5) return "near";
+    return "ok";
+  }
+  function badgeText(n) {
+    if (n < 0) return "期限切れ " + Math.abs(n) + "日";
+    if (n === 0) return "今日まで";
+    if (n === 1) return "あと1日";
+    return "あと" + n + "日";
+  }
+
+  // ---- persistence ----
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (e) {}
+  }
+
+  // ---- build category select & preset chips ----
+  function buildCatSelect() {
+    $("inCat").innerHTML = CATS
+      .map((c) => '<option value="' + c.key + '">' + c.emoji + " " + c.label + "</option>")
+      .join("");
+  }
+  function buildChips() {
+    $("chips").innerHTML = PRESETS
+      .map((p, i) =>
+        '<button class="chip" data-i="' + i + '">' +
+        CAT_MAP[p.cat].emoji + " " + p.name + "</button>")
+      .join("");
+    $("chips").querySelectorAll(".chip").forEach((el) => {
+      el.addEventListener("click", () => {
+        const p = PRESETS[+el.dataset.i];
+        $("inName").value = p.name;
+        $("inCat").value = p.cat;
+        $("inDate").focus();
+      });
+    });
+  }
+
+  // ---- render ----
+  function render() {
+    const list = $("list");
+    const sorted = [...items].sort((a, b) => a.date.localeCompare(b.date));
+
+    $("count").textContent = items.length;
+
+    if (items.length === 0) {
+      list.innerHTML =
+        '<li class="empty"><span class="big">🧊</span>まだ空っぽです。<br>' +
+        "牛乳や卵など、気になるものから書き込んでみましょう。</li>";
+    } else {
+      list.innerHTML = "";
+      sorted.forEach((it) => {
+        const n = daysLeft(it.date);
+        const st = statusOf(n);
+        const cat = CAT_MAP[it.cat] || CAT_MAP.other;
+        const li = document.createElement("li");
+        li.className = "item st-" + st;
+        li.innerHTML =
+          '<span class="ico">' + cat.emoji + "</span>" +
+          '<div class="meta"><div class="nm"></div>' +
+          '<div class="dt">' + prettyDate(it.date) + " まで</div></div>" +
+          '<span class="badge">' + badgeText(n) + "</span>" +
+          '<button class="done" title="使い切った・消す">使い切った</button>';
+        li.querySelector(".nm").textContent = it.name; // safe text
+        li.querySelector(".done").addEventListener("click", () => removeItem(it.id));
+        list.appendChild(li);
+      });
+    }
+    renderSummary();
+  }
+
+  function renderSummary() {
+    const box = $("summary");
+    box.classList.remove("tone-ok", "tone-soon", "tone-over");
+    if (items.length === 0) {
+      box.classList.add("tone-ok");
+      $("sEmoji").textContent = "🍃";
+      $("sMsg").textContent = "まだ何も登録されていません。下から食品を追加してみましょう。";
+      return;
+    }
+    let over = 0, soon = 0;
+    items.forEach((it) => {
+      const n = daysLeft(it.date);
+      if (n < 0) over++;
+      else if (n <= 1) soon++;
+    });
+    if (over > 0) {
+      box.classList.add("tone-over");
+      $("sEmoji").textContent = "⚠️";
+      $("sMsg").innerHTML = "期限切れが <b>" + over + "件</b>。まず上の品から確認を。";
+    } else if (soon > 0) {
+      box.classList.add("tone-soon");
+      $("sEmoji").textContent = "⏳";
+      $("sMsg").innerHTML = "今日・明日までが <b>" + soon + "件</b>。使い切りましょう。";
+    } else {
+      box.classList.add("tone-ok");
+      $("sEmoji").textContent = "🍃";
+      $("sMsg").innerHTML = "いまのところ余裕あり。<b>" + items.length + "件</b> を見張り中です。";
+    }
+  }
+
+  // ---- actions ----
+  function addItem() {
+    const name = $("inName").value.trim();
+    const cat = $("inCat").value;
+    const date = $("inDate").value;
+
+    if (!name) { $("inName").focus(); flash($("inName")); return; }
+    if (!date) { $("inDate").focus(); flash($("inDate")); return; }
+
+    items.push({ id: genId(), name: name, cat: cat, date: date });
+    save();
+    render();
+
+    // reset for next entry
+    $("inName").value = "";
+    $("inName").focus();
+  }
+  function removeItem(id) {
+    items = items.filter((x) => x.id !== id);
+    save();
+    render();
+  }
+  function genId() {
+    return "i" + todayMidnight().getTime() + "_" + Math.floor(Math.random() * 1e6);
+  }
+  function flash(el) {
+    el.style.boxShadow = "0 0 0 3px var(--enji-soft)";
+    el.style.borderColor = "var(--enji)";
+    setTimeout(() => { el.style.boxShadow = ""; el.style.borderColor = ""; }, 900);
+  }
+
+  // ---- wire up ----
+  buildCatSelect();
+  buildChips();
+  $("btnAdd").addEventListener("click", addItem);
+  $("inName").addEventListener("keydown", (e) => { if (e.key === "Enter") $("inDate").focus(); });
+  $("inDate").addEventListener("keydown", (e) => { if (e.key === "Enter") addItem(); });
+
+  document.querySelectorAll(".dq").forEach((b) => {
+    b.addEventListener("click", () => {
+      const d = new Date();
+      d.setDate(d.getDate() + parseInt(b.dataset.add, 10));
+      $("inDate").value = toYMD(d);
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>

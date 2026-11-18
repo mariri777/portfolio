@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ドットすけっち — お絵かき＆おだいチャレンジ</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #fff7f2;
+    --panel: #fffaf6;
+    --pink: #ff8fab;
+    --pink-deep: #e76b8a;
+    --peach: #ffc6a8;
+    --ink: #4a2f3a;
+    --ink-soft: #8a6a76;
+    --line: #f3d9d3;
+    --cell-empty: #fffdfb;
+    --grid-line: #f0dcdc;
+    --shadow: 0 14px 30px -18px rgba(231, 107, 138, 0.45);
+    --shadow-soft: 0 8px 20px -12px rgba(231, 107, 138, 0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: "M PLUS Rounded 1c", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 12% 8%, #ffd9d0 0%, transparent 42%),
+      radial-gradient(circle at 88% 6%, #ffe6d2 0%, transparent 38%),
+      radial-gradient(circle at 50% 100%, #ffe4ec 0%, transparent 55%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding: 32px 16px 64px;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  /* ---- Header ---- */
+  .top { text-align: center; margin-bottom: 22px; }
+
+  .eyebrow {
+    display: inline-block;
+    font-family: "DotGothic16", monospace;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    color: var(--pink-deep);
+    background: #fff;
+    padding: 7px 16px;
+    border-radius: 999px;
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 14px;
+  }
+
+  .top h1 {
+    font-family: "DotGothic16", monospace;
+    font-size: clamp(30px, 7vw, 46px);
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  .top h1 .dot { color: var(--pink); }
+
+  .top p { margin-top: 10px; font-size: 14px; color: var(--ink-soft); }
+
+  .home-link {
+    display: inline-block; margin-top: 14px;
+    font-size: 13px; color: var(--pink-deep); text-decoration: none;
+    border-bottom: 1px dashed var(--pink); padding-bottom: 1px;
+  }
+  .home-link:hover { color: var(--ink); }
+
+  /* ---- Mode tabs ---- */
+  .modes {
+    display: flex; justify-content: center; gap: 8px; margin: 22px 0 18px;
+  }
+  .mode-btn {
+    font-family: "DotGothic16", monospace;
+    font-size: 14px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 2px solid var(--line);
+    background: #fff;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .mode-btn:hover { border-color: var(--pink); color: var(--pink-deep); }
+  .mode-btn.active {
+    background: var(--pink); color: #fff; border-color: var(--pink);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* ---- Quest banner ---- */
+  .quest {
+    display: none;
+    background: linear-gradient(135deg, #fff, #fff3f6);
+    border: 2px solid var(--line);
+    border-radius: 18px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow-soft);
+    text-align: center;
+  }
+  .quest.show { display: block; animation: pop 0.3s ease; }
+  .quest-label {
+    font-family: "DotGothic16", monospace;
+    font-size: 12px; letter-spacing: 0.15em; color: var(--ink-soft);
+  }
+  .quest-name {
+    font-family: "DotGothic16", monospace;
+    font-size: 30px; color: var(--pink-deep); margin: 4px 0 8px;
+  }
+  .quest-name .pre { display: inline-block; }
+  .quest-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .quest-sub { font-size: 13px; color: var(--ink-soft); }
+  .timer {
+    font-family: "DotGothic16", monospace;
+    font-size: 14px; color: var(--ink);
+    background: #fff; border: 2px solid var(--line);
+    border-radius: 999px; padding: 4px 14px;
+  }
+  .timer.warn { color: #d6395c; border-color: #ffc2cf; animation: blink 0.6s steps(2) infinite; }
+
+  /* ---- Main layout ---- */
+  .board {
+    display: flex; gap: 22px; align-items: flex-start; justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .canvas-card {
+    background: var(--panel);
+    border: 2px solid var(--line);
+    border-radius: 22px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .canvas-wrap { position: relative; }
+
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    width: min(78vw, 384px);
+    aspect-ratio: 1 / 1;
+    background: var(--grid-line);
+    gap: 1px;
+    border-radius: 8px;
+    overflow: hidden;
+    touch-action: none;
+    cursor: crosshair;
+  }
+  #grid.no-lines { gap: 0; background: var(--cell-empty); }
+
+  .cell { background: var(--cell-empty); aspect-ratio: 1 / 1; }
+
+  /* お手本のオーバーレイ（こたえあわせ用） */
+  #overlay {
+    position: absolute; inset: 0;
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 1px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  #overlay.peek { opacity: 0.42; }
+  #overlay .ocell { aspect-ratio: 1 / 1; }
+
+  /* ---- Tools panel ---- */
+  .panel { width: 232px; max-width: 100%; }
+
+  .panel h3 {
+    font-family: "DotGothic16", monospace;
+    font-size: 13px; color: var(--ink-soft); letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .swatches {
+    display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px;
+    background: var(--panel); border: 2px solid var(--line);
+    border-radius: 16px; padding: 12px; margin-bottom: 14px;
+    box-shadow: var(--shadow-soft);
+  }
+  .swatch {
+    aspect-ratio: 1/1; border-radius: 7px; cursor: pointer;
+    border: 2px solid rgba(0,0,0,0.06);
+    transition: transform 0.12s ease;
+    position: relative;
+  }
+  .swatch:hover { transform: scale(1.12); }
+  .swatch.active { box-shadow: 0 0 0 3px var(--pink); transform: scale(1.12); }
+  .swatch.white { border-color: #e7d6d6; }
+
+  .tools {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+    margin-bottom: 14px;
+  }
+  .tool-btn, .action-btn {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-weight: 700; font-size: 13px;
+    padding: 10px 6px;
+    border-radius: 12px;
+    border: 2px solid var(--line);
+    background: #fff; color: var(--ink-soft);
+    cursor: pointer; transition: all 0.18s ease;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .tool-btn .ic { font-size: 16px; }
+  .tool-btn:hover, .action-btn:hover { border-color: var(--pink); color: var(--pink-deep); transform: translateY(-1px); }
+  .tool-btn.active { background: #fff0f4; border-color: var(--pink); color: var(--pink-deep); }
+
+  .actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .actions .full { grid-column: 1 / -1; }
+  .action-btn.primary {
+    background: var(--pink); color: #fff; border-color: var(--pink);
+    box-shadow: var(--shadow-soft);
+  }
+  .action-btn.primary:hover { background: var(--pink-deep); color: #fff; border-color: var(--pink-deep); }
+
+  .check-row {
+    display: flex; align-items: center; gap: 8px; margin: 6px 2px 14px;
+    font-size: 13px; color: var(--ink-soft); cursor: pointer;
+    user-select: none;
+  }
+  .check-row input { width: 16px; height: 16px; accent-color: var(--pink); }
+
+  /* ---- Result modal ---- */
+  .scrim {
+    position: fixed; inset: 0; background: rgba(74,47,58,0.45);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+    z-index: 50;
+  }
+  .scrim.show { display: flex; animation: fade 0.2s ease; }
+  .result {
+    background: var(--panel); border-radius: 24px; padding: 28px 26px;
+    max-width: 380px; width: 100%; text-align: center;
+    box-shadow: 0 30px 60px -20px rgba(74,47,58,0.5);
+    animation: pop 0.3s ease;
+  }
+  .rank {
+    font-family: "DotGothic16", monospace;
+    font-size: 64px; line-height: 1; margin-bottom: 4px;
+  }
+  .rank.S { color: #f0a500; }
+  .rank.A { color: var(--pink-deep); }
+  .rank.B { color: #6aa9e0; }
+  .rank.C { color: var(--ink-soft); }
+  .score-num {
+    font-family: "DotGothic16", monospace; font-size: 22px; color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .result-msg { font-size: 14px; color: var(--ink-soft); margin-bottom: 18px; }
+
+  .compare { display: flex; gap: 16px; justify-content: center; margin-bottom: 20px; }
+  .compare figure { text-align: center; }
+  .compare figcaption {
+    font-family: "DotGothic16", monospace; font-size: 11px; color: var(--ink-soft); margin-top: 6px;
+  }
+  .mini {
+    width: 110px; height: 110px; border-radius: 10px;
+    border: 2px solid var(--line); image-rendering: pixelated;
+    background: #fff;
+  }
+  .result .btns { display: flex; gap: 10px; }
+  .result .btns .action-btn { flex: 1; }
+
+  /* sparkles for S rank */
+  .spark { position: fixed; font-size: 22px; pointer-events: none; z-index: 60; animation: rise 1.2s ease forwards; }
+
+  .foot {
+    text-align: center; margin-top: 34px; font-size: 12px; color: var(--ink-soft);
+    font-family: "DotGothic16", monospace; letter-spacing: 0.05em;
+  }
+
+  @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes blink { 50% { opacity: 0.45; } }
+  @keyframes rise { to { transform: translateY(-90px) rotate(40deg); opacity: 0; } }
+
+  @media (max-width: 640px) {
+    body { padding: 22px 12px 48px; }
+    .board { gap: 16px; }
+    .panel { width: 100%; max-width: min(78vw, 384px); }
+    #grid { width: min(82vw, 384px); }
+    .swatches { grid-template-columns: repeat(8, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <span class="eyebrow">DOT SKETCH</span>
+    <h1>ドット<span class="dot">すけっち</span></h1>
+    <p>16×16のマスをポチポチ。自由にお絵かき、もしくは「おだいチャレンジ」でお手本に挑戦！</p>
+    <a class="home-link" href="../">← mariri のまちへもどる</a>
+  </div>
+
+  <div class="modes">
+    <button class="mode-btn active" data-mode="free">じゆうにかく</button>
+    <button class="mode-btn" data-mode="quest">おだいチャレンジ</button>
+  </div>
+
+  <!-- お題バナー -->
+  <div class="quest" id="quest">
+    <div class="quest-label">★ おだい ★</div>
+    <div class="quest-name" id="questName">？？？</div>
+    <div class="quest-row">
+      <span class="timer" id="timer">⏱ 60</span>
+      <span class="quest-sub">お手本に近づけて描こう！</span>
+    </div>
+  </div>
+
+  <div class="board">
+    <!-- キャンバス -->
+    <div class="canvas-card">
+      <div class="canvas-wrap">
+        <div id="grid"></div>
+        <div id="overlay"></div>
+      </div>
+    </div>
+
+    <!-- ツール -->
+    <div class="panel">
+      <h3>いろ</h3>
+      <div class="swatches" id="swatches"></div>
+
+      <h3>どうぐ</h3>
+      <div class="tools">
+        <button class="tool-btn active" data-tool="pen"><span class="ic">✏️</span>ペン</button>
+        <button class="tool-btn" data-tool="eraser"><span class="ic">🧽</span>けしゴム</button>
+        <button class="tool-btn" data-tool="fill"><span class="ic">🪣</span>ぬりつぶし</button>
+        <button class="tool-btn" data-tool="pick"><span class="ic">💧</span>スポイト</button>
+      </div>
+
+      <label class="check-row">
+        <input type="checkbox" id="gridToggle" checked />
+        グリッド線をひょうじ
+      </label>
+
+      <h3>そうさ</h3>
+      <div class="actions">
+        <button class="action-btn" id="undoBtn">↩︎ もどる</button>
+        <button class="action-btn" id="clearBtn">🗑 ぜんけし</button>
+        <button class="action-btn full" id="saveBtn">⬇︎ がぞうをほぞん（PNG）</button>
+        <button class="action-btn primary full" id="checkBtn" style="display:none;">✅ こたえあわせ</button>
+        <button class="action-btn full" id="peekBtn" style="display:none;">👀 ちらっとヒント</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">ⓒ mariri ・ pixel by pixel ♡</div>
+</div>
+
+<!-- 結果モーダル -->
+<div class="scrim" id="scrim">
+  <div class="result">
+    <div class="rank" id="rank">S</div>
+    <div class="score-num" id="scoreNum">いっちりつ 0%</div>
+    <div class="result-msg" id="resultMsg"></div>
+    <div class="compare">
+      <figure><canvas class="mini" id="miniYou" width="16" height="16"></canvas><figcaption>あなた</figcaption></figure>
+      <figure><canvas class="mini" id="miniAns" width="16" height="16"></canvas><figcaption>おてほん</figcaption></figure>
+    </div>
+    <div class="btns">
+      <button class="action-btn" id="retryBtn">もういちど</button>
+      <button class="action-btn primary" id="nextBtn">つぎのおだい →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   ドットすけっち  —  16x16 ピクセルお絵かき＋おだいチャレンジ
+   ========================================================= */
+const SIZE = 16;
+const TOTAL = SIZE * SIZE;
+
+/* ---- カラーパレット（かわいい16色） ---- */
+const PALETTE = [
+  "#ffffff", "#ffd1dc", "#ff8fab", "#ff5d8f",
+  "#ffc680", "#ffb02e", "#ffe66d", "#b5e48c",
+  "#76c893", "#4dd0c4", "#62b6ff", "#5a7bef",
+  "#c08cff", "#8b5a3c", "#9aa5b1", "#2b2b3a",
+];
+let currentColor = "#ff5d8f";
+let currentTool = "pen";
+
+/* ---- 盤面の状態（null = からっぽ／透明） ---- */
+let cells = new Array(TOTAL).fill(null);
+const undoStack = [];
+
+/* ---- おだい用のお手本シルエット（#=ぬる、.=からっぽ） ---- */
+const QUESTS = [
+  { name: "ハート", art: [
+    "................",
+    "...###....###...",
+    "..#####..#####..",
+    ".##############.",
+    ".##############.",
+    ".##############.",
+    ".##############.",
+    "..############..",
+    "...##########...",
+    "....########....",
+    ".....######.....",
+    "......####......",
+    ".......##.......",
+    "................",
+    "................",
+    "................",
+  ]},
+  { name: "おばけ", art: [
+    "................",
+    "....########....",
+    "...##########...",
+    "..############..",
+    "..############..",
+    "..############..",
+    "..###..##..###..",
+    "..############..",
+    "..############..",
+    "..############..",
+    "..############..",
+    "..############..",
+    "..##..####..##..",
+    "................",
+    "................",
+    "................",
+  ]},
+  { name: "きのこ", art: [
+    "................",
+    ".....######.....",
+    "...##########...",
+    "..############..",
+    ".##############.",
+    ".##############.",
+    ".##############.",
+    "..############..",
+    ".....######.....",
+    ".....######.....",
+    ".....######.....",
+    ".....######.....",
+    "....########....",
+    "...##########...",
+    "................",
+    "................",
+  ]},
+  { name: "さかな", art: [
+    "................",
+    "................",
+    "......######....",
+    "....##########..",
+    "..############.#",
+    ".###########.###",
+    ".############.##",
+    ".###########.###",
+    "..############.#",
+    "....##########..",
+    "......######....",
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+  ]},
+  { name: "ねこ", art: [
+    "................",
+    "..###......###..",
+    "..####....####..",
+    "..############..",
+    "..############..",
+    "..############..",
+    "..###.####.###..",
+    "..############..",
+    "..############..",
+    "..############..",
+    "..############..",
+    "..############..",
+    "...##########...",
+    "................",
+    "................",
+    "................",
+  ]},
+  { name: "ダイヤ", art: [
+    "................",
+    ".......##.......",
+    "......####......",
+    ".....######.....",
+    "....########....",
+    "...##########...",
+    "..############..",
+    ".##############.",
+    ".##############.",
+    "..############..",
+    "...##########...",
+    "....########....",
+    ".....######.....",
+    "......####......",
+    ".......##.......",
+    "................",
+  ]},
+];
+
+let mode = "free";          // "free" | "quest"
+let currentQuest = null;    // 現在のお題
+let targetMask = null;      // boolean[256]
+let timerId = null;
+let timeLeft = 60;
+
+/* ---- DOM ---- */
+const grid = document.getElementById("grid");
+const overlay = document.getElementById("overlay");
+const swatches = document.getElementById("swatches");
+
+/* ===== マスを生成 ===== */
+const cellEls = [];
+for (let i = 0; i < TOTAL; i++) {
+  const c = document.createElement("div");
+  c.className = "cell";
+  c.dataset.i = i;
+  grid.appendChild(c);
+  cellEls.push(c);
+}
+/* オーバーレイ（お手本表示用） */
+const overlayEls = [];
+for (let i = 0; i < TOTAL; i++) {
+  const c = document.createElement("div");
+  c.className = "ocell";
+  overlay.appendChild(c);
+  overlayEls.push(c);
+}
+
+/* ===== パレット生成 ===== */
+PALETTE.forEach((col) => {
+  const s = document.createElement("div");
+  s.className = "swatch" + (col === "#ffffff" ? " white" : "") + (col === currentColor ? " active" : "");
+  s.style.background = col;
+  s.dataset.col = col;
+  s.addEventListener("click", () => {
+    currentColor = col;
+    currentTool = "pen";
+    syncSwatch();
+    syncTool();
+  });
+  swatches.appendChild(s);
+});
+function syncSwatch() {
+  document.querySelectorAll(".swatch").forEach((s) =>
+    s.classList.toggle("active", s.dataset.col === currentColor)
+  );
+}
+
+/* ===== 描画ヘルパー ===== */
+function paintCell(i, color) {
+  cells[i] = color;
+  cellEls[i].style.background = color === null ? "" : color;
+}
+function render() {
+  for (let i = 0; i < TOTAL; i++) {
+    cellEls[i].style.background = cells[i] === null ? "" : cells[i];
+  }
+}
+function pushUndo() {
+  undoStack.push(cells.slice());
+  if (undoStack.length > 60) undoStack.shift();
+}
+
+/* ===== ツール操作 ===== */
+function applyAt(i) {
+  if (currentTool === "pen") {
+    paintCell(i, currentColor);
+  } else if (currentTool === "eraser") {
+    paintCell(i, null);
+  } else if (currentTool === "fill") {
+    floodFill(i, currentColor);
+  } else if (currentTool === "pick") {
+    if (cells[i] !== null) {
+      currentColor = cells[i];
+      currentTool = "pen";
+      syncSwatch();
+      syncTool();
+    }
+  }
+}
+
+function floodFill(start, color) {
+  const target = cells[start];
+  if (target === color) return;
+  const stack = [start];
+  while (stack.length) {
+    const i = stack.pop();
+    if (cells[i] !== target) continue;
+    paintCell(i, color);
+    const x = i % SIZE, y = (i / SIZE) | 0;
+    if (x > 0) stack.push(i - 1);
+    if (x < SIZE - 1) stack.push(i + 1);
+    if (y > 0) stack.push(i - SIZE);
+    if (y < SIZE - 1) stack.push(i + SIZE);
+  }
+}
+
+/* ===== ポインタ（マウス＆タッチ）で連続描画 ===== */
+let drawing = false;
+let strokeChanged = false;
+
+function cellIndexFromEvent(e) {
+  const t = e.touches ? e.touches[0] : e;
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  if (el && el.classList.contains("cell")) return +el.dataset.i;
+  return -1;
+}
+
+function startStroke(e) {
+  e.preventDefault();
+  const i = cellIndexFromEvent(e);
+  if (i < 0) return;
+  pushUndo();
+  strokeChanged = true;
+  drawing = true;
+  applyAt(i);
+}
+function moveStroke(e) {
+  if (!drawing) return;
+  e.preventDefault();
+  // ぬりつぶし・スポイトはドラッグ追従しない
+  if (currentTool === "fill" || currentTool === "pick") return;
+  const i = cellIndexFromEvent(e);
+  if (i >= 0) applyAt(i);
+}
+function endStroke() {
+  if (drawing && !strokeChanged) undoStack.pop();
+  drawing = false;
+  strokeChanged = false;
+}
+
+grid.addEventListener("mousedown", startStroke);
+window.addEventListener("mousemove", moveStroke);
+window.addEventListener("mouseup", endStroke);
+grid.addEventListener("touchstart", startStroke, { passive: false });
+grid.addEventListener("touchmove", moveStroke, { passive: false });
+window.addEventListener("touchend", endStroke);
+
+/* ===== ツールボタン ===== */
+document.querySelectorAll(".tool-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    currentTool = btn.dataset.tool;
+    syncTool();
+  });
+});
+function syncTool() {
+  document.querySelectorAll(".tool-btn").forEach((b) =>
+    b.classList.toggle("active", b.dataset.tool === currentTool)
+  );
+}
+
+/* ===== 操作ボタン ===== */
+document.getElementById("undoBtn").addEventListener("click", () => {
+  if (undoStack.length) {
+    cells = undoStack.pop();
+    render();
+  }
+});
+document.getElementById("clearBtn").addEventListener("click", () => {
+  pushUndo();
+  cells = new Array(TOTAL).fill(null);
+  render();
+});
+document.getElementById("gridToggle").addEventListener("change", (e) => {
+  grid.classList.toggle("no-lines", !e.target.checked);
+});
+
+/* ===== PNG保存（×20で書き出し） ===== */
+document.getElementById("saveBtn").addEventListener("click", () => {
+  const scale = 20;
+  const cv = document.createElement("canvas");
+  cv.width = SIZE * scale;
+  cv.height = SIZE * scale;
+  const ctx = cv.getContext("2d");
+  for (let i = 0; i < TOTAL; i++) {
+    if (cells[i] === null) continue;
+    ctx.fillStyle = cells[i];
+    ctx.fillRect((i % SIZE) * scale, ((i / SIZE) | 0) * scale, scale, scale);
+  }
+  const a = document.createElement("a");
+  a.download = "dot-sketch.png";
+  a.href = cv.toDataURL("image/png");
+  a.click();
+});
+
+/* ===== モード切り替え ===== */
+document.querySelectorAll(".mode-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    setMode(btn.dataset.mode);
+  });
+});
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll(".mode-btn").forEach((b) =>
+    b.classList.toggle("active", b.dataset.mode === m)
+  );
+  const questBox = document.getElementById("quest");
+  const checkBtn = document.getElementById("checkBtn");
+  const peekBtn = document.getElementById("peekBtn");
+  if (m === "quest") {
+    questBox.classList.add("show");
+    checkBtn.style.display = "";
+    peekBtn.style.display = "";
+    newQuest();
+  } else {
+    questBox.classList.remove("show");
+    checkBtn.style.display = "none";
+    peekBtn.style.display = "none";
+    stopTimer();
+    overlay.classList.remove("peek");
+  }
+}
+
+/* ===== お題を出す ===== */
+function newQuest() {
+  // からっぽにリセット
+  cells = new Array(TOTAL).fill(null);
+  render();
+  undoStack.length = 0;
+  overlay.classList.remove("peek");
+
+  // ランダムでお題を選ぶ（前回と違うものを優先）
+  let q;
+  do { q = QUESTS[(Math.random() * QUESTS.length) | 0]; }
+  while (QUESTS.length > 1 && q === currentQuest);
+  currentQuest = q;
+
+  // お手本マスク＆オーバーレイを作る
+  targetMask = new Array(TOTAL).fill(false);
+  for (let y = 0; y < SIZE; y++) {
+    const row = q.art[y] || "";
+    for (let x = 0; x < SIZE; x++) {
+      const on = row[x] === "#";
+      const idx = y * SIZE + x;
+      targetMask[idx] = on;
+      overlayEls[idx].style.background = on ? "var(--pink)" : "transparent";
+    }
+  }
+
+  // お題名を1文字ずつ伏せて出す演出
+  document.getElementById("questName").textContent = q.name;
+  startTimer(60);
+}
+
+/* ===== タイマー ===== */
+function startTimer(sec) {
+  stopTimer();
+  timeLeft = sec;
+  const t = document.getElementById("timer");
+  t.classList.remove("warn");
+  t.textContent = "⏱ " + timeLeft;
+  timerId = setInterval(() => {
+    timeLeft--;
+    t.textContent = "⏱ " + timeLeft;
+    if (timeLeft <= 10) t.classList.add("warn");
+    if (timeLeft <= 0) {
+      stopTimer();
+      doCheck(); // 時間切れで自動こたえあわせ
+    }
+  }, 1000);
+}
+function stopTimer() {
+  if (timerId) { clearInterval(timerId); timerId = null; }
+}
+
+/* ===== ちらっとヒント（お手本を一瞬うっすら表示） ===== */
+document.getElementById("peekBtn").addEventListener("click", () => {
+  overlay.classList.add("peek");
+  setTimeout(() => overlay.classList.remove("peek"), 900);
+});
+
+/* ===== こたえあわせ ===== */
+document.getElementById("checkBtn").addEventListener("click", doCheck);
+
+function doCheck() {
+  stopTimer();
+  if (!targetMask) return;
+
+  // IoU（重なり率）でスコアを出す：からっぽキャンバスは0点、ぴったりで100点
+  let inter = 0, union = 0;
+  for (let i = 0; i < TOTAL; i++) {
+    const drawn = cells[i] !== null;
+    const ans = targetMask[i];
+    if (drawn && ans) inter++;
+    if (drawn || ans) union++;
+  }
+  const score = union === 0 ? 0 : Math.round((inter / union) * 100);
+
+  let rank, msg;
+  if (score >= 65) { rank = "S"; msg = "そっくり！プロのドット絵師さんですか…？✨"; }
+  else if (score >= 45) { rank = "A"; msg = "おみごと！お手本のおもかげバッチリ！"; }
+  else if (score >= 25) { rank = "B"; msg = "いいかんじ！もうひとふんばり！"; }
+  else { rank = "C"; msg = "アート…なのかも？じゆうでステキ！"; }
+
+  showResult(rank, score, msg);
+}
+
+/* ===== 結果モーダル ===== */
+function drawMini(canvas, getColor) {
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, SIZE, SIZE);
+  for (let i = 0; i < TOTAL; i++) {
+    const col = getColor(i);
+    if (!col) continue;
+    ctx.fillStyle = col;
+    ctx.fillRect(i % SIZE, (i / SIZE) | 0, 1, 1);
+  }
+}
+function showResult(rank, score, msg) {
+  const rankEl = document.getElementById("rank");
+  rankEl.textContent = rank;
+  rankEl.className = "rank " + rank;
+  document.getElementById("scoreNum").textContent = "いっちりつ " + score + "%";
+  document.getElementById("resultMsg").textContent = msg;
+
+  drawMini(document.getElementById("miniYou"), (i) => cells[i]);
+  drawMini(document.getElementById("miniAns"), (i) => (targetMask[i] ? "#ff8fab" : null));
+
+  document.getElementById("scrim").classList.add("show");
+  if (rank === "S") sparkle();
+}
+document.getElementById("scrim").addEventListener("click", (e) => {
+  if (e.target.id === "scrim") closeResult();
+});
+function closeResult() {
+  document.getElementById("scrim").classList.remove("show");
+}
+document.getElementById("retryBtn").addEventListener("click", () => {
+  closeResult();
+  cells = new Array(TOTAL).fill(null);
+  render();
+  undoStack.length = 0;
+  startTimer(60);
+});
+document.getElementById("nextBtn").addEventListener("click", () => {
+  closeResult();
+  newQuest();
+});
+
+/* ===== S評価のキラキラ演出 ===== */
+function sparkle() {
+  const marks = ["✨", "⭐️", "💖", "🌟", "🎉"];
+  for (let n = 0; n < 18; n++) {
+    const s = document.createElement("div");
+    s.className = "spark";
+    s.textContent = marks[(Math.random() * marks.length) | 0];
+    s.style.left = (10 + Math.random() * 80) + "vw";
+    s.style.top = (30 + Math.random() * 40) + "vh";
+    s.style.animationDelay = (Math.random() * 0.4) + "s";
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1600);
+  }
+}
+</script>
+</body>
+</html>

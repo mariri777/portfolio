@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>さじかげん — レシピの単位変換</title>
+<meta name="description" content="大さじ・小さじ・カップとグラムを、食材ごとに正しく換算する台所の道具。「大さじ1って何g？」をその場で解決します。" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700;900&family=Cormorant+Garamond:wght@400;500;600&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #eeece6;
+    --bg-2: #e6e2d8;
+    --paper: #fcfbf7;
+    --paper-2: #f5f2ea;
+    --ink: #2c2a26;
+    --ink-soft: #736e64;
+    --ink-faint: #a9a294;
+    --line: #e2ddd1;
+    --line-soft: #ece8dd;
+
+    --dou: #a4643c;         /* 銅 */
+    --dou-soft: #f4e7dc;
+    --dou-deep: #834c2b;
+    --wakatake: #6d8b78;    /* 若竹 */
+    --wakatake-soft: #e5eee8;
+
+    --shadow: 0 22px 54px -30px rgba(60, 46, 30, .5);
+    --shadow-s: 0 10px 26px -20px rgba(60, 46, 30, .55);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .stepper input, .r-val, .r-main .big {
+    font-variant-numeric: lining-nums tabular-nums;
+    font-feature-settings: "lnum" 1, "tnum" 1;
+  }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Zen Old Mincho", serif;
+    color: var(--ink);
+    background:
+      radial-gradient(120% 90% at 50% -10%, #f6f4ee 0%, var(--bg) 58%, var(--bg-2) 100%);
+    min-height: 100vh;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+    padding: 38px 18px 76px;
+  }
+  .wrap { width: 100%; max-width: 560px; margin: 0 auto; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; color: var(--ink-soft); text-decoration: none;
+    letter-spacing: .04em; margin-bottom: 26px;
+    border-bottom: 1px solid transparent; transition: border-color .2s, color .2s;
+  }
+  .home-link:hover { color: var(--ink); border-color: var(--line); }
+
+  /* ---- hero ---- */
+  .hero { text-align: center; margin-bottom: 30px; }
+  .eyebrow {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 12px; letter-spacing: .34em; text-transform: uppercase;
+    color: var(--dou); margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: 34px; font-weight: 700; letter-spacing: .1em;
+    margin-bottom: 12px;
+  }
+  .hero h1 .dot { color: var(--dou); }
+  .lead {
+    font-size: 13.5px; color: var(--ink-soft); line-height: 2;
+    max-width: 400px; margin: 0 auto;
+  }
+  .rule {
+    width: 54px; height: 1px; background: var(--line);
+    margin: 22px auto 0; position: relative;
+  }
+  .rule::after {
+    content: ""; position: absolute; left: 50%; top: -2px;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--dou); transform: translateX(-50%);
+  }
+
+  /* ---- panel ---- */
+  .panel {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 22px 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .panel-title {
+    font-size: 13px; letter-spacing: .16em; color: var(--ink-soft);
+    display: flex; align-items: center; gap: 9px; margin-bottom: 16px;
+  }
+  .panel-title::before {
+    content: ""; width: 14px; height: 1px; background: var(--dou);
+  }
+
+  /* ---- ingredient picker ---- */
+  .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .search-row input {
+    flex: 1; font-family: inherit; font-size: 14px; color: var(--ink);
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: 11px; padding: 10px 13px; outline: none;
+    transition: border-color .2s, background .2s;
+  }
+  .search-row input:focus { border-color: var(--dou); background: #fff; }
+  .search-row input::placeholder { color: var(--ink-faint); }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .tab {
+    font-family: inherit; font-size: 12px; letter-spacing: .06em;
+    color: var(--ink-soft); background: transparent;
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 5px 13px; cursor: pointer;
+    transition: all .18s;
+  }
+  .tab:hover { border-color: var(--dou); color: var(--dou); }
+  .tab.on {
+    background: var(--ink); border-color: var(--ink); color: var(--paper);
+  }
+
+  .chips {
+    display: flex; flex-wrap: wrap; gap: 7px;
+    max-height: 188px; overflow-y: auto;
+    padding: 2px 2px 4px;
+  }
+  .chip {
+    font-family: inherit; font-size: 12.5px; color: var(--ink);
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: 999px; padding: 6px 13px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all .18s;
+  }
+  .chip:hover { border-color: var(--dou); background: #fff; }
+  .chip.on {
+    background: var(--dou-soft); border-color: var(--dou); color: var(--dou-deep);
+  }
+  .chip .ce { font-size: 13px; }
+  .empty-note {
+    font-size: 12.5px; color: var(--ink-faint); padding: 10px 2px;
+  }
+
+  .recent-label {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 14px 0 8px;
+  }
+
+  /* ---- amount ---- */
+  .amount-row { display: flex; gap: 10px; align-items: stretch; }
+  .stepper {
+    flex: 1; display: flex; align-items: center;
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: 13px; overflow: hidden;
+  }
+  .stepper button {
+    width: 42px; align-self: stretch; border: none; background: transparent;
+    color: var(--ink-soft); font-size: 18px; cursor: pointer;
+    font-family: inherit; transition: color .18s, background .18s;
+  }
+  .stepper button:hover { color: var(--dou); background: rgba(164,100,60,.07); }
+  .stepper input {
+    flex: 1; width: 100%; min-width: 0; text-align: center;
+    font-family: "Cormorant Garamond", serif; font-size: 26px; font-weight: 600;
+    color: var(--ink); background: transparent; border: none; outline: none;
+    padding: 8px 0;
+  }
+  .unit-select {
+    font-family: inherit; font-size: 14px; color: var(--ink);
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: 13px; padding: 0 34px 0 15px; cursor: pointer;
+    outline: none; min-width: 108px;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23736e64' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat; background-position: right 13px center;
+    transition: border-color .2s;
+  }
+  .unit-select:focus { border-color: var(--dou); }
+
+  .quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+  .q {
+    font-family: inherit; font-size: 12px; color: var(--ink-soft);
+    background: transparent; border: 1px dashed var(--line);
+    border-radius: 999px; padding: 4px 12px; cursor: pointer;
+    transition: all .18s;
+  }
+  .q:hover { border-style: solid; border-color: var(--dou); color: var(--dou); }
+
+  /* ---- result ---- */
+  .result {
+    background: linear-gradient(180deg, #fffdf9 0%, var(--paper-2) 100%);
+    border: 1px solid var(--line);
+    border-radius: 20px; box-shadow: var(--shadow);
+    padding: 24px 20px 20px; margin-bottom: 18px;
+  }
+  .r-head {
+    text-align: center; padding-bottom: 18px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .r-ing {
+    font-size: 13px; letter-spacing: .1em; color: var(--ink-soft);
+    display: inline-flex; align-items: center; gap: 7px;
+    margin-bottom: 10px;
+  }
+  .r-main {
+    font-size: 15px; color: var(--ink); letter-spacing: .04em;
+  }
+  .r-main .big {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 46px; font-weight: 600; color: var(--dou-deep);
+    letter-spacing: .01em; line-height: 1.1;
+    margin: 0 4px;
+  }
+  .r-main .big-jp {
+    display: block; margin-top: 8px;
+    font-size: 24px; font-weight: 500; color: var(--dou-deep);
+    letter-spacing: .12em;
+  }
+  .r-main .from {
+    display: block; font-size: 13px; color: var(--ink-faint);
+    margin-bottom: 6px; letter-spacing: .08em;
+  }
+
+  .r-list { margin-top: 6px; }
+  .r-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; padding: 11px 4px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .r-row:last-child { border-bottom: none; }
+  .r-row.self { opacity: .42; }
+  .r-unit {
+    font-size: 13px; color: var(--ink-soft); letter-spacing: .1em;
+    white-space: nowrap;
+  }
+  .r-val {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 21px; font-weight: 600; color: var(--ink);
+    text-align: right;
+  }
+  .r-val .u {
+    font-family: "Zen Old Mincho", serif;
+    font-size: 11.5px; font-weight: 400; color: var(--ink-faint);
+    margin-left: 5px; letter-spacing: .08em;
+  }
+  .r-val .tiny-val {
+    font-family: "Zen Old Mincho", serif;
+    font-size: 12.5px; font-weight: 400; color: var(--ink-faint);
+    letter-spacing: .08em;
+  }
+  .r-val .approx {
+    font-family: "Zen Old Mincho", serif;
+    font-size: 12px; color: var(--ink-faint); margin-right: 3px;
+  }
+  .r-note {
+    margin-top: 14px; font-size: 11.5px; color: var(--ink-faint);
+    text-align: center; line-height: 1.9;
+  }
+
+  /* ---- tips ---- */
+  .tips { padding: 20px; }
+  .tip-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 11px 0; border-bottom: 1px solid var(--line-soft);
+  }
+  .tip-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .tip-mark {
+    flex: none; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--wakatake-soft); color: var(--wakatake);
+    display: grid; place-items: center; font-size: 13px; margin-top: 2px;
+  }
+  .tip-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.95; }
+  .tip-body b { color: var(--ink); font-weight: 500; }
+
+  footer {
+    text-align: center; margin-top: 36px;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 11.5px; letter-spacing: .22em; color: var(--ink-faint);
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 26px 14px 60px; }
+    .hero h1 { font-size: 28px; }
+    .panel, .result { padding: 18px 15px; border-radius: 17px; }
+    .r-main .big { font-size: 38px; }
+    .unit-select { min-width: 94px; font-size: 13px; padding-right: 30px; }
+    .stepper button { width: 36px; }
+    .stepper input { font-size: 23px; }
+    .chips { max-height: 156px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="home-link" href="../">← 一覧へもどる</a>
+
+    <header class="hero">
+      <p class="eyebrow">A PINCH OF</p>
+      <h1>さじかげん<span class="dot">.</span></h1>
+      <p class="lead">
+        「大さじ1って、何グラム？」
+        食材ごとに重さは違います。選んで、数を入れるだけ。
+      </p>
+      <div class="rule"></div>
+    </header>
+
+    <!-- 食材を選ぶ -->
+    <section class="panel">
+      <div class="panel-title">食材をえらぶ</div>
+
+      <div class="search-row">
+        <input id="search" type="text" placeholder="さがす（例：さとう、しょうゆ）" autocomplete="off" />
+      </div>
+
+      <div class="tabs" id="tabs"></div>
+      <div class="chips" id="chips"></div>
+
+      <div id="recentWrap" hidden>
+        <p class="recent-label">Recent</p>
+        <div class="chips" id="recent" style="max-height:none"></div>
+      </div>
+    </section>
+
+    <!-- 分量を入れる -->
+    <section class="panel">
+      <div class="panel-title">分量を入れる</div>
+
+      <div class="amount-row">
+        <div class="stepper">
+          <button id="minus" type="button" aria-label="へらす">−</button>
+          <input id="amount" type="text" inputmode="decimal" value="1" aria-label="分量" />
+          <button id="plus" type="button" aria-label="ふやす">＋</button>
+        </div>
+        <select id="unit" class="unit-select" aria-label="単位"></select>
+      </div>
+
+      <div class="quick" id="quick"></div>
+    </section>
+
+    <!-- 結果 -->
+    <section class="result">
+      <div class="r-head">
+        <div class="r-ing" id="rIng">🧂 塩（食塩）</div>
+        <div class="r-main" id="rMain"></div>
+      </div>
+      <div class="r-list" id="rList"></div>
+      <p class="r-note" id="rNote"></p>
+    </section>
+
+    <!-- 豆知識 -->
+    <section class="panel tips">
+      <div class="panel-title">はかるものが無いとき</div>
+      <div class="tip-item">
+        <span class="tip-mark">1</span>
+        <p class="tip-body">
+          ペットボトルの<b>キャップすりきり1杯＝約5ml</b>。小さじ1のかわりになります。
+        </p>
+      </div>
+      <div class="tip-item">
+        <span class="tip-mark">2</span>
+        <p class="tip-body">
+          カレー用の大きいスプーンが<b>約15ml＝大さじ1</b>、ティースプーンが<b>約5ml＝小さじ1</b>の目安。
+        </p>
+      </div>
+      <div class="tip-item">
+        <span class="tip-mark">3</span>
+        <p class="tip-body">
+          <b>ひとつまみ＝約1g</b>（親指・人差し指・中指の3本）、<b>少々＝約0.5g</b>（2本）。塩の話です。
+        </p>
+      </div>
+      <div class="tip-item">
+        <span class="tip-mark">4</span>
+        <p class="tip-body">
+          計量カップ1杯は<b>200ml</b>、お米の1合は<b>180ml</b>。同じ「カップ」でも別物なので注意。
+        </p>
+      </div>
+    </section>
+
+    <footer>SAJIKAGEN</footer>
+  </div>
+
+<script>
+  /* ============ 食材データ ============
+     tsp = 小さじ1(5ml)の重さ / tbsp = 大さじ1(15ml) / cup = カップ1(200ml)
+     日本の標準計量値（女子栄養大学 準拠の一般的な数値）をもとにしています。 */
+  var DATA = [
+    { k:'water',     n:'水・お湯',        e:'💧', g:'liquid', tsp:5, tbsp:15, cup:200, y:'みず おゆ' },
+    { k:'sugar',     n:'砂糖（上白糖）',   e:'🍬', g:'season', tsp:3, tbsp:9,  cup:130, y:'さとう じょうはくとう' },
+    { k:'gran',      n:'グラニュー糖',     e:'🧊', g:'season', tsp:4, tbsp:12, cup:180, y:'ぐらにゅーとう さとう' },
+    { k:'powsugar',  n:'粉砂糖',          e:'❄️', g:'season', tsp:3, tbsp:9,  cup:100, y:'こなざとう ふんとう' },
+    { k:'salt',      n:'塩（食塩）',       e:'🧂', g:'season', tsp:6, tbsp:18, cup:240, y:'しお しょくえん' },
+    { k:'arajio',    n:'塩（あら塩）',     e:'🧂', g:'season', tsp:5, tbsp:15, cup:180, y:'しお あらじお' },
+    { k:'soy',       n:'しょうゆ',        e:'🍶', g:'season', tsp:6, tbsp:18, cup:230, y:'しょうゆ 醤油' },
+    { k:'miso',      n:'みそ',            e:'🥣', g:'season', tsp:6, tbsp:18, cup:230, y:'みそ 味噌' },
+    { k:'mirin',     n:'みりん',          e:'🍶', g:'season', tsp:6, tbsp:18, cup:230, y:'みりん' },
+    { k:'sake',      n:'酒',              e:'🍶', g:'season', tsp:5, tbsp:15, cup:200, y:'さけ りょうりしゅ' },
+    { k:'vinegar',   n:'酢',              e:'🫙', g:'season', tsp:5, tbsp:15, cup:200, y:'す おす' },
+    { k:'ketchup',   n:'ケチャップ',       e:'🍅', g:'season', tsp:5, tbsp:15, cup:230, y:'けちゃっぷ' },
+    { k:'mayo',      n:'マヨネーズ',       e:'🥚', g:'season', tsp:4, tbsp:12, cup:190, y:'まよねーず' },
+    { k:'sauce',     n:'ウスターソース',   e:'🥫', g:'season', tsp:6, tbsp:18, cup:240, y:'うすたーそーす' },
+    { k:'chuno',     n:'中濃ソース',       e:'🥫', g:'season', tsp:6, tbsp:18, cup:240, y:'ちゅうのうそーす' },
+    { k:'honey',     n:'はちみつ',        e:'🍯', g:'season', tsp:7, tbsp:21, cup:280, y:'はちみつ 蜂蜜' },
+    { k:'maple',     n:'メープルシロップ', e:'🍁', g:'season', tsp:7, tbsp:21, cup:280, y:'めーぷるしろっぷ' },
+    { k:'oil',       n:'サラダ油',        e:'🫗', g:'liquid', tsp:4, tbsp:12, cup:180, y:'さらだあぶら ゆ おいる' },
+    { k:'sesameoil', n:'ごま油',          e:'🫗', g:'liquid', tsp:4, tbsp:12, cup:180, y:'ごまあぶら ゆ' },
+    { k:'olive',     n:'オリーブオイル',   e:'🫒', g:'liquid', tsp:4, tbsp:12, cup:180, y:'おりーぶおいる あぶら' },
+    { k:'butter',    n:'バター',          e:'🧈', g:'liquid', tsp:4, tbsp:12, cup:180, y:'ばたー' },
+    { k:'milk',      n:'牛乳',            e:'🥛', g:'liquid', tsp:5, tbsp:15, cup:210, y:'ぎゅうにゅう みるく' },
+    { k:'cream',     n:'生クリーム',       e:'🍶', g:'liquid', tsp:5, tbsp:15, cup:200, y:'なまくりーむ' },
+    { k:'yogurt',    n:'ヨーグルト',       e:'🥄', g:'liquid', tsp:5, tbsp:15, cup:210, y:'よーぐると' },
+    { k:'flour',     n:'薄力粉',          e:'🌾', g:'powder', tsp:3, tbsp:9,  cup:110, y:'はくりきこ こむぎこ' },
+    { k:'bread',     n:'強力粉',          e:'🌾', g:'powder', tsp:3, tbsp:9,  cup:110, y:'きょうりきこ こむぎこ' },
+    { k:'katakuri',  n:'片栗粉',          e:'🥔', g:'powder', tsp:3, tbsp:9,  cup:130, y:'かたくりこ' },
+    { k:'corn',      n:'コーンスターチ',   e:'🌽', g:'powder', tsp:2, tbsp:6,  cup:100, y:'こーんすたーち' },
+    { k:'panko',     n:'パン粉（生）',     e:'🍞', g:'powder', tsp:1, tbsp:3,  cup:40,  y:'ぱんこ' },
+    { k:'cocoa',     n:'ココア',          e:'🍫', g:'powder', tsp:2, tbsp:6,  cup:90,  y:'ここあ' },
+    { k:'cheese',    n:'粉チーズ',        e:'🧀', g:'powder', tsp:2, tbsp:6,  cup:90,  y:'こなちーず' },
+    { k:'gelatin',   n:'粉ゼラチン',      e:'🍮', g:'powder', tsp:3, tbsp:9,  cup:130, y:'こなぜらちん' },
+    { k:'bp',        n:'ベーキングパウダー',e:'🧁', g:'powder', tsp:4, tbsp:12, cup:160, y:'べーきんぐぱうだー ふくらしこ' },
+    { k:'dashi',     n:'顆粒だし',        e:'🍲', g:'powder', tsp:3, tbsp:9,  cup:120, y:'かりゅうだし ほんだし' },
+    { k:'sesame',    n:'いりごま',        e:'🫘', g:'powder', tsp:3, tbsp:9,  cup:120, y:'いりごま ごま' },
+    { k:'rice',      n:'米',              e:'🍚', g:'other',  tsp:4, tbsp:12, cup:167, gou:150, y:'こめ おこめ ごはん' }
+  ];
+
+  var GROUPS = [
+    { g:'all',    label:'すべて' },
+    { g:'season', label:'調味料' },
+    { g:'powder', label:'粉・乾物' },
+    { g:'liquid', label:'液体・油' },
+    { g:'other',  label:'その他' }
+  ];
+
+  var UNITS = [
+    { u:'tbsp', label:'大さじ', short:'大さじ' },
+    { u:'tsp',  label:'小さじ', short:'小さじ' },
+    { u:'cup',  label:'カップ', short:'カップ' },
+    { u:'g',    label:'グラム (g)', short:'g' },
+    { u:'ml',   label:'ミリリットル (ml)', short:'ml' },
+    { u:'gou',  label:'合', short:'合' }
+  ];
+
+  var STORE_KEY = 'sajikagen.v1';
+
+  var state = {
+    key: 'sugar',
+    amount: 1,
+    unit: 'tbsp',
+    group: 'all',
+    query: '',
+    recent: []
+  };
+
+  /* ---------- 保存 ---------- */
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return;
+      var s = JSON.parse(raw);
+      if (s.key && findIng(s.key)) state.key = s.key;
+      if (s.unit && UNITS.some(function (u) { return u.u === s.unit; })) state.unit = s.unit;
+      if (Array.isArray(s.recent)) {
+        state.recent = s.recent.filter(function (k) { return !!findIng(k); }).slice(0, 8);
+      }
+    } catch (e) { /* 保存が使えない環境でも動く */ }
+  }
+  function save() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        key: state.key, unit: state.unit, recent: state.recent
+      }));
+    } catch (e) {}
+  }
+
+  function findIng(k) {
+    for (var i = 0; i < DATA.length; i++) if (DATA[i].k === k) return DATA[i];
+    return null;
+  }
+
+  /* ---------- 換算 ---------- */
+  // 単位1あたりの重さ(g)。米の「合」だけ特別値を持つ。
+  function gramsPerUnit(ing, unit) {
+    if (unit === 'g') return 1;
+    if (unit === 'ml') return ing.cup / 200;          // カップの値から密度を出す
+    if (unit === 'gou') return ing.gou || (ing.cup / 200) * 180;
+    return ing[unit];                                  // tsp / tbsp / cup
+  }
+  function toGram(amount, unit, ing) { return amount * gramsPerUnit(ing, unit); }
+  function fromGram(g, unit, ing) { return g / gramsPerUnit(ing, unit); }
+
+  /* ---------- 数の見せ方 ---------- */
+  var FRACS = [
+    { v: 1 / 4, s: '1/4' }, { v: 1 / 3, s: '1/3' }, { v: 1 / 2, s: '1/2' },
+    { v: 2 / 3, s: '2/3' }, { v: 3 / 4, s: '3/4' }
+  ];
+
+  // 大さじ・小さじ・カップ・合は「1と1/2」のような分数表記にする
+  function fmtSpoon(v) {
+    if (v === 0) return { text: '0', approx: false };
+    if (v < 0.1) return { text: '', approx: false, tiny: true };
+    var whole = Math.floor(v + 1e-9);
+    var rest = v - whole;
+    if (rest < 0.04) return { text: String(whole), approx: false };
+    var best = null;
+    for (var i = 0; i < FRACS.length; i++) {
+      var d = Math.abs(rest - FRACS[i].v);
+      if (best === null || d < best.d) best = { d: d, s: FRACS[i].s };
+    }
+    if (best.d <= 0.045) {
+      return { text: (whole > 0 ? whole + 'と' : '') + best.s, approx: best.d > 0.008 };
+    }
+    if (1 - rest < 0.04) return { text: String(whole + 1), approx: true };
+    return { text: v.toFixed(1), approx: true };
+  }
+
+  // g / ml はふつうの数字で
+  function fmtNum(v) {
+    if (v === 0) return { text: '0', approx: false };
+    if (v < 1) return { text: v.toFixed(2).replace(/0+$/, '').replace(/\.$/, ''), approx: true };
+    if (v < 10) {
+      var r1 = Math.round(v * 10) / 10;
+      return { text: String(r1), approx: Math.abs(r1 - v) > 0.01 };
+    }
+    var r = Math.round(v);
+    return { text: String(r), approx: Math.abs(r - v) > 0.05 };
+  }
+
+  function fmtFor(unit, v) {
+    return (unit === 'g' || unit === 'ml') ? fmtNum(v) : fmtSpoon(v);
+  }
+
+  // 入力欄の「1/2」「1と1/2」も受け取れるようにする
+  function parseAmount(str) {
+    if (typeof str !== 'string') return NaN;
+    var s = str.trim().replace(/　/g, ' ').replace(/と/g, '+');
+    if (s === '') return NaN;
+    var total = 0, ok = false;
+    var parts = s.split('+');
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i].trim();
+      if (p === '') continue;
+      var m = p.match(/^(\d*\.?\d+)\s*\/\s*(\d*\.?\d+)$/);
+      if (m) {
+        var d = parseFloat(m[2]);
+        if (!d) return NaN;
+        total += parseFloat(m[1]) / d; ok = true; continue;
+      }
+      if (/^\d*\.?\d+$/.test(p)) { total += parseFloat(p); ok = true; continue; }
+      return NaN;
+    }
+    return ok ? total : NaN;
+  }
+
+  /* ---------- 描画 ---------- */
+  var elTabs = document.getElementById('tabs');
+  var elChips = document.getElementById('chips');
+  var elRecent = document.getElementById('recent');
+  var elRecentWrap = document.getElementById('recentWrap');
+  var elSearch = document.getElementById('search');
+  var elAmount = document.getElementById('amount');
+  var elUnit = document.getElementById('unit');
+  var elQuick = document.getElementById('quick');
+  var elRIng = document.getElementById('rIng');
+  var elRMain = document.getElementById('rMain');
+  var elRList = document.getElementById('rList');
+  var elRNote = document.getElementById('rNote');
+
+  function renderTabs() {
+    elTabs.innerHTML = '';
+    GROUPS.forEach(function (g) {
+      var b = document.createElement('button');
+      b.className = 'tab' + (state.group === g.g ? ' on' : '');
+      b.type = 'button';
+      b.textContent = g.label;
+      b.addEventListener('click', function () {
+        state.group = g.g;
+        renderTabs(); renderChips();
+      });
+      elTabs.appendChild(b);
+    });
+  }
+
+  function makeChip(ing) {
+    var b = document.createElement('button');
+    b.className = 'chip' + (state.key === ing.k ? ' on' : '');
+    b.type = 'button';
+    b.innerHTML = '<span class="ce">' + ing.e + '</span>' + ing.n;
+    b.addEventListener('click', function () { selectIng(ing.k); });
+    return b;
+  }
+
+  function renderChips() {
+    var q = state.query.trim().toLowerCase();
+    var list = DATA.filter(function (ing) {
+      if (state.group !== 'all' && ing.g !== state.group) return false;
+      if (!q) return true;
+      return (ing.n + ' ' + ing.y).toLowerCase().indexOf(q) >= 0;
+    });
+    elChips.innerHTML = '';
+    if (!list.length) {
+      var p = document.createElement('p');
+      p.className = 'empty-note';
+      p.textContent = '見つかりませんでした。ひらがなでも探せます。';
+      elChips.appendChild(p);
+      return;
+    }
+    list.forEach(function (ing) { elChips.appendChild(makeChip(ing)); });
+  }
+
+  function renderRecent() {
+    var list = state.recent.map(findIng).filter(Boolean);
+    if (list.length < 2) { elRecentWrap.hidden = true; return; }
+    elRecentWrap.hidden = false;
+    elRecent.innerHTML = '';
+    list.forEach(function (ing) { elRecent.appendChild(makeChip(ing)); });
+  }
+
+  function renderUnits() {
+    var ing = findIng(state.key);
+    var opts = UNITS.filter(function (u) { return u.u !== 'gou' || ing.k === 'rice'; });
+    if (!opts.some(function (u) { return u.u === state.unit; })) state.unit = 'tbsp';
+    elUnit.innerHTML = '';
+    opts.forEach(function (u) {
+      var o = document.createElement('option');
+      o.value = u.u; o.textContent = u.label;
+      if (u.u === state.unit) o.selected = true;
+      elUnit.appendChild(o);
+    });
+  }
+
+  function renderQuick() {
+    var vals = ['1/4', '1/3', '1/2', '1', '2', '3'];
+    elQuick.innerHTML = '';
+    vals.forEach(function (v) {
+      var b = document.createElement('button');
+      b.className = 'q'; b.type = 'button'; b.textContent = v;
+      b.addEventListener('click', function () {
+        state.amount = parseAmount(v);
+        elAmount.value = v;
+        renderResult();
+      });
+      elQuick.appendChild(b);
+    });
+  }
+
+  function unitShort(u) {
+    for (var i = 0; i < UNITS.length; i++) if (UNITS[i].u === u) return UNITS[i].short;
+    return u;
+  }
+
+  function renderResult() {
+    var ing = findIng(state.key);
+    elRIng.innerHTML = '<span>' + ing.e + '</span>' + ing.n;
+
+    var amount = state.amount;
+    if (!isFinite(amount) || amount <= 0) {
+      elRMain.innerHTML = '<span class="from">分量を入れてください</span>' +
+        '<span class="big">—</span>';
+      elRList.innerHTML = '';
+      elRNote.textContent = '「1」「1/2」「1と1/2」のように書けます。';
+      return;
+    }
+
+    var g = toGram(amount, state.unit, ing);
+    var inTxt = fmtFor(state.unit, amount).text;
+
+    // 見出しは「入力 → g」。gで入れたときは大さじに換算して見せる。
+    var headUnit = state.unit === 'g' ? 'tbsp' : 'g';
+    var headVal = fmtFor(headUnit, fromGram(g, headUnit, ing));
+    elRMain.innerHTML =
+      '<span class="from">' +
+        (state.unit === 'g' || state.unit === 'ml'
+          ? inTxt + ' ' + unitShort(state.unit)
+          : unitShort(state.unit) + ' ' + inTxt) +
+      ' は</span>' +
+      (headVal.tiny
+        ? '<span class="big-jp">ごく少量</span>'
+        : (headVal.approx ? '<span class="approx">およそ</span>' : '') +
+          (headUnit === 'g'
+            ? '<span class="big">' + headVal.text + '</span>グラム'
+            : '大さじ<span class="big">' + headVal.text + '</span>'));
+
+    // 全単位の一覧
+    var rows = UNITS.filter(function (u) { return u.u !== 'gou' || ing.k === 'rice'; });
+    elRList.innerHTML = '';
+    rows.forEach(function (u) {
+      var v = fromGram(g, u.u, ing);
+      var f = fmtFor(u.u, v);
+      var row = document.createElement('div');
+      row.className = 'r-row' + (u.u === state.unit ? ' self' : '');
+      row.innerHTML =
+        '<span class="r-unit">' + u.label + '</span>' +
+        '<span class="r-val">' +
+          (f.tiny
+            ? '<span class="tiny-val">ごく少量</span>'
+            : (f.approx ? '<span class="approx">≒</span>' : '') +
+              f.text + '<span class="u">' + u.short + '</span>') +
+        '</span>';
+      elRList.appendChild(row);
+    });
+
+    elRNote.innerHTML =
+      '大さじ1＝15ml　小さじ1＝5ml　カップ1＝200ml' +
+      (ing.k === 'rice' ? '　1合＝180ml' : '') +
+      '<br>すりきりではかった場合の目安です。';
+  }
+
+  function selectIng(k) {
+    state.key = k;
+    state.recent = [k].concat(state.recent.filter(function (x) { return x !== k; })).slice(0, 8);
+    renderChips(); renderRecent(); renderUnits(); renderResult(); save();
+  }
+
+  /* ---------- 操作 ---------- */
+  elSearch.addEventListener('input', function () {
+    state.query = elSearch.value;
+    if (state.query.trim()) state.group = 'all';
+    renderTabs(); renderChips();
+  });
+
+  elUnit.addEventListener('change', function () {
+    state.unit = elUnit.value;
+    renderResult(); save();
+  });
+
+  elAmount.addEventListener('input', function () {
+    state.amount = parseAmount(elAmount.value);
+    renderResult();
+  });
+  elAmount.addEventListener('blur', function () {
+    if (isFinite(state.amount) && state.amount > 0) {
+      elAmount.value = fmtFor(state.unit, state.amount).text;
+    }
+  });
+
+  // ＋ − は 0.5 きざみ（1未満のときは 0.25 きざみ）
+  function step(dir) {
+    var v = isFinite(state.amount) && state.amount > 0 ? state.amount : 0;
+    var s = (v < 1 || (v <= 1 && dir < 0)) ? 0.25 : 0.5;
+    v = Math.round((v + s * dir) / s) * s;
+    if (v < 0.25) v = 0.25;
+    state.amount = v;
+    elAmount.value = fmtFor(state.unit, v).text;
+    renderResult();
+  }
+  document.getElementById('plus').addEventListener('click', function () { step(1); });
+  document.getElementById('minus').addEventListener('click', function () { step(-1); });
+
+  /* ---------- 起動 ---------- */
+  load();
+  renderTabs();
+  renderChips();
+  renderRecent();
+  renderUnits();
+  renderQuick();
+  elAmount.value = '1';
+  state.amount = 1;
+  renderResult();
+</script>
+</body>
+</html>

@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>10-MIN KITCHEN — 10分献立メーカー</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --cream: #f6efe2;
+      --cream-soft: #fbf7ee;
+      --paper: #fffdf8;
+      --sage: #8aa78b;
+      --sage-deep: #6a8a6b;
+      --sage-soft: #d7e2d3;
+      --terra: #c87856;
+      --terra-deep: #a8593a;
+      --terra-soft: #f3d8c7;
+      --wood: #6e5340;
+      --ink: #3e2f24;
+      --ink-soft: #7a6655;
+      --line: #e5dccb;
+      --shadow-sm: 0 4px 12px -6px rgba(110, 83, 64, 0.2);
+      --shadow: 0 12px 28px -16px rgba(110, 83, 64, 0.3);
+      --shadow-lg: 0 24px 50px -24px rgba(110, 83, 64, 0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Plus Jakarta Sans", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
+      color: var(--ink);
+      background: var(--cream);
+      background-image:
+        radial-gradient(circle at 8% 5%, #ecdcb8 0%, transparent 40%),
+        radial-gradient(circle at 92% 95%, #d7e2d3 0%, transparent 45%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 24px 96px;
+    }
+
+    /* ---- Back link ---- */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--ink-soft);
+      text-decoration: none;
+      margin-bottom: 32px;
+      transition: color 0.3s;
+    }
+    .back-link:hover { color: var(--terra-deep); }
+    .back-link::before { content: "←"; }
+
+    /* ---- Header ---- */
+    .header {
+      text-align: center;
+      margin-bottom: 56px;
+      position: relative;
+    }
+
+    .header-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--sage-deep);
+      background: var(--paper);
+      padding: 8px 18px;
+      border-radius: 999px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+    .header-eyebrow::before { content: "🌿"; font-size: 12px; }
+
+    .header h1 {
+      font-family: "Fraunces", serif;
+      font-weight: 500;
+      font-size: clamp(36px, 6.5vw, 64px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--wood);
+    }
+    .header h1 .accent {
+      font-style: italic;
+      color: var(--terra-deep);
+    }
+    .header .lede {
+      margin-top: 18px;
+      font-size: 15px;
+      color: var(--ink-soft);
+      max-width: 460px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ---- Section ---- */
+    .step {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 32px 28px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .step-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--sage);
+      color: var(--paper);
+      display: grid;
+      place-items: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .step-title {
+      font-family: "Fraunces", serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--wood);
+      letter-spacing: -0.01em;
+    }
+    .step-hint {
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin-top: 4px;
+    }
+
+    /* ---- Ingredient categories ---- */
+    .cat-group { margin-bottom: 22px; }
+    .cat-group:last-child { margin-bottom: 0; }
+
+    .cat-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--terra-deep);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cat-label::before {
+      content: "";
+      width: 16px;
+      height: 1.5px;
+      background: var(--terra);
+      display: block;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      cursor: pointer;
+      user-select: none;
+    }
+    .chip input { display: none; }
+    .chip span {
+      display: inline-block;
+      padding: 8px 14px;
+      font-size: 13px;
+      background: var(--cream-soft);
+      border: 1.5px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      transition: all 0.2s ease;
+    }
+    .chip:hover span {
+      border-color: var(--sage);
+      transform: translateY(-1px);
+    }
+    .chip input:checked + span {
+      background: var(--sage);
+      border-color: var(--sage);
+      color: var(--paper);
+      font-weight: 500;
+    }
+
+    /* ---- Free text ---- */
+    .free-text-wrap { margin-top: 22px; }
+    .free-text-wrap input {
+      width: 100%;
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--ink);
+      background: var(--cream-soft);
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      transition: border-color 0.3s;
+    }
+    .free-text-wrap input:focus {
+      outline: none;
+      border-color: var(--sage);
+    }
+    .free-text-wrap input::placeholder {
+      color: #b9a994;
+    }
+
+    /* ---- Count selector ---- */
+    .count-options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .count-option { cursor: pointer; }
+    .count-option input { display: none; }
+    .count-option > div {
+      padding: 16px 8px;
+      text-align: center;
+      background: var(--cream-soft);
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      transition: all 0.2s ease;
+    }
+    .count-option:hover > div {
+      border-color: var(--sage);
+    }
+    .count-option input:checked + div {
+      background: var(--sage-soft);
+      border-color: var(--sage);
+    }
+    .count-option .big {
+      font-family: "Fraunces", serif;
+      font-size: 26px;
+      font-weight: 500;
+      color: var(--wood);
+      display: block;
+    }
+    .count-option .label {
+      font-size: 11px;
+      color: var(--ink-soft);
+      letter-spacing: 0.05em;
+      margin-top: 2px;
+    }
+    .count-option input:checked + div .big { color: var(--sage-deep); }
+
+    /* ---- Generate button ---- */
+    .generate-wrap {
+      text-align: center;
+      margin: 36px 0 24px;
+    }
+    .generate-btn {
+      font-family: "Fraunces", serif;
+      font-size: 19px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--paper);
+      background: var(--terra);
+      border: none;
+      padding: 18px 48px;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .generate-btn:hover {
+      background: var(--terra-deep);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+    .generate-btn:active { transform: translateY(-1px); }
+    .generate-btn::after { content: "→"; font-style: italic; }
+
+    /* ---- Result ---- */
+    .result-wrap {
+      margin-top: 40px;
+      display: none;
+    }
+    .result-wrap.visible {
+      display: block;
+      animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .result-head {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .result-head .label {
+      display: inline-block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--sage-deep);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .result-head h2 {
+      font-family: "Fraunces", serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(28px, 5vw, 40px);
+      color: var(--wood);
+    }
+
+    .recipe-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .recipe {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 26px 26px 24px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      animation: fadeUp 0.5s backwards;
+    }
+    .recipe:nth-child(1) { animation-delay: 0.05s; }
+    .recipe:nth-child(2) { animation-delay: 0.1s; }
+    .recipe:nth-child(3) { animation-delay: 0.15s; }
+    .recipe:nth-child(4) { animation-delay: 0.2s; }
+    .recipe:nth-child(5) { animation-delay: 0.25s; }
+
+    .recipe-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .recipe-info { flex: 1; min-width: 0; }
+    .recipe-tags {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .tag-soup {
+      background: var(--terra-soft);
+      color: var(--terra-deep);
+    }
+    .tag-side {
+      background: var(--sage-soft);
+      color: var(--sage-deep);
+    }
+    .tag-time {
+      background: var(--cream-soft);
+      color: var(--wood);
+      border: 1px solid var(--line);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .tag-time::before { content: "⏱"; font-size: 11px; }
+
+    .recipe-name {
+      font-family: "Fraunces", serif;
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1.3;
+      color: var(--wood);
+      letter-spacing: -0.01em;
+    }
+
+    .reroll-btn {
+      flex-shrink: 0;
+      background: var(--cream-soft);
+      border: 1px solid var(--line);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--ink-soft);
+      transition: all 0.3s ease;
+      font-size: 16px;
+    }
+    .reroll-btn:hover {
+      background: var(--terra);
+      color: var(--paper);
+      border-color: var(--terra);
+      transform: rotate(180deg);
+    }
+
+    .missing-note {
+      background: #fff5e9;
+      border: 1px solid #f3d8c7;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--terra-deep);
+      margin-bottom: 16px;
+    }
+    .missing-note::before { content: "💡 "; }
+
+    .recipe-section {
+      margin-top: 14px;
+    }
+    .recipe-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--sage-deep);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .ingredients-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .ingr {
+      font-size: 13px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      background: var(--sage-soft);
+      color: var(--sage-deep);
+      font-weight: 500;
+    }
+    .ingr.season {
+      background: var(--cream-soft);
+      color: var(--ink-soft);
+      border: 1px solid var(--line);
+    }
+
+    .steps-list {
+      list-style: none;
+      counter-reset: step;
+    }
+    .steps-list li {
+      counter-increment: step;
+      padding: 8px 0 8px 36px;
+      position: relative;
+      font-size: 14px;
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    .steps-list li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 24px;
+      height: 24px;
+      background: var(--terra-soft);
+      color: var(--terra-deep);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* ---- Empty/error states ---- */
+    .empty-state {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--ink-soft);
+    }
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--wood);
+      color: var(--paper);
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-size: 13px;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+    .toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ---- Animation ---- */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---- Mobile ---- */
+    @media (max-width: 640px) {
+      .container { padding: 32px 16px 64px; }
+      .step { padding: 24px 20px; border-radius: 20px; }
+      .step-head { gap: 10px; margin-bottom: 18px; }
+      .step-title { font-size: 18px; }
+      .count-options { grid-template-columns: repeat(2, 1fr); }
+      .recipe { padding: 22px 20px 20px; }
+      .recipe-name { font-size: 19px; }
+      .generate-btn { padding: 16px 36px; font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../" class="back-link">mariri のまち に戻る</a>
+
+    <header class="header">
+      <span class="header-eyebrow">Tool</span>
+      <h1>
+        10-min <span class="accent">Kitchen</span>
+      </h1>
+      <p class="lede">家にある食材で、10分以内にできる献立を提案します。<br />基本の調味料は家にある前提でOK。</p>
+    </header>
+
+    <!-- Step 1: Ingredients -->
+    <section class="step">
+      <div class="step-head">
+        <span class="step-num">01</span>
+        <div>
+          <div class="step-title">家にある食材をチェック</div>
+          <div class="step-hint">いくつでも選んでOK。リストにないものは下の自由入力欄へ。</div>
+        </div>
+      </div>
+
+      <div class="cat-group">
+        <div class="cat-label">野菜・きのこ</div>
+        <div class="chips" id="cat-vege"></div>
+      </div>
+
+      <div class="cat-group">
+        <div class="cat-label">肉・魚</div>
+        <div class="chips" id="cat-meat"></div>
+      </div>
+
+      <div class="cat-group">
+        <div class="cat-label">卵・大豆・乳製品</div>
+        <div class="chips" id="cat-egg"></div>
+      </div>
+
+      <div class="cat-group">
+        <div class="cat-label">乾物・その他</div>
+        <div class="chips" id="cat-other"></div>
+      </div>
+
+      <div class="free-text-wrap">
+        <div class="cat-label">その他（自由入力 / カンマ区切り）</div>
+        <input type="text" id="freeText" placeholder="例: アスパラ, ホタテ, 春菊" />
+      </div>
+    </section>
+
+    <!-- Step 2: Side count -->
+    <section class="step">
+      <div class="step-head">
+        <span class="step-num">02</span>
+        <div>
+          <div class="step-title">おかずは何品にしますか？</div>
+          <div class="step-hint">汁物1品は必ず提案します。基本は一汁三菜。</div>
+        </div>
+      </div>
+
+      <div class="count-options">
+        <label class="count-option">
+          <input type="radio" name="sideCount" value="1" />
+          <div>
+            <span class="big">1</span>
+            <div class="label">一汁一菜</div>
+          </div>
+        </label>
+        <label class="count-option">
+          <input type="radio" name="sideCount" value="2" />
+          <div>
+            <span class="big">2</span>
+            <div class="label">一汁二菜</div>
+          </div>
+        </label>
+        <label class="count-option">
+          <input type="radio" name="sideCount" value="3" checked />
+          <div>
+            <span class="big">3</span>
+            <div class="label">一汁三菜</div>
+          </div>
+        </label>
+        <label class="count-option">
+          <input type="radio" name="sideCount" value="4" />
+          <div>
+            <span class="big">4</span>
+            <div class="label">一汁四菜</div>
+          </div>
+        </label>
+      </div>
+    </section>
+
+    <div class="generate-wrap">
+      <button class="generate-btn" id="generateBtn">献立を作る</button>
+    </div>
+
+    <!-- Result -->
+    <div class="result-wrap" id="resultWrap">
+      <div class="result-head">
+        <div class="label">Today's Menu</div>
+        <h2>今日の献立</h2>
+      </div>
+      <div class="recipe-grid" id="recipeGrid"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ========== 食材カテゴリ ==========
+    const INGREDIENTS = {
+      vege: ["玉ねぎ", "にんじん", "じゃがいも", "キャベツ", "レタス", "トマト", "きゅうり", "もやし", "ピーマン", "なす", "ほうれん草", "小松菜", "大根", "長ねぎ", "白菜", "ブロッコリー", "しめじ", "えのき", "アボカド"],
+      meat: ["鶏むね肉", "鶏もも肉", "豚バラ", "豚こま", "ひき肉", "ベーコン", "ハム", "ウインナー", "鮭", "ツナ缶", "ちくわ"],
+      egg: ["卵", "豆腐", "厚揚げ", "油揚げ", "納豆", "牛乳", "チーズ"],
+      other: ["わかめ", "海苔", "塩昆布"]
+    };
+
+    // ========== 食材エイリアス（自由入力の表記ゆれ吸収） ==========
+    const ALIASES = {
+      "玉ねぎ": ["たまねぎ", "タマネギ", "玉葱"],
+      "にんじん": ["ニンジン", "人参"],
+      "じゃがいも": ["ジャガイモ", "ポテト", "馬鈴薯"],
+      "キャベツ": ["きゃべつ"],
+      "ピーマン": ["ぴーまん"],
+      "なす": ["ナス", "茄子"],
+      "ほうれん草": ["ホウレンソウ", "ほうれんそう"],
+      "長ねぎ": ["ねぎ", "ネギ", "葱", "青ねぎ", "万能ねぎ"],
+      "鶏むね肉": ["鶏胸肉", "むね肉", "胸肉", "鶏ムネ"],
+      "鶏もも肉": ["もも肉", "鶏もも", "鶏モモ"],
+      "豚バラ": ["豚ばら", "豚バラ肉"],
+      "豚こま": ["豚コマ", "豚切り落とし", "豚小間"],
+      "ひき肉": ["挽肉", "ミンチ", "合いびき肉"],
+      "卵": ["たまご", "タマゴ", "玉子"],
+      "豆腐": ["とうふ"],
+      "ツナ缶": ["ツナ", "シーチキン"],
+      "しめじ": ["シメジ"]
+    };
+
+    // ========== レシピデータ ==========
+    // type: "soup" | "side"
+    // time: 調理時間（分）
+    // ingredients: 必須メイン食材（基本調味料以外）
+    // seasonings: 使う調味料（家にある前提、表示用）
+    // steps: 作り方
+
+    const RECIPES = [
+      // ===== 汁物 =====
+      { id: "s1", type: "soup", name: "ふんわり卵スープ", time: 5,
+        ingredients: ["卵", "長ねぎ"], seasonings: ["鶏ガラスープの素", "ごま油", "塩"],
+        steps: ["鍋に水400mlと鶏ガラスープの素小さじ2を入れて沸かす", "溶き卵1個を細く回し入れ、固まったら火を止める", "刻んだ長ねぎとごま油少々を加えて完成"] },
+      { id: "s2", type: "soup", name: "豆腐とわかめの味噌汁", time: 6,
+        ingredients: ["豆腐", "わかめ"], seasonings: ["味噌", "だしの素"],
+        steps: ["鍋に水400mlとだしの素小さじ1を入れて沸かす", "豆腐を1.5cm角に切って入れる", "乾燥わかめ大さじ1を入れて1分煮る", "味噌大さじ1.5を溶き入れて完成"] },
+      { id: "s3", type: "soup", name: "玉ねぎとベーコンのコンソメスープ", time: 8,
+        ingredients: ["玉ねぎ", "ベーコン"], seasonings: ["コンソメ", "塩こしょう"],
+        steps: ["玉ねぎ1/4個を薄切り、ベーコン1枚を細切り", "鍋に水400mlとコンソメ1個、具材を入れて沸かす", "5分煮て塩こしょうで味を調える"] },
+      { id: "s4", type: "soup", name: "もやしの中華スープ", time: 5,
+        ingredients: ["もやし"], seasonings: ["鶏ガラスープの素", "ごま油", "白ごま"],
+        steps: ["鍋に水400mlと鶏ガラスープの素小さじ2を入れて沸かす", "もやし1/2袋を入れて2分煮る", "ごま油と白ごまをふって完成"] },
+      { id: "s5", type: "soup", name: "トマトと卵のスープ", time: 7,
+        ingredients: ["トマト", "卵"], seasonings: ["コンソメ", "塩こしょう"],
+        steps: ["トマト1個をざく切り", "鍋に水400mlとコンソメ1個を入れて沸かす", "トマトを入れて3分煮る", "溶き卵を細く回し入れて固まったら完成"] },
+      { id: "s6", type: "soup", name: "キャベツとベーコンのスープ", time: 8,
+        ingredients: ["キャベツ", "ベーコン"], seasonings: ["コンソメ", "塩こしょう"],
+        steps: ["キャベツ2枚をざく切り、ベーコン1枚を細切り", "鍋に水400mlとコンソメ1個、具材を入れて沸かす", "キャベツが柔らかくなるまで5分煮る"] },
+      { id: "s7", type: "soup", name: "大根と油揚げの味噌汁", time: 9,
+        ingredients: ["大根", "油揚げ"], seasonings: ["味噌", "だしの素"],
+        steps: ["大根3cmをいちょう切り、油揚げ1/2枚を細切り", "鍋に水400mlとだしの素小さじ1、大根を入れて6分煮る", "油揚げを入れて1分煮る", "味噌大さじ1.5を溶き入れて完成"] },
+      { id: "s8", type: "soup", name: "しめじときのこの和風スープ", time: 6,
+        ingredients: ["しめじ"], seasonings: ["醤油", "だしの素"],
+        steps: ["しめじ1/2パックをほぐす", "鍋に水400mlとだしの素小さじ1を入れて沸かす", "しめじを入れて3分煮る", "醤油小さじ2で味を調える"] },
+      { id: "s9", type: "soup", name: "ほうれん草と卵のスープ", time: 6,
+        ingredients: ["ほうれん草", "卵"], seasonings: ["鶏ガラスープの素", "塩"],
+        steps: ["ほうれん草1/3束を3cm幅に切る", "鍋に水400mlと鶏ガラスープの素小さじ2を入れて沸かす", "ほうれん草を入れて1分煮る", "溶き卵を細く回し入れて固まったら完成"] },
+      { id: "s10", type: "soup", name: "白菜と豚バラの中華スープ", time: 9,
+        ingredients: ["白菜", "豚バラ"], seasonings: ["鶏ガラスープの素", "ごま油", "塩"],
+        steps: ["白菜2枚をざく切り、豚バラ50gを一口大に切る", "鍋に水400mlと鶏ガラスープの素小さじ2を入れて沸かす", "豚バラを入れアクを取り、白菜を入れて5分煮る", "ごま油少々を垂らして完成"] },
+      { id: "s11", type: "soup", name: "じゃがいもとベーコンのポタージュ風", time: 10,
+        ingredients: ["じゃがいも", "ベーコン", "牛乳"], seasonings: ["コンソメ", "塩こしょう"],
+        steps: ["じゃがいも1個を薄切り、ベーコン1枚を細切り", "鍋に水200ml・じゃがいも・ベーコン・コンソメ1個を入れ5分煮る", "牛乳200mlを加えて沸騰直前まで温める", "塩こしょうで味を調える"] },
+      { id: "s12", type: "soup", name: "もやしと卵の中華スープ", time: 6,
+        ingredients: ["もやし", "卵"], seasonings: ["鶏ガラスープの素", "ごま油"],
+        steps: ["鍋に水400mlと鶏ガラスープの素小さじ2を入れて沸かす", "もやし1/2袋を入れて2分煮る", "溶き卵を細く回し入れて固まったら火を止める", "ごま油少々を垂らして完成"] },
+
+      // ===== おかず =====
+      // 卵系
+      { id: "a1", type: "side", name: "ふんわり卵焼き", time: 6,
+        ingredients: ["卵"], seasonings: ["砂糖", "塩", "サラダ油"],
+        steps: ["卵2個に砂糖小さじ1・塩ひとつまみを加えて溶く", "卵焼き器に油をひき、卵液を1/3流して半熟で巻く", "残りの卵液を2回に分けて流し、同様に巻く", "粗熱を取り食べやすく切る"] },
+      { id: "a2", type: "side", name: "ハムエッグ", time: 4,
+        ingredients: ["卵", "ハム"], seasonings: ["塩こしょう", "サラダ油"],
+        steps: ["フライパンに油をひいてハム2枚を並べる", "卵2個を割り入れる", "弱火で3分、好みの固さまで焼く", "塩こしょうをふる"] },
+      { id: "a3", type: "side", name: "納豆オムレツ", time: 5,
+        ingredients: ["卵", "納豆"], seasonings: ["醤油", "サラダ油"],
+        steps: ["納豆1パックに付属タレを混ぜる", "卵2個を溶いて納豆を加える", "フライパンに油をひき、卵液を流して半熟になったら半分に折る"] },
+      { id: "a4", type: "side", name: "にんじんしりしり", time: 8,
+        ingredients: ["にんじん", "卵"], seasonings: ["醤油", "みりん", "サラダ油"],
+        steps: ["にんじん1/2本を千切り", "フライパンに油をひきにんじんを3分炒める", "醤油・みりん各小さじ2を入れて1分炒める", "溶き卵1個を回し入れて炒め合わせる"] },
+      { id: "a5", type: "side", name: "スクランブルエッグ", time: 4,
+        ingredients: ["卵", "牛乳"], seasonings: ["塩こしょう", "バター"],
+        steps: ["卵2個に牛乳大さじ2・塩こしょうを加えて溶く", "フライパンにバター10gを溶かす", "卵液を入れて菜箸で大きく混ぜながら半熟で火を止める"] },
+
+      // 野菜系
+      { id: "a6", type: "side", name: "キャベツのごま和え", time: 5,
+        ingredients: ["キャベツ"], seasonings: ["醤油", "砂糖", "白ごま"],
+        steps: ["キャベツ2枚を一口大にちぎる", "耐熱皿にのせラップして電子レンジ600Wで2分", "水気を絞り、醤油小さじ2・砂糖小さじ1・白ごま大さじ1で和える"] },
+      { id: "a7", type: "side", name: "もやしのナムル", time: 5,
+        ingredients: ["もやし"], seasonings: ["ごま油", "鶏ガラスープの素", "白ごま", "塩"],
+        steps: ["もやし1袋を耐熱ボウルに入れラップして600Wで2分半", "水気をしっかり絞る", "ごま油大さじ1・鶏ガラ小さじ1・白ごま・塩で和える"] },
+      { id: "a8", type: "side", name: "きゅうりの浅漬け", time: 5,
+        ingredients: ["きゅうり"], seasonings: ["塩昆布", "ごま油"],
+        steps: ["きゅうり1本を麺棒で叩いて乱切り", "ポリ袋にきゅうり・塩昆布大さじ1・ごま油小さじ1を入れる", "袋の上から揉んで3分置く"] },
+      { id: "a9", type: "side", name: "トマトのマリネ", time: 5,
+        ingredients: ["トマト"], seasonings: ["オリーブオイル", "酢", "塩", "砂糖"],
+        steps: ["トマト1個をくし切り", "オリーブオイル大さじ1・酢小さじ2・塩・砂糖少々を混ぜる", "トマトと和えて3分なじませる"] },
+      { id: "a10", type: "side", name: "ピーマンの塩昆布炒め", time: 5,
+        ingredients: ["ピーマン"], seasonings: ["塩昆布", "ごま油"],
+        steps: ["ピーマン3個を細切り", "フライパンにごま油をひきピーマンを2分炒める", "塩昆布大さじ1を加えて1分炒める"] },
+      { id: "a11", type: "side", name: "なすの煮浸し（レンジ）", time: 7,
+        ingredients: ["なす"], seasonings: ["醤油", "みりん", "ごま油", "だしの素"],
+        steps: ["なす1本を縦4等分→3cm長", "耐熱容器になす・醤油大さじ1・みりん大さじ1・だしの素少々・ごま油小さじ1を入れる", "ラップして600Wで3分加熱、混ぜて完成"] },
+      { id: "a12", type: "side", name: "ほうれん草のおひたし", time: 6,
+        ingredients: ["ほうれん草"], seasonings: ["醤油", "かつおぶし"],
+        steps: ["ほうれん草1束をラップで包み600Wで2分", "冷水にとって絞り3cm幅に切る", "醤油小さじ2をかけかつおぶしを乗せる"] },
+      { id: "a13", type: "side", name: "小松菜のごま和え", time: 6,
+        ingredients: ["小松菜"], seasonings: ["醤油", "砂糖", "白ごま"],
+        steps: ["小松菜1束をラップで包み600Wで2分", "水気を絞って3cm幅に切る", "醤油小さじ2・砂糖小さじ1・すりごま大さじ1で和える"] },
+      { id: "a14", type: "side", name: "ブロッコリーのおかか和え", time: 6,
+        ingredients: ["ブロッコリー"], seasonings: ["醤油", "かつおぶし", "ごま油"],
+        steps: ["ブロッコリー1/2株を小房に分ける", "耐熱皿にのせラップして600Wで2分半", "醤油小さじ2・かつおぶし1袋・ごま油小さじ1で和える"] },
+      { id: "a15", type: "side", name: "キャベツの塩昆布和え", time: 4,
+        ingredients: ["キャベツ"], seasonings: ["塩昆布", "ごま油", "白ごま"],
+        steps: ["キャベツ2枚を細切り", "ポリ袋にキャベツ・塩昆布大さじ1・ごま油小さじ1を入れる", "揉んでなじませ白ごまを振る"] },
+      { id: "a16", type: "side", name: "アボカドのわさび醤油", time: 3,
+        ingredients: ["アボカド"], seasonings: ["醤油", "わさび"],
+        steps: ["アボカド1個を一口大に切る", "醤油小さじ2・わさび少々を混ぜる", "アボカドにかける"] },
+
+      // 肉系
+      { id: "a17", type: "side", name: "鶏むね肉の照り焼き", time: 10,
+        ingredients: ["鶏むね肉"], seasonings: ["醤油", "みりん", "酒", "砂糖", "サラダ油"],
+        steps: ["鶏むね肉1枚をそぎ切り、片栗粉をまぶす", "フライパンに油をひき両面3分ずつ焼く", "醤油・みりん・酒各大さじ1、砂糖小さじ1を加えて煮絡める"] },
+      { id: "a18", type: "side", name: "豚バラのねぎ塩炒め", time: 7,
+        ingredients: ["豚バラ", "長ねぎ"], seasonings: ["鶏ガラスープの素", "塩こしょう", "ごま油"],
+        steps: ["豚バラ100gを一口大、長ねぎ1/2本を斜め切り", "フライパンにごま油をひき豚バラを3分炒める", "長ねぎを入れて2分炒める", "鶏ガラ小さじ1・塩こしょうで味付け"] },
+      { id: "a19", type: "side", name: "豚こまの生姜焼き", time: 8,
+        ingredients: ["豚こま"], seasonings: ["醤油", "みりん", "酒", "生姜", "サラダ油"],
+        steps: ["豚こま150gに片栗粉をまぶす", "フライパンに油をひき豚肉を炒める", "醤油・みりん・酒各大さじ1、生姜チューブ2cmを加えて絡める"] },
+      { id: "a20", type: "side", name: "鶏もも肉の塩焼き", time: 10,
+        ingredients: ["鶏もも肉"], seasonings: ["塩こしょう", "サラダ油", "レモン汁"],
+        steps: ["鶏もも肉1枚を一口大、塩こしょうをふる", "フライパンに油をひき皮目から5分焼く", "返して3分焼き、レモン汁をかける"] },
+      { id: "a21", type: "side", name: "ピーマンとひき肉の炒め", time: 8,
+        ingredients: ["ピーマン", "ひき肉"], seasonings: ["醤油", "みりん", "砂糖", "ごま油"],
+        steps: ["ピーマン3個を細切り", "フライパンにごま油をひきひき肉100gを炒める", "ピーマンを加え2分炒める", "醤油・みりん各大さじ1、砂糖小さじ1で味付け"] },
+      { id: "a22", type: "side", name: "ウインナーとキャベツの炒め", time: 6,
+        ingredients: ["ウインナー", "キャベツ"], seasonings: ["塩こしょう", "サラダ油"],
+        steps: ["ウインナー3本を斜め切り、キャベツ2枚をざく切り", "フライパンに油をひきウインナーを1分炒める", "キャベツを加えて3分炒め、塩こしょうで味付け"] },
+      { id: "a23", type: "side", name: "ベーコンとほうれん草のソテー", time: 6,
+        ingredients: ["ベーコン", "ほうれん草"], seasonings: ["塩こしょう", "バター"],
+        steps: ["ほうれん草1/2束を3cm幅、ベーコン2枚を1cm幅に切る", "フライパンにバター10gを溶かしベーコンを炒める", "ほうれん草を加え1分炒め、塩こしょうで味付け"] },
+      { id: "a24", type: "side", name: "もやしと豚バラの炒め", time: 7,
+        ingredients: ["もやし", "豚バラ"], seasonings: ["醤油", "酒", "塩こしょう", "ごま油"],
+        steps: ["豚バラ80gを一口大に切る", "フライパンにごま油をひき豚バラを3分炒める", "もやし1/2袋を入れ強火で2分炒める", "醤油・酒各大さじ1、塩こしょうで味付け"] },
+
+      // 魚系
+      { id: "a25", type: "side", name: "鮭のムニエル", time: 8,
+        ingredients: ["鮭"], seasonings: ["塩こしょう", "小麦粉", "バター", "レモン汁"],
+        steps: ["鮭2切れに塩こしょうを振り小麦粉をまぶす", "フライパンにバター10gを溶かし鮭を3分焼く", "返して3分焼く", "レモン汁をかける"] },
+      { id: "a26", type: "side", name: "ツナと玉ねぎのマヨ和え", time: 5,
+        ingredients: ["ツナ缶", "玉ねぎ"], seasonings: ["マヨネーズ", "塩こしょう"],
+        steps: ["玉ねぎ1/4個を薄切り、塩でもんで水気を絞る", "ツナ缶1個を油を切ってボウルへ", "玉ねぎ・マヨ大さじ2・塩こしょうで和える"] },
+      { id: "a27", type: "side", name: "ちくわのチーズ焼き", time: 5,
+        ingredients: ["ちくわ", "チーズ"], seasonings: ["醤油"],
+        steps: ["ちくわ3本を縦半分に切る", "チーズを切れ込みに乗せる", "トースターで3分焼き、醤油を少々たらす"] },
+      { id: "a28", type: "side", name: "ツナとキャベツのサラダ", time: 5,
+        ingredients: ["ツナ缶", "キャベツ"], seasonings: ["マヨネーズ", "醤油", "塩こしょう"],
+        steps: ["キャベツ2枚を千切り、塩でもんで水気を絞る", "ツナ缶1個（油切り）と和える", "マヨ大さじ1・醤油小さじ1・塩こしょうで味付け"] },
+
+      // 豆腐・大豆系
+      { id: "a29", type: "side", name: "冷奴 ねぎ生姜のせ", time: 3,
+        ingredients: ["豆腐", "長ねぎ"], seasonings: ["醤油", "生姜", "ごま油"],
+        steps: ["豆腐1丁を皿にあける", "長ねぎ10cmを小口切り、生姜チューブ2cmと混ぜる", "豆腐に乗せ醤油とごま油を回しかける"] },
+      { id: "a30", type: "side", name: "厚揚げの生姜醤油焼き", time: 7,
+        ingredients: ["厚揚げ"], seasonings: ["醤油", "みりん", "生姜", "サラダ油"],
+        steps: ["厚揚げ1枚を8等分", "フライパンに油をひき両面2分ずつ焼く", "醤油・みりん各大さじ1、生姜チューブ2cmを加えて絡める"] },
+      { id: "a31", type: "side", name: "豆腐のステーキ", time: 8,
+        ingredients: ["豆腐"], seasonings: ["醤油", "みりん", "バター", "小麦粉"],
+        steps: ["豆腐1丁を水切りし4等分、小麦粉をまぶす", "フライパンにバターを溶かし両面3分ずつ焼く", "醤油・みりん各大さじ1を加えて絡める"] },
+      { id: "a32", type: "side", name: "アボカド納豆", time: 3,
+        ingredients: ["アボカド", "納豆"], seasonings: ["醤油"],
+        steps: ["アボカド1/2個を一口大に切る", "納豆1パックに付属タレを混ぜる", "全部混ぜて醤油を少々たらす"] },
+
+      // 海藻・その他
+      { id: "a33", type: "side", name: "わかめと卵の炒め", time: 5,
+        ingredients: ["わかめ", "卵"], seasonings: ["鶏ガラスープの素", "ごま油", "塩"],
+        steps: ["乾燥わかめ大さじ1を水で戻し絞る", "フライパンにごま油をひき溶き卵2個を炒める", "わかめ・鶏ガラ小さじ1・塩で味付け"] },
+      { id: "a34", type: "side", name: "白菜の塩昆布和え", time: 5,
+        ingredients: ["白菜"], seasonings: ["塩昆布", "ごま油", "白ごま"],
+        steps: ["白菜2枚を細切り、塩でもんで水気を絞る", "塩昆布大さじ1・ごま油小さじ1・白ごまで和える"] },
+      { id: "a35", type: "side", name: "大根サラダ", time: 6,
+        ingredients: ["大根"], seasonings: ["マヨネーズ", "醤油", "かつおぶし"],
+        steps: ["大根5cmを千切り、塩でもんで水気を絞る", "マヨ大さじ1・醤油小さじ1で和える", "かつおぶしを乗せる"] }
+    ];
+
+    // ========== DOM 構築: 食材チェックボックス ==========
+    function renderChips() {
+      const catMap = { vege: "cat-vege", meat: "cat-meat", egg: "cat-egg", other: "cat-other" };
+      Object.keys(catMap).forEach(cat => {
+        const container = document.getElementById(catMap[cat]);
+        INGREDIENTS[cat].forEach(item => {
+          const label = document.createElement("label");
+          label.className = "chip";
+          label.innerHTML = `<input type="checkbox" value="${item}" /><span>${item}</span>`;
+          container.appendChild(label);
+        });
+      });
+    }
+    renderChips();
+
+    // ========== ユーザーの食材を取得（チェックボックス + 自由入力） ==========
+    function getUserIngredients() {
+      const checked = Array.from(document.querySelectorAll('.chip input:checked')).map(i => i.value);
+      const free = document.getElementById('freeText').value
+        .split(/[,、\s]+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+      return [...checked, ...free];
+    }
+
+    // ========== 食材マッチ判定（エイリアス考慮） ==========
+    function userHasIngredient(userList, ingredient) {
+      // ingredient はレシピの必要食材（カノニカル名）
+      const aliases = ALIASES[ingredient] || [];
+      const candidates = [ingredient, ...aliases];
+      for (const u of userList) {
+        for (const c of candidates) {
+          if (u === c) return true;
+          if (u.includes(c) || c.includes(u)) return true; // 部分一致
+        }
+      }
+      return false;
+    }
+
+    // ========== レシピスコア計算 ==========
+    function scoreRecipe(recipe, userList) {
+      let matched = 0;
+      const missing = [];
+      recipe.ingredients.forEach(ing => {
+        if (userHasIngredient(userList, ing)) matched++;
+        else missing.push(ing);
+      });
+      return {
+        matched,
+        missing,
+        total: recipe.ingredients.length,
+        complete: missing.length === 0
+      };
+    }
+
+    // ========== レシピ選定 ==========
+    function pickRecipes(type, count, userList, excludeIds = []) {
+      const candidates = RECIPES
+        .filter(r => r.type === type)
+        .filter(r => !excludeIds.includes(r.id))
+        .map(r => ({ recipe: r, score: scoreRecipe(r, userList) }));
+
+      // 完全マッチを優先、不足が少ない順
+      candidates.sort((a, b) => {
+        if (a.score.complete && !b.score.complete) return -1;
+        if (!a.score.complete && b.score.complete) return 1;
+        if (a.score.missing.length !== b.score.missing.length) {
+          return a.score.missing.length - b.score.missing.length;
+        }
+        return Math.random() - 0.5; // 同点はランダム
+      });
+
+      // 完全マッチがあるなら不足ありは含めない方針…ではなく、
+      // 必要数を満たすまで完全マッチ→1個不足→2個不足の順に取る
+      // ただし「全食材を持っていない」レシピはあまり多くは出さない
+      const picks = [];
+      for (const c of candidates) {
+        if (picks.length >= count) break;
+        // 不足が3個以上のレシピはスキップ
+        if (c.score.missing.length >= 3) continue;
+        picks.push(c);
+      }
+      return picks;
+    }
+
+    // ========== レシピカードのHTML生成 ==========
+    function renderRecipeCard(pick, slotKey) {
+      const { recipe, score } = pick;
+      const typeLabel = recipe.type === "soup"
+        ? `<span class="tag tag-soup">汁物</span>`
+        : `<span class="tag tag-side">おかず</span>`;
+      const timeLabel = `<span class="tag tag-time">${recipe.time}分</span>`;
+      const missingHTML = score.missing.length > 0
+        ? `<div class="missing-note">あと <strong>${score.missing.join("・")}</strong> があれば作れます</div>`
+        : "";
+
+      const ingrChips = recipe.ingredients.map(i => {
+        const has = userHasIngredient(getUserIngredients(), i);
+        return `<span class="ingr" style="${has ? '' : 'opacity:0.6;background:var(--terra-soft);color:var(--terra-deep);'}">${i}</span>`;
+      }).join("");
+      const seasonChips = recipe.seasonings.map(s => `<span class="ingr season">${s}</span>`).join("");
+      const stepsHTML = recipe.steps.map(s => `<li>${s}</li>`).join("");
+
+      return `
+        <article class="recipe" data-slot="${slotKey}" data-recipe-id="${recipe.id}">
+          <div class="recipe-head">
+            <div class="recipe-info">
+              <div class="recipe-tags">${typeLabel}${timeLabel}</div>
+              <h3 class="recipe-name">${recipe.name}</h3>
+            </div>
+            <button class="reroll-btn" title="別のレシピに変える" data-slot="${slotKey}">↻</button>
+          </div>
+          ${missingHTML}
+          <div class="recipe-section">
+            <div class="recipe-section-title">材料</div>
+            <div class="ingredients-list">${ingrChips}</div>
+          </div>
+          <div class="recipe-section">
+            <div class="recipe-section-title">使う調味料</div>
+            <div class="ingredients-list">${seasonChips}</div>
+          </div>
+          <div class="recipe-section">
+            <div class="recipe-section-title">作り方</div>
+            <ol class="steps-list">${stepsHTML}</ol>
+          </div>
+        </article>
+      `;
+    }
+
+    // ========== 現在の献立状態 ==========
+    let currentMenu = {}; // slotKey -> { type, recipeId }
+
+    function renderMenu() {
+      const grid = document.getElementById('recipeGrid');
+      const slots = Object.keys(currentMenu);
+      if (slots.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">🍽</div>
+            <p>選んだ食材で作れるレシピが見つかりませんでした。<br />食材をもう少し追加して試してみてください。</p>
+          </div>`;
+        return;
+      }
+      const userList = getUserIngredients();
+      const html = slots.map(slot => {
+        const recipe = RECIPES.find(r => r.id === currentMenu[slot]);
+        const score = scoreRecipe(recipe, userList);
+        return renderRecipeCard({ recipe, score }, slot);
+      }).join("");
+      grid.innerHTML = html;
+
+      // リロールボタンのイベント
+      grid.querySelectorAll('.reroll-btn').forEach(btn => {
+        btn.addEventListener('click', () => rerollSlot(btn.dataset.slot));
+      });
+    }
+
+    function rerollSlot(slotKey) {
+      const userList = getUserIngredients();
+      const type = slotKey === "soup" ? "soup" : "side";
+      const excluded = Object.values(currentMenu);
+      const picks = pickRecipes(type, 1, userList, excluded);
+      if (picks.length === 0) {
+        showToast("別のレシピが見つかりませんでした");
+        return;
+      }
+      currentMenu[slotKey] = picks[0].recipe.id;
+      renderMenu();
+    }
+
+    // ========== 「献立を作る」処理 ==========
+    function generate() {
+      const userList = getUserIngredients();
+      if (userList.length === 0) {
+        showToast("食材を1つ以上選んでください");
+        return;
+      }
+
+      const sideCount = parseInt(document.querySelector('input[name="sideCount"]:checked').value, 10);
+
+      // 汁物1品 + おかず N品
+      currentMenu = {};
+      const soupPicks = pickRecipes("soup", 1, userList);
+      if (soupPicks.length > 0) currentMenu["soup"] = soupPicks[0].recipe.id;
+
+      const excluded = soupPicks.map(p => p.recipe.id);
+      const sidePicks = pickRecipes("side", sideCount, userList, excluded);
+      sidePicks.forEach((p, i) => {
+        currentMenu[`side${i + 1}`] = p.recipe.id;
+      });
+
+      const wrap = document.getElementById('resultWrap');
+      wrap.classList.add('visible');
+      renderMenu();
+
+      // 結果セクションへスクロール
+      setTimeout(() => {
+        wrap.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', generate);
+
+    // ========== トースト ==========
+    let toastTimer;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('visible'), 2500);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BEAUTÉ — あなただけの、ひとしな診断</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+  <meta name="description" content="肌質や悩み、なりたい姿に合わせて、おすすめのコスメ・スキンケアを5つ提案するサンプル診断ツールです。" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Noto+Serif+JP:wght@200;300;400;500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #faf8f4;
+      --paper: #ffffff;
+      --ink: #14110d;
+      --ink-soft: #3a342d;        /* 本文の補助。十分濃く */
+      --ink-mute: #6a6258;        /* ラベル・補足。薄すぎないグレー */
+      --line: #e8e3db;
+      --line-soft: #f0ece4;
+      --accent: #7a6543;          /* warm taupe（やや濃く） */
+      --accent-soft: #d9cdb8;
+      --good: #4f6442;            /* sage（濃く） */
+      --bad: #9a5d50;             /* dusty terracotta（濃く） */
+      --shadow: 0 30px 60px -40px rgba(40, 30, 20, 0.18);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Noto Sans JP", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+      font-weight: 500;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.8;
+      -webkit-font-smoothing: subpixel-antialiased;
+      letter-spacing: 0.02em;
+      min-height: 100vh;
+    }
+
+    .serif {
+      font-family: "Cormorant Garamond", "Noto Serif JP", serif;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+
+    .serif-jp {
+      font-family: "Noto Serif JP", serif;
+      font-weight: 300;
+    }
+
+    /* ---------- Layout ---------- */
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 48px 32px 96px;
+    }
+
+    /* ---------- Header ---------- */
+    header.site {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      font-family: "Cormorant Garamond", serif;
+      font-weight: 400;
+      font-size: 28px;
+      letter-spacing: 0.32em;
+    }
+
+    .brand a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .meta {
+      font-size: 11px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    /* ---------- Step indicator ---------- */
+    .steps {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      margin: 56px 0 64px;
+      font-size: 11px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    .steps span {
+      position: relative;
+      padding-bottom: 8px;
+    }
+
+    .steps span.active {
+      color: var(--ink);
+    }
+
+    .steps span.active::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--ink);
+    }
+
+    /* ---------- Step sections ---------- */
+    .step {
+      display: none;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-eyebrow {
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 16px;
+    }
+
+    .step-title {
+      font-family: "Cormorant Garamond", "Noto Serif JP", serif;
+      font-weight: 300;
+      text-align: center;
+      font-size: clamp(36px, 6vw, 56px);
+      line-height: 1.25;
+      letter-spacing: 0.04em;
+    }
+
+    .step-title .it { font-style: italic; }
+
+    .step-sub {
+      text-align: center;
+      color: var(--ink-soft);
+      margin-top: 18px;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+    }
+
+    /* ---------- Step 1: Category cards ---------- */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-top: 64px;
+    }
+
+    @media (max-width: 720px) {
+      .cat-grid { grid-template-columns: 1fr; }
+    }
+
+    .cat-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 56px 40px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: inherit;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cat-card:hover {
+      border-color: var(--ink);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+
+    .cat-card .num {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 12px;
+      letter-spacing: 0.4em;
+      color: var(--ink-mute);
+      margin-bottom: 24px;
+      display: block;
+    }
+
+    .cat-card .label-en {
+      font-family: "Cormorant Garamond", serif;
+      font-weight: 300;
+      font-size: 42px;
+      letter-spacing: 0.08em;
+      line-height: 1.1;
+      display: block;
+    }
+
+    .cat-card .label-jp {
+      margin-top: 12px;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      color: var(--ink-soft);
+    }
+
+    .cat-card .desc {
+      margin-top: 32px;
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.9;
+      padding-top: 24px;
+      border-top: 1px solid var(--line-soft);
+    }
+
+    .cat-card .arrow {
+      position: absolute;
+      bottom: 32px;
+      right: 32px;
+      font-size: 18px;
+      transition: transform 0.4s ease;
+    }
+
+    .cat-card:hover .arrow {
+      transform: translateX(8px);
+    }
+
+    /* ---------- Step 2: Form ---------- */
+    .form {
+      max-width: 720px;
+      margin: 64px auto 0;
+    }
+
+    .field {
+      margin-bottom: 48px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 6px;
+    }
+
+    .field-label-jp {
+      display: block;
+      font-family: "Noto Serif JP", serif;
+      font-size: 18px;
+      color: var(--ink);
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    .chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 12px 22px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink-soft);
+      font-family: inherit;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 999px;
+    }
+
+    .chip:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    .chip.selected {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    .textarea {
+      width: 100%;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--ink);
+      line-height: 1.8;
+      resize: vertical;
+      min-height: 96px;
+      transition: border-color 0.3s ease;
+    }
+
+    .textarea:focus {
+      outline: none;
+      border-color: var(--ink);
+    }
+
+    .textarea::placeholder {
+      color: var(--ink-mute);
+    }
+
+    /* ---------- Buttons ---------- */
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-top: 48px;
+      padding-top: 48px;
+      border-top: 1px solid var(--line);
+    }
+
+    .btn {
+      padding: 18px 40px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: #fff;
+      font-family: inherit;
+      font-size: 12px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .btn-link {
+      background: transparent;
+      border: none;
+      color: var(--ink-soft);
+      font-family: inherit;
+      font-size: 12px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 8px 4px;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+
+    .btn-link:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    /* ---------- Step 3: Results ---------- */
+    .results {
+      margin-top: 56px;
+    }
+
+    .result-summary {
+      text-align: center;
+      max-width: 560px;
+      margin: 0 auto 64px;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 2;
+    }
+
+    .result-summary .quote {
+      font-family: "Cormorant Garamond", serif;
+      font-style: italic;
+      font-size: 20px;
+      color: var(--ink);
+      display: block;
+      margin-bottom: 16px;
+    }
+
+    .product {
+      padding: 56px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .product:last-child {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .p-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .p-rank {
+      font-family: "Cormorant Garamond", serif;
+      font-weight: 400;
+      font-size: 14px;
+      letter-spacing: 0.4em;
+      color: var(--ink);
+    }
+
+    .p-tag {
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    .p-tag.new {
+      color: var(--accent);
+    }
+
+    .p-tag.new::before {
+      content: "● ";
+      font-size: 14px;
+    }
+
+    .p-brand {
+      font-family: "Cormorant Garamond", "Noto Serif JP", serif;
+      font-weight: 400;
+      font-size: 24px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink);
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .p-name {
+      font-family: "Noto Serif JP", serif;
+      font-weight: 300;
+      font-size: 26px;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .p-meta {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--ink-soft);
+      letter-spacing: 0.06em;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .p-meta .rating {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 18px;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .p-meta .stars {
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+
+    .p-desc {
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.9;
+      margin-bottom: 32px;
+    }
+
+    .pc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    @media (max-width: 600px) {
+      .pc-grid { grid-template-columns: 1fr; }
+    }
+
+    .pc-block .pc-head {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.36em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .pc-block.pros .pc-head { color: var(--good); }
+    .pc-block.cons .pc-head { color: var(--bad); }
+
+    .pc-block.pros li::before {
+      font-weight: 600;
+    }
+    .pc-block.cons li::before {
+      font-weight: 600;
+    }
+
+    .pc-block ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .pc-block li {
+      position: relative;
+      padding-left: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.85;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+
+    .pc-block li::before {
+      position: absolute;
+      left: 0;
+      top: 0.6em;
+      font-size: 10px;
+      line-height: 1;
+    }
+
+    .pc-block.pros li::before {
+      content: "＋";
+      color: var(--good);
+    }
+
+    .pc-block.cons li::before {
+      content: "−";
+      color: var(--bad);
+    }
+
+    /* ---------- Official link ---------- */
+    .p-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 36px;
+      padding: 14px 0;
+      font-family: "Cormorant Garamond", serif;
+      font-weight: 400;
+      font-size: 12px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid var(--ink);
+      transition: color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .p-link:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .p-link .arrow {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    .p-link:hover .arrow {
+      transform: translateX(6px);
+    }
+
+    /* ---------- Footer ---------- */
+    footer.site {
+      text-align: center;
+      margin-top: 96px;
+      padding-top: 32px;
+      border-top: 1px solid var(--line);
+      color: var(--ink-mute);
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    footer.site .updated {
+      display: block;
+      margin-top: 12px;
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: none;
+      color: var(--ink-mute);
+    }
+
+    /* ---------- Loading ---------- */
+    .loading {
+      text-align: center;
+      padding: 96px 0;
+    }
+
+    .loading .dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--ink);
+      border-radius: 50%;
+      margin: 0 4px;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    .loading .dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes pulse {
+      0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    .loading-text {
+      margin-top: 24px;
+      font-size: 11px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    /* ---------- No results ---------- */
+    .no-results {
+      text-align: center;
+      padding: 64px 24px;
+      color: var(--ink-soft);
+      font-size: 14px;
+    }
+
+    /* ---------- Result disclaimer ---------- */
+    .result-note {
+      margin-top: 48px;
+      padding: 20px 24px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.85;
+      color: var(--ink-mute);
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+
+    /* ---------- Mobile readability ---------- */
+    @media (max-width: 720px) {
+      .p-desc {
+        font-size: 15px;
+        line-height: 1.95;
+      }
+
+      .pc-block li {
+        font-size: 15px;
+        line-height: 1.9;
+      }
+
+      .p-meta {
+        font-size: 13px;
+      }
+
+      .field-label-jp {
+        font-size: 17px;
+      }
+
+      .result-summary {
+        font-size: 15px;
+      }
+
+      .chip {
+        font-size: 14px;
+        padding: 12px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <header class="site">
+      <div class="brand"><a href="../">BEAUTÉ</a></div>
+    </header>
+
+    <!-- Step indicator -->
+    <nav class="steps" id="stepNav">
+      <span data-step="1" class="active">01 &nbsp;Category</span>
+      <span data-step="2">02 &nbsp;Profile</span>
+      <span data-step="3">03 &nbsp;Result</span>
+    </nav>
+
+    <!-- ====== Step 1: Category ====== -->
+    <section class="step active" id="step1">
+      <p class="step-eyebrow">— Your daily ritual, refined —</p>
+      <h1 class="step-title">あなたに似合う<span class="it">、</span><br/>ひとしな<span class="it">。</span></h1>
+      <p class="step-sub">あなたの肌質と悩みに合わせて、厳選の5品をご提案します。</p>
+
+      <div class="cat-grid">
+        <button class="cat-card" data-cat="skincare">
+          <span class="num">— 01 —</span>
+          <span class="label-en">Skincare</span>
+          <span class="label-jp">スキンケア</span>
+          <p class="desc">化粧水、美容液、クリーム、マスク。<br/>毎日の積み重ねで、肌そのものを育てる時間を。</p>
+          <span class="arrow">→</span>
+        </button>
+        <button class="cat-card" data-cat="cosmetic">
+          <span class="num">— 02 —</span>
+          <span class="label-en">Makeup</span>
+          <span class="label-jp">化粧品</span>
+          <p class="desc">ベース、アイ、リップ、チーク。<br/>その日の気分を、繊細に色で語るための一品を。</p>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ====== Step 2: Profile ====== -->
+    <section class="step" id="step2">
+      <p class="step-eyebrow">— Tell us about yourself —</p>
+      <h2 class="step-title">あなたのこと<span class="it">、</span><br/>少しだけ教えて<span class="it">。</span></h2>
+
+      <div class="form">
+        <!-- Skin type -->
+        <div class="field">
+          <span class="field-label">01 ・ Skin Type</span>
+          <span class="field-label-jp">肌質を選んでください</span>
+          <div class="chip-grid" id="skinTypes">
+            <button class="chip" data-val="dry">乾燥肌</button>
+            <button class="chip" data-val="oily">脂性肌</button>
+            <button class="chip" data-val="combination">混合肌</button>
+            <button class="chip" data-val="sensitive">敏感肌</button>
+            <button class="chip" data-val="normal">普通肌</button>
+          </div>
+        </div>
+
+        <!-- Concerns -->
+        <div class="field">
+          <span class="field-label">02 ・ Concerns</span>
+          <span class="field-label-jp">気になる悩みは？（複数選択可）</span>
+          <div class="chip-grid" id="concerns">
+            <button class="chip" data-val="pore">毛穴</button>
+            <button class="chip" data-val="acne">ニキビ・吹き出物</button>
+            <button class="chip" data-val="dark">シミ・くすみ</button>
+            <button class="chip" data-val="wrinkle">シワ・たるみ</button>
+            <button class="chip" data-val="dryness">乾燥・カサつき</button>
+            <button class="chip" data-val="oil">皮脂・テカリ</button>
+            <button class="chip" data-val="redness">赤み</button>
+            <button class="chip" data-val="dullness">透明感不足</button>
+          </div>
+        </div>
+
+        <!-- Goals -->
+        <div class="field">
+          <span class="field-label">03 ・ Goal</span>
+          <span class="field-label-jp">なりたい姿は？（複数選択可）</span>
+          <div class="chip-grid" id="goals">
+            <button class="chip" data-val="glow">つや肌</button>
+            <button class="chip" data-val="matte">マット肌</button>
+            <button class="chip" data-val="clear">透明感</button>
+            <button class="chip" data-val="young">若々しさ</button>
+            <button class="chip" data-val="natural">ナチュラル</button>
+            <button class="chip" data-val="elegant">上品・清潔感</button>
+          </div>
+        </div>
+
+        <!-- Free text -->
+        <div class="field">
+          <span class="field-label">04 ・ Notes <span style="text-transform:none;letter-spacing:0;">(optional)</span></span>
+          <span class="field-label-jp">その他、希望や気になることを自由に</span>
+          <textarea class="textarea" id="notes" placeholder="例：プチプラ希望、無香料、敏感肌でも使えるもの…"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-link" id="backTo1">← 戻る</button>
+          <button class="btn" id="submitForm">診断する</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== Step 3: Results ====== -->
+    <section class="step" id="step3">
+      <p class="step-eyebrow">— For you, today —</p>
+      <h2 class="step-title">あなたへの<br/><span class="it">5つ</span>の提案<span class="it">。</span></h2>
+
+      <div id="resultArea"></div>
+
+      <div class="btn-row" style="justify-content:center;">
+        <button class="btn-link" id="restart">もう一度診断する →</button>
+      </div>
+    </section>
+
+    <footer class="site">
+      Built by mariri
+      <span class="updated">最終更新：2026.05　商品データは管理者が手動で更新しています</span>
+    </footer>
+  </div>
+
+  <script>
+    // ========================================
+    // PRODUCT DATABASE
+    // 実在ブランドの人気商品をベースにした診断用データ。
+    // 評価・特徴は2024-2026の一般的な口コミ傾向を要約したもの。
+    // ========================================
+    const PRODUCTS = [
+      // ===== SKINCARE =====
+      {
+        id: 's01', cat: 'skincare', sub: '化粧水',
+        brand: 'SK-II', name: 'フェイシャル トリートメント エッセンス',
+        price: '¥17,600〜', rating: 4.7, reviews: 18420, isNew: false,
+        skin: ['dry', 'normal', 'combination', 'sensitive'],
+        concerns: ['dark', 'dullness', 'wrinkle', 'dryness'],
+        goals: ['clear', 'glow', 'young', 'elegant'],
+        desc: '"ピテラ™" を90%以上含む、ブランドを象徴する一本。長年愛され続ける名品。',
+        pros: ['続けるほど肌のキメが整いツヤが出る', '"水"のように軽い使用感で重ね塗りしやすい', '透明感アップを実感する声が圧倒的に多い', '化粧ノリが翌朝から変わると評判', '年齢肌・乾燥肌どちらにも対応'],
+        cons: ['価格が高く継続にコストがかかる', '独特の発酵臭が苦手な人がいる', 'とろみがないので慣れるまで物足りなく感じる', '効果実感まで最低1ヶ月は必要', '脂性肌のテカリには物足りない場合あり']
+      },
+      {
+        id: 's02', cat: 'skincare', sub: '美容液',
+        brand: 'ESTÉE LAUDER', name: 'アドバンス ナイト リペア SMR コンプレックス',
+        price: '¥12,650〜', rating: 4.6, reviews: 9821, isNew: false,
+        skin: ['dry', 'normal', 'combination', 'sensitive'],
+        concerns: ['wrinkle', 'dark', 'dullness', 'dryness'],
+        goals: ['young', 'glow', 'clear'],
+        desc: '夜のリペアに特化した名品美容液。世界中で愛される定番。',
+        pros: ['翌朝のもっちり感がすぐにわかる', '小じわ・乾燥への効果が高い', 'ベタつかずすっと馴染む', 'どんなスキンケアとも相性が良い', '敏感肌でも使いやすい処方'],
+        cons: ['価格が高め', '即効性のある美白効果はない', '香りが好みを分ける', '夏場のオイリー肌には重く感じることがある', 'リニューアルでテクスチャーが変わったとの声もあり']
+      },
+      {
+        id: 's03', cat: 'skincare', sub: '化粧水',
+        brand: '無印良品', name: '敏感肌用 化粧水 高保湿タイプ',
+        price: '¥690〜', rating: 4.3, reviews: 32100, isNew: false,
+        skin: ['sensitive', 'dry', 'normal'],
+        concerns: ['dryness', 'redness', 'acne'],
+        goals: ['natural', 'elegant'],
+        desc: '岩手県釜石の天然水を使った、敏感肌向けの大容量化粧水。',
+        pros: ['圧倒的なコスパで惜しみなく使える', '無香料・無着色・アルコールフリーで安心', '大容量で全身に使える', 'コットンパックにも最適', '家族で使える優しい処方'],
+        cons: ['保湿力は強くはなく重ね塗り推奨', 'パッケージが大きく持ち運びに不向き', '開封後は早めに使い切る必要あり', '高機能成分は控えめ', 'デザインがシンプルすぎて気分が上がらないとの声']
+      },
+      {
+        id: 's04', cat: 'skincare', sub: '乳液',
+        brand: 'ALBION', name: 'エクサージュ モイスト アドバンス ミルク',
+        price: '¥5,500〜', rating: 4.5, reviews: 4230, isNew: false,
+        skin: ['dry', 'normal', 'sensitive'],
+        concerns: ['dryness', 'dullness', 'redness'],
+        goals: ['glow', 'elegant', 'clear'],
+        desc: 'アルビオン伝統の "乳液先行" 美容を体現する保湿乳液。',
+        pros: ['驚くほどのもっちり感とツヤ', '乳液先行で肌がやわらかくなる', '香りが上品でケアの時間が心地よい', 'デパコスの中では手の届く価格帯', 'カウンセリングを受けて自分に合うか試せる'],
+        cons: ['"乳液→化粧水" の順序に慣れが必要', '脂性肌には重く感じることがある', '夏場はベタつくとの声', '販売店舗が限られる', '量の割に減りが早い']
+      },
+      {
+        id: 's05', cat: 'skincare', sub: '化粧水',
+        brand: 'IPSA', name: 'ザ・タイムR アクア',
+        price: '¥4,400〜', rating: 4.5, reviews: 12030, isNew: false,
+        skin: ['oily', 'combination', 'normal'],
+        concerns: ['pore', 'oil', 'acne', 'dullness'],
+        goals: ['clear', 'matte', 'natural'],
+        desc: '"水分の通り道" に着目した薬用化粧水。毛穴・キメ・テカリに。',
+        pros: ['さっぱり系なのにきちんと潤う', '毛穴の目立ちが改善したとの口コミ多数', '薬用でニキビ予防にも', '無香料・無着色・アルコールフリー', 'メンズにも人気で家族で使える'],
+        cons: ['乾燥肌には保湿力が物足りない場合あり', '冬場は重ね付け推奨', '即効性のある美白効果はない', '価格は化粧水としてはやや高め', 'パッケージが大きめでコンパクトさに欠ける']
+      },
+      {
+        id: 's06', cat: 'skincare', sub: 'クリーム',
+        brand: 'DECORTÉ', name: 'モイスチュア リポソーム クリーム',
+        price: '¥13,200〜', rating: 4.6, reviews: 3120, isNew: false,
+        skin: ['dry', 'normal', 'sensitive'],
+        concerns: ['dryness', 'wrinkle', 'dullness'],
+        goals: ['glow', 'young', 'elegant'],
+        desc: '多層リポソーム技術で角層深部まで潤いを届ける、デコルテ自慢のクリーム。',
+        pros: ['塗った瞬間にハリと弾力を感じる', '翌朝までしっとり感が続く', '上品な香りで癒し効果も', 'ベタつかず軽い仕上がり', 'デパコス品質を実感できる'],
+        cons: ['価格が高い', '量が少なく贅沢に使えない', '濃厚なため脂性肌には不向き', '入手まで予約待ちのことも', '長期使用しないと効果が見えにくい']
+      },
+      {
+        id: 's07', cat: 'skincare', sub: '化粧水',
+        brand: 'ナチュリエ', name: 'ハトムギ化粧水',
+        price: '¥715〜', rating: 4.4, reviews: 56000, isNew: false,
+        skin: ['oily', 'combination', 'normal'],
+        concerns: ['oil', 'acne', 'pore'],
+        goals: ['natural', 'matte'],
+        desc: '500mlの大容量で誰もが知るプチプラの定番。全身に使える名品。',
+        pros: ['圧倒的コスパで贅沢に使える', 'さっぱりした使い心地で夏に最適', 'コットンパックに大量に使える', '無香料で家族みんなで使える', '日焼け後のクールダウンにも'],
+        cons: ['保湿力は控えめ', '乾燥肌には物足りない', 'アルコールが入っているので敏感肌は注意', 'ボトルが大きく持ち運びに不向き', '高機能成分は期待できない']
+      },
+      {
+        id: 's08', cat: 'skincare', sub: '美容液',
+        brand: 'POLA', name: 'B.A セラム プリズム',
+        price: '¥22,000〜', rating: 4.8, reviews: 1820, isNew: false,
+        skin: ['dry', 'normal', 'combination'],
+        concerns: ['dullness', 'wrinkle', 'dark', 'pore'],
+        goals: ['glow', 'young', 'clear', 'elegant'],
+        desc: '光をまとうような透明感を目指す、B.Aラインの上位美容液。',
+        pros: ['一塗りで肌の発光感が変わる', '濃厚なのにベタつかない上質テクスチャー', '上品な香りで気分が上がる', '夜の使用で翌朝のハリ感が違う', 'ギフトとしても喜ばれる高級感'],
+        cons: ['価格が非常に高く継続が難しい', '即効性はあるが効果持続には継続が必要', 'POLA直営や百貨店限定で入手しづらい', '香りに賛否がある', '若年層には機能過剰']
+      },
+      {
+        id: 's09', cat: 'skincare', sub: '化粧水',
+        brand: 'd プログラム', name: 'モイストケア ローション MB',
+        price: '¥3,850〜', rating: 4.4, reviews: 6840, isNew: false,
+        skin: ['sensitive', 'dry', 'combination'],
+        concerns: ['redness', 'acne', 'dryness'],
+        goals: ['natural', 'elegant'],
+        desc: '資生堂の敏感肌専門ライン。揺らぎ肌にも寄り添う薬用化粧水。',
+        pros: ['敏感な時期でも安心して使える', 'パラベン・アルコール・香料フリー', '薬用で肌荒れ予防効果も', 'テクスチャーが軽く朝でも使いやすい', 'ドラッグストアで気軽に買える'],
+        cons: ['可もなく不可もない使用感との声', '保湿力は中程度', '美白などプラスαの効果は控えめ', 'パッケージにときめき要素が少ない', '価格はプチプラよりは高め']
+      },
+      {
+        id: 's10', cat: 'skincare', sub: '美容液',
+        brand: 'Drunk Elephant', name: 'C-Firma フレッシュ ビタミンC デイセラム',
+        price: '¥11,440〜', rating: 4.3, reviews: 2310, isNew: false,
+        skin: ['oily', 'combination', 'normal'],
+        concerns: ['dark', 'dullness', 'pore'],
+        goals: ['clear', 'glow', 'young'],
+        desc: '高濃度ビタミンC配合で、攻めの透明感ケアを目指す米国発の美容液。',
+        pros: ['1〜2週間でくすみ抜けを実感', '毛穴の目立ちにも効果あり', 'シリコン・香料・色素フリー', 'パッケージがおしゃれ', '朝のメイク前に最適'],
+        cons: ['酸化しやすく開封後3ヶ月で使い切る必要あり', '敏感肌には刺激を感じる可能性', '日中使用時は日焼け止め必須', '価格が高め', '香りが好みを分ける（ややケミカル）']
+      },
+      {
+        id: 's11', cat: 'skincare', sub: 'クリーム',
+        brand: 'キュレル', name: '潤浸保湿 フェイスクリーム',
+        price: '¥2,420〜', rating: 4.5, reviews: 14200, isNew: false,
+        skin: ['sensitive', 'dry'],
+        concerns: ['dryness', 'redness', 'acne'],
+        goals: ['natural', 'elegant'],
+        desc: '花王の敏感肌ブランドの定番クリーム。セラミドケアで肌バリアをサポート。',
+        pros: ['敏感肌でも安心の優しさ', '保湿力が高く乾燥の季節に最適', 'ベタつかず朝でも使いやすい', '医薬部外品で信頼感がある', '価格が手頃で続けやすい'],
+        cons: ['香りや使用感に高級感はない', '美白などの効果は期待できない', 'パッケージがプレーン', '夏場のオイリー肌には重め', '効果実感は緩やか']
+      },
+      {
+        id: 's12', cat: 'skincare', sub: 'マスク',
+        brand: 'LULULUN', name: 'プレシャス フェイスマスク',
+        price: '¥1,870〜', rating: 4.4, reviews: 21000, isNew: false,
+        skin: ['dry', 'normal', 'combination'],
+        concerns: ['dryness', 'dullness', 'dark'],
+        goals: ['glow', 'clear', 'elegant'],
+        desc: '毎日のシートマスクが定着するきっかけとなった、ルルルンの上位ライン。',
+        pros: ['毎日続けやすい価格と量', '密着感が高く美容液をたっぷり吸う', '使用後すぐにハリと透明感を実感', '種類が豊富で肌悩み別に選べる', 'プチギフトにも最適'],
+        cons: ['毎日使うとコストが意外とかさむ', 'シートを長く乗せすぎると逆効果', '保湿力はマスクごとに差がある', '個包装でゴミが増える', '敏感肌には合わない種類もある']
+      },
+      {
+        id: 's13', cat: 'skincare', sub: '日焼け止め',
+        brand: 'ANESSA', name: 'パーフェクトUV スキンケアミルク',
+        price: '¥3,300〜', rating: 4.7, reviews: 28400, isNew: false,
+        skin: ['normal', 'oily', 'combination', 'sensitive'],
+        concerns: ['dark', 'dryness'],
+        goals: ['clear', 'natural', 'young'],
+        desc: 'SPF50+/PA++++、汗・水・熱に強い最強UVミルク。スキンケア成分も贅沢配合。',
+        pros: ['汗・水に強く真夏でも崩れにくい', 'SPF最高値で日焼け対策が万全', 'スキンケア成分配合で乾燥しにくい', '伸びが良くベタつかない', 'お湯と石鹸で落とせる'],
+        cons: ['独特のアルコール臭がある', '白浮きすることがある', '敏感肌には刺激を感じる人も', '価格はやや高め', '冬場には不要な高SPF']
+      },
+      {
+        id: 's14', cat: 'skincare', sub: '美容液',
+        brand: 'ロート製薬', name: 'メラノCC 薬用しみ集中対策プレミアム美容液',
+        price: '¥1,650〜', rating: 4.2, reviews: 38200, isNew: false,
+        skin: ['oily', 'combination', 'normal'],
+        concerns: ['dark', 'acne', 'pore'],
+        goals: ['clear', 'natural'],
+        desc: '高純度ビタミンC配合の薬用美容液。プチプラ美白の定番。',
+        pros: ['プチプラなのに本格美白ケア', 'ニキビ跡にも使える', 'スポット使用にちょうどいいサイズ', 'ドラッグストアで手軽に買える', '柑橘系の香りが爽やか'],
+        cons: ['敏感肌には刺激が強いことがある', '即効性はなく数ヶ月の継続が必要', '乾燥肌には保湿不足', '香りが苦手な人もいる', '広範囲には不向きな処方']
+      },
+      {
+        id: 's15', cat: 'skincare', sub: '美容液',
+        brand: 'LANCÔME', name: 'ジェニフィック アドバンスト N',
+        price: '¥12,650〜', rating: 4.6, reviews: 8210, isNew: false,
+        skin: ['normal', 'dry', 'combination', 'sensitive'],
+        concerns: ['dullness', 'wrinkle', 'dryness'],
+        goals: ['glow', 'young', 'clear'],
+        desc: 'ランコムの代名詞。肌のうるおいと輝きを引き出す導入美容液。',
+        pros: ['後のスキンケアの浸透が格段に上がる', '肌のキメと透明感がアップ', '軽いテクスチャーで季節を問わず使える', '香りが上品で癒される', '長年愛され続ける信頼の名品'],
+        cons: ['価格が高め', '効果実感まで時間がかかる', '一本での効果は限定的で他アイテムと併用前提', 'ボトルが瓶で重い', '若年層にはオーバースペック気味']
+      },
+      {
+        id: 's16', cat: 'skincare', sub: 'クリーム',
+        brand: 'CICAPAIR', name: 'タイガーグラス カラー コレクティング トリートメント',
+        price: '¥4,950〜', rating: 4.4, reviews: 5210, isNew: false,
+        skin: ['sensitive', 'combination', 'normal'],
+        concerns: ['redness', 'acne', 'dullness'],
+        goals: ['natural', 'clear'],
+        desc: 'CICA成分配合で赤みカバー＆ケア。下地としても使える名品。',
+        pros: ['赤みを瞬時にカバー', 'CICA成分で肌を整える', '下地として優秀', '使い続けると肌の調子が安定', 'メイク崩れしにくい'],
+        cons: ['緑色なので塗り方にコツがいる', '保湿力は中程度', '価格はやや高め', '日本では入手しづらいことも', 'マスク移りすることがある']
+      },
+
+      // ===== COSMETICS / MAKEUP =====
+      {
+        id: 'c01', cat: 'cosmetic', sub: 'ファンデーション',
+        brand: 'NARS', name: 'ライト リフレクティング ファンデーション',
+        price: '¥7,150〜', rating: 4.6, reviews: 6420, isNew: false,
+        skin: ['dry', 'normal', 'combination'],
+        concerns: ['dullness', 'dark', 'pore'],
+        goals: ['glow', 'elegant', 'young'],
+        desc: '光を反射する設計で、自然なツヤと透明感を演出するリキッドファンデ。',
+        pros: ['自然なツヤ感と透明感が出る', '薄づきでも肌悩みをカバー', '色展開が豊富で肌色に合いやすい', '崩れにくく夕方まで美しい', 'スキンケア効果のある成分配合'],
+        cons: ['価格が高め', '脂性肌にはテカリが出やすい', 'マットな仕上がりが好きな人には不向き', 'カバー力は中程度', 'ポンプ式ではなくボトル式で使いにくい']
+      },
+      {
+        id: 'c02', cat: 'cosmetic', sub: 'リップ',
+        brand: 'YSL', name: 'ルージュ ピュールクチュール ザ スリム',
+        price: '¥5,940〜', rating: 4.7, reviews: 9210, isNew: false,
+        skin: ['dry', 'normal', 'oily', 'combination', 'sensitive'],
+        concerns: [],
+        goals: ['elegant', 'matte', 'glow'],
+        desc: 'マットなのに乾燥しない名品マットリップ。発色も持続も別格。',
+        pros: ['発色が鮮やかで一塗りで決まる', 'マットなのに唇が乾燥しにくい', '色持ちが圧倒的に良い', 'パッケージの高級感が抜群', 'カラー展開が豊富'],
+        cons: ['価格が高い', '濃い色は落とすのが大変', 'マスクにつきやすい色もある', '塗り直しの際に重ねづらい', '一部の色は唇のシワが目立つ']
+      },
+      {
+        id: 'c03', cat: 'cosmetic', sub: 'アイシャドウ',
+        brand: 'SUQQU', name: 'シグニチャー カラー アイズ',
+        price: '¥7,700〜', rating: 4.8, reviews: 4810, isNew: false,
+        skin: ['dry', 'normal', 'oily', 'combination', 'sensitive'],
+        concerns: [],
+        goals: ['elegant', 'natural', 'glow'],
+        desc: '日本人の肌に映える絶妙な色設計と上質なツヤ感。プロも愛用する名品。',
+        pros: ['上品なツヤと発色で大人の目元に', '4色で自然なグラデーションが完成', 'パウダーの粒子が細かく密着力が高い', '長時間崩れにくい', 'パッケージが美しくギフトにも'],
+        cons: ['価格が高い', 'ラメ感が控えめで派手好きには物足りない', '人気色は売り切れが多い', 'ブラシ付きでないものが多い', '色展開がやや控えめ']
+      },
+      {
+        id: 'c04', cat: 'cosmetic', sub: 'チーク',
+        brand: 'CEZANNE', name: 'パールグロウ チーク',
+        price: '¥660〜', rating: 4.6, reviews: 15800, isNew: false,
+        skin: ['dry', 'normal', 'oily', 'combination'],
+        concerns: [],
+        goals: ['glow', 'natural', 'young'],
+        desc: 'プチプラの神。パールが上品にツヤを足してくれる人気チーク。',
+        pros: ['圧倒的コスパで誰でも試せる', 'パールで肌に立体感が出る', '発色が自然で初心者向き', '崩れにくく一日持つ', 'カラー展開が豊富'],
+        cons: ['ケースの高級感はない', 'パール感が苦手な人には合わない', 'ブラシ付きではない', '色によっては粉飛びがある', 'マットチーク派には物足りない']
+      },
+      {
+        id: 'c05', cat: 'cosmetic', sub: 'リップ',
+        brand: 'rom&nd', name: 'ジューシー ラスティング ティント',
+        price: '¥1,540〜', rating: 4.6, reviews: 22300, isNew: false,
+        skin: ['dry', 'normal', 'oily', 'combination'],
+        concerns: [],
+        goals: ['natural', 'glow', 'young'],
+        desc: '韓国コスメ大人気ティント。みずみずしい果実のような発色。',
+        pros: ['ジューシーな発色とツヤが可愛い', '色持ちが良くマスクにつきにくい', 'カラー展開が圧倒的に豊富', 'プチプラで複数色集めやすい', '韓国っぽいトレンド顔になれる'],
+        cons: ['乾燥しやすい処方の色もある', '濃い色は唇の縦じわが目立つ', '一部色は色ムラができやすい', '入手時期によって価格変動あり', '香りが甘めで苦手な人も']
+      },
+      {
+        id: 'c06', cat: 'cosmetic', sub: 'ファンデーション',
+        brand: 'IPSA', name: 'クリーム ファウンデイション e',
+        price: '¥6,600〜', rating: 4.5, reviews: 5210, isNew: false,
+        skin: ['dry', 'normal', 'combination', 'sensitive'],
+        concerns: ['dullness', 'redness', 'pore'],
+        goals: ['natural', 'glow', 'elegant'],
+        desc: 'クリームなのに軽い、IPSAの代表ファンデ。素肌感と上品さの両立。',
+        pros: ['素肌感がありながら悩みを綺麗にカバー', '乾燥肌でも崩れにくい', '色補正効果で肌が均一に見える', 'カウンセリングで色合わせができる', '夕方まで自然なツヤが続く'],
+        cons: ['手で塗ると重くなりやすい', 'カバー力は中程度', '価格はデパコスとして標準', '夏場の脂性肌には不向き', '使用量の調節にコツがいる']
+      },
+      {
+        id: 'c07', cat: 'cosmetic', sub: 'アイブロウ',
+        brand: 'KATE', name: 'デザイニングアイブロウ3D',
+        price: '¥1,210〜', rating: 4.5, reviews: 32000, isNew: false,
+        skin: ['dry', 'normal', 'oily', 'combination', 'sensitive'],
+        concerns: [],
+        goals: ['natural', 'elegant'],
+        desc: '3色パウダーで自然な立体眉が誰でも作れる、不動の定番。',
+        pros: ['3色のグラデで立体感が出る', '誰でも自然な眉が描ける', 'プチプラで気軽に試せる', 'ブラシ付きで持ち運びに便利', '色持ちが良く一日キープ'],
+        cons: ['パウダーが飛びやすい', 'ブラシの質はそこそこ', 'パレットがコンパクトすぎて使いにくいことも', '色展開はやや限定的', '濃いめが好みの人には物足りない']
+      },
+      {
+        id: 'c08', cat: 'cosmetic', sub: 'マスカラ',
+        brand: 'HEROINE MAKE', name: 'ロング&カールマスカラ アドバンストフィルム',
+        price: '¥1,320〜', rating: 4.6, reviews: 28100, isNew: false,
+        skin: ['dry', 'normal', 'oily', 'combination', 'sensitive'],
+        concerns: [],
+        goals: ['natural', 'young', 'elegant'],
+        desc: 'お湯で簡単オフできるフィルムタイプの代表格。カールキープ力も◎。',
+        pros: ['お湯だけで簡単オフ', 'にじみにくく汗・涙に強い', 'カールが一日キープ', 'まつげが綺麗にセパレート', '価格が手頃で続けやすい'],
+        cons: ['ボリュームは控えめ', 'クレンジングオイルでは落ちにくい時もある', '繊維入りでないため超ロング派は物足りない', '塊になりやすいこともある', 'リムーバーが必要な場合あり']
+      },
+      {
+        id: 'c09', cat: 'cosmetic', sub: 'リップ',
+        brand: 'CHANEL', name: 'ルージュ アリュール ヴェルヴェット ニュアンス',
+        price: '¥5,830〜', rating: 4.7, reviews: 3210, isNew: false,
+        skin: ['dry', 'normal', 'oily', 'combination', 'sensitive'],
+        concerns: [],
+        goals: ['elegant', 'matte'],
+        desc: '極上のヴェルヴェットマットを纏う、シャネルのマットリップ。',
+        pros: ['極上のマットなのに快適な付け心地', '発色が上品で大人の唇に', 'パッケージの高級感が圧倒的', 'カラー展開が洗練されている', '長時間の色持ちが優秀'],
+        cons: ['価格が非常に高い', 'マットなので保湿リップが必要', '塗り直しの際にムラになりやすい', '人気色は入手困難', '濃い色は唇の輪郭を綺麗に整える必要あり']
+      },
+      {
+        id: 'c10', cat: 'cosmetic', sub: 'フェイスパウダー',
+        brand: 'COSME DECORTE', name: 'フェイスパウダー',
+        price: '¥6,050〜', rating: 4.7, reviews: 8420, isNew: false,
+        skin: ['dry', 'normal', 'oily', 'combination'],
+        concerns: ['dullness', 'pore', 'oil'],
+        goals: ['elegant', 'glow', 'natural'],
+        desc: 'ベールのような繊細な仕上がり。プロもリピートする上品パウダー。',
+        pros: ['ふんわり上品な仕上がり', '透明感のある肌に', '崩れ予防にも下地代わりにも', '香りが上品で使うたびに癒される', 'パフの質が高くムラなく塗れる'],
+        cons: ['価格は高め', 'カバー力は控えめ', 'パッケージが大きく持ち運びには不向き', 'ハイカバー派には物足りない', '減りが早い']
+      },
+      {
+        id: 'c11', cat: 'cosmetic', sub: 'チーク',
+        brand: 'ADDICTION', name: 'ザ ブラッシュ',
+        price: '¥3,300〜', rating: 4.6, reviews: 6810, isNew: false,
+        skin: ['dry', 'normal', 'oily', 'combination'],
+        concerns: [],
+        goals: ['natural', 'elegant', 'glow'],
+        desc: '50色以上の絶妙カラー展開。あなたの肌に運命の一色が見つかる。',
+        pros: ['カラー展開が圧倒的に豊富', '粉質が細かく肌に溶け込む', 'マット・パール・グロウから選べる', 'パッケージがおしゃれ', 'ブラシで自由に組み合わせられる'],
+        cons: ['ケース別売りでコストがかさむ', '一色だと使い切るのが大変', '実物を見ないと色選びが難しい', 'パール感は色によって差が大きい', '人気色は店頭で品薄']
+      },
+      {
+        id: 'c12', cat: 'cosmetic', sub: 'コンシーラー',
+        brand: 'THE SAEM', name: 'カバーパーフェクション チップ コンシーラー',
+        price: '¥770〜', rating: 4.4, reviews: 19200, isNew: false,
+        skin: ['oily', 'combination', 'normal'],
+        concerns: ['dark', 'acne', 'redness'],
+        goals: ['natural', 'matte'],
+        desc: 'プチプラとは思えないカバー力。クマ・ニキビ跡対策の鉄板アイテム。',
+        pros: ['プチプラなのに高いカバー力', 'クマ・ニキビ跡が綺麗に隠れる', '伸びが良くムラになりにくい', 'チップで使いやすい', 'カラー展開がある'],
+        cons: ['乾燥肌には乾きが気になる', '色味選びが難しい', '厚塗り感が出やすい', '一部色味は黄みが強い', 'パッケージはチープ']
+      },
+      {
+        id: 'c13', cat: 'cosmetic', sub: 'アイシャドウ',
+        brand: 'CANMAKE', name: 'パーフェクトスタイリストアイズ',
+        price: '¥858〜', rating: 4.5, reviews: 38200, isNew: false,
+        skin: ['dry', 'normal', 'oily', 'combination', 'sensitive'],
+        concerns: [],
+        goals: ['natural', 'young'],
+        desc: 'プチプラアイシャドウの定番中の定番。誰でも使いやすい色設計。',
+        pros: ['圧倒的コスパで気軽に試せる', '5色入りで使い分けが楽しい', '初心者でも上手にグラデが作れる', 'カラー展開が豊富', 'チップ＆ブラシ付き'],
+        cons: ['ラメが粉飛びすることがある', '色持ちは中程度', 'パッケージは可愛いがチープ', 'ハイブランドの発色には及ばない', '人気色は店頭で品薄']
+      },
+      {
+        id: 'c14', cat: 'cosmetic', sub: 'ベース',
+        brand: 'PAUL & JOE', name: 'モイスチュアライジング ファンデーション プライマー S',
+        price: '¥4,400〜', rating: 4.6, reviews: 9210, isNew: false,
+        skin: ['dry', 'normal', 'sensitive'],
+        concerns: ['dryness', 'dullness'],
+        goals: ['glow', 'elegant', 'young'],
+        desc: 'スキンケアのような心地よさのツヤ下地。長年愛されるロングセラー。',
+        pros: ['驚くほど自然なツヤと潤い', '化粧ノリと持ちが格段にアップ', '保湿力が高く乾燥しない', 'パッケージが可愛くテンションが上がる', 'メイクが薄くても綺麗な肌見え'],
+        cons: ['脂性肌にはツヤが出すぎることも', '価格はやや高め', '量が少なく使い切るのが早い', 'カバー力はないので併用必須', 'マット派には不向き']
+      },
+      {
+        id: 'c15', cat: 'cosmetic', sub: 'リップ',
+        brand: 'OPERA', name: 'リップティント N',
+        price: '¥1,650〜', rating: 4.5, reviews: 42000, isNew: false,
+        skin: ['dry', 'normal', 'oily', 'combination', 'sensitive'],
+        concerns: [],
+        goals: ['natural', 'glow', 'young'],
+        desc: '一本で潤い・色・ツヤが叶う名品ティント。プチプラの王道。',
+        pros: ['潤いとティントを両立', '色持ちが自然で長時間綺麗', '荒れにくくデイリー使いに最適', 'カラーが万人ウケで失敗しにくい', '価格が手頃でギフトにも'],
+        cons: ['発色は控えめで物足りない人も', 'マットが好きな人には不向き', '人気色は売り切れが続く', 'パッケージはシンプルすぎとの声', 'ボリューム感は出ない']
+      },
+      {
+        id: 'c16', cat: 'cosmetic', sub: 'アイライナー',
+        brand: 'MSH', name: 'ラブ・ライナー リキッドアイライナー R4',
+        price: '¥1,650〜', rating: 4.6, reviews: 24100, isNew: false,
+        skin: ['dry', 'normal', 'oily', 'combination', 'sensitive'],
+        concerns: [],
+        goals: ['natural', 'elegant'],
+        desc: '極細筆で繊細なラインが描ける、リキッドアイライナーの大本命。',
+        pros: ['極細筆で繊細なラインが自在', 'にじみにくく一日綺麗', 'カラー展開が大人っぽい', '初心者でも描きやすい', 'お湯でオフできる']
+        , cons: ['筆が傷みやすい', '濃さを出すには重ね塗りが必要', '一本の使用期限が短め', 'リムーバーがあると安心', '濃い色は不器用だとはみ出しやすい']
+      },
+    ];
+
+    // ========================================
+    // PRODUCT SEARCH URL
+    // 「ブランド名＋商品名＋公式」でGoogle検索 → 確実に公式商品ページへ辿り着ける。
+    // ブランドの公式URLが変更/閉鎖されても安心。
+    // ========================================
+    function productSearchUrl(p) {
+      const q = `${p.brand} ${p.name} 公式`;
+      return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+    }
+
+    // ========================================
+    // STATE
+    // ========================================
+    const state = {
+      cat: null,        // 'skincare' | 'cosmetic'
+      skin: null,       // single
+      concerns: [],     // multi
+      goals: [],        // multi
+      notes: ''
+    };
+
+    // ========================================
+    // STEP NAVIGATION
+    // ========================================
+    function goToStep(n) {
+      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+      document.getElementById('step' + n).classList.add('active');
+      document.querySelectorAll('#stepNav span').forEach(el => {
+        el.classList.toggle('active', Number(el.dataset.step) === n);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ========================================
+    // STEP 1 — Category
+    // ========================================
+    document.querySelectorAll('.cat-card').forEach(card => {
+      card.addEventListener('click', () => {
+        state.cat = card.dataset.cat;
+        goToStep(2);
+      });
+    });
+
+    // ========================================
+    // STEP 2 — Form
+    // ========================================
+    // Single select (skin type)
+    document.querySelectorAll('#skinTypes .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#skinTypes .chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        state.skin = chip.dataset.val;
+      });
+    });
+
+    // Multi-select (concerns, goals)
+    function bindMulti(containerId, key) {
+      document.querySelectorAll('#' + containerId + ' .chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          chip.classList.toggle('selected');
+          const v = chip.dataset.val;
+          if (chip.classList.contains('selected')) {
+            if (!state[key].includes(v)) state[key].push(v);
+          } else {
+            state[key] = state[key].filter(x => x !== v);
+          }
+        });
+      });
+    }
+    bindMulti('concerns', 'concerns');
+    bindMulti('goals', 'goals');
+
+    document.getElementById('backTo1').addEventListener('click', () => goToStep(1));
+
+    document.getElementById('submitForm').addEventListener('click', () => {
+      state.notes = document.getElementById('notes').value.trim();
+      if (!state.skin) {
+        alert('肌質を選択してください。');
+        return;
+      }
+      showLoadingThenResult();
+    });
+
+    // ========================================
+    // STEP 3 — Results
+    // ========================================
+    function showLoadingThenResult() {
+      goToStep(3);
+      const area = document.getElementById('resultArea');
+      area.innerHTML = `
+        <div class="loading">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <div class="loading-text">— Analyzing your profile —</div>
+        </div>
+      `;
+      setTimeout(renderResults, 1100);
+    }
+
+    function scoreProduct(p) {
+      let s = 0;
+      // Category match (filter)
+      if (p.cat !== state.cat) return -1;
+      // Skin type
+      if (p.skin.includes(state.skin)) s += 3;
+      // Concerns
+      state.concerns.forEach(c => {
+        if (p.concerns.includes(c)) s += 2;
+      });
+      // Goals
+      state.goals.forEach(g => {
+        if (p.goals.includes(g)) s += 1.2;
+      });
+      // New release bonus
+      if (p.isNew) s += 0.6;
+      // Rating
+      s += (p.rating - 4.0) * 1.5;
+      // tiny random factor for diversity
+      s += Math.random() * 0.3;
+      return s;
+    }
+
+    function renderResults() {
+      const ranked = PRODUCTS
+        .map(p => ({ p, score: scoreProduct(p) }))
+        .filter(x => x.score >= 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+
+      const area = document.getElementById('resultArea');
+      if (ranked.length === 0) {
+        area.innerHTML = `<div class="no-results">該当する商品が見つかりませんでした。条件を変えてお試しください。</div>`;
+        return;
+      }
+
+      const summary = buildSummary();
+
+      let html = `
+        <div class="result-summary">
+          <span class="quote">"${summary.quote}"</span>
+          ${summary.body}
+        </div>
+        <div class="results">
+      `;
+
+      ranked.forEach((x, i) => {
+        const p = x.p;
+        const stars = '★'.repeat(Math.round(p.rating)) + '☆'.repeat(5 - Math.round(p.rating));
+        const url = productSearchUrl(p);
+        html += `
+          <article class="product">
+            <header class="p-header">
+              <span class="p-rank">No. ${String(i + 1).padStart(2, '0')}</span>
+              <span class="p-tag ${p.isNew ? 'new' : ''}">${p.isNew ? 'New Arrival ・ ' : ''}${p.sub}</span>
+            </header>
+            <div class="p-brand">${p.brand}</div>
+            <h3 class="p-name">${p.name}</h3>
+            <div class="p-meta">
+              <span class="rating">${p.rating.toFixed(1)}</span>
+              <span class="stars">${stars}</span>
+              <span>${p.reviews.toLocaleString()} reviews</span>
+              <span>${p.price}</span>
+            </div>
+            <p class="p-desc">${p.desc}</p>
+            <div class="pc-grid">
+              <div class="pc-block pros">
+                <div class="pc-head">+ Good points</div>
+                <ul>${p.pros.map(t => `<li>${t}</li>`).join('')}</ul>
+              </div>
+              <div class="pc-block cons">
+                <div class="pc-head">− Watch outs</div>
+                <ul>${p.cons.map(t => `<li>${t}</li>`).join('')}</ul>
+              </div>
+            </div>
+            <a class="p-link" href="${url}" target="_blank" rel="noopener noreferrer">
+              公式商品ページを探す <span class="arrow">→</span>
+            </a>
+          </article>
+        `;
+      });
+
+      html += `</div>`;
+      html += `
+        <p class="result-note">
+          ※ 本ツールは管理者が手動で選定した商品データを使用しています。<br/>
+          最新の発売情報や口コミとは異なる場合があります。実際のご購入前は公式情報をご確認ください。
+        </p>
+      `;
+      area.innerHTML = html;
+    }
+
+    function buildSummary() {
+      const skinMap = {
+        dry: '乾燥肌', oily: '脂性肌', combination: '混合肌',
+        sensitive: '敏感肌', normal: '普通肌'
+      };
+      const concernMap = {
+        pore: '毛穴', acne: 'ニキビ', dark: 'シミ・くすみ',
+        wrinkle: 'シワ・たるみ', dryness: '乾燥', oil: 'テカリ',
+        redness: '赤み', dullness: '透明感不足'
+      };
+      const goalMap = {
+        glow: 'つや肌', matte: 'マット肌', clear: '透明感',
+        young: '若々しさ', natural: 'ナチュラル', elegant: '上品さ'
+      };
+      const catLabel = state.cat === 'skincare' ? 'スキンケア' : '化粧品';
+
+      const concernsText = state.concerns.length
+        ? state.concerns.map(c => concernMap[c]).join('・')
+        : '特定の悩みなし';
+      const goalsText = state.goals.length
+        ? state.goals.map(g => goalMap[g]).join('・')
+        : 'バランス重視';
+
+      const quotes = [
+        '良いものを、長く。',
+        '肌は、語る。あなたの選択を。',
+        'シンプルに、丁寧に。',
+        '少なく持ち、深く愛する。',
+        '日々の積み重ねが、未来をつくる。'
+      ];
+      const quote = quotes[Math.floor(Math.random() * quotes.length)];
+
+      const body = `
+        <strong>${skinMap[state.skin]}</strong> の方へ。<br/>
+        気になる悩み：${concernsText}<br/>
+        目指す姿：${goalsText}<br/>
+        あなたの肌質とお悩みに合わせて、${catLabel}カテゴリから厳選した5品をご提案します。
+      `;
+      return { quote, body };
+    }
+
+    // Restart
+    document.getElementById('restart').addEventListener('click', () => {
+      // reset state
+      state.cat = null;
+      state.skin = null;
+      state.concerns = [];
+      state.goals = [];
+      state.notes = '';
+      // reset UI
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      document.getElementById('notes').value = '';
+      goToStep(1);
+    });
+  </script>
+</body>
+</html>

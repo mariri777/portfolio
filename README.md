@@ -16,7 +16,7 @@ URL に `?spot=games` のように付けると、その建物まで歩いた状�
 | サービス・ツール | `services` | 超!企業DB / 日々. / 気血水カルテ（`public/tools/kikketsusui.html`） |
 | ゲーム | `games` | その判定、言うか。 / 英傑大乱 |
 | Webデザイン | `designs` | 鼓動 KODO / TSUMUGI / Lume Aesthetic Clinic / Rabbit Specialty Clinic / Pâtisserie Hidamari / Aoyama Leaf Clinic |
-| 100日チャレンジ | `days` | 作品数は手書き。進んだら数字を更新する |
+| ちいさな作品 | `minis` | まいにち ひとつ つくっていた頃の41作品（道具33・ゲーム8）。本体は `public/100days/dayN.html`、サムネイルは `public/covers/mini/` |
 
 BGM と釣れたときの音は `python3 tools/make-bgm.py` で `public/bgm.wav` / `public/catch.wav` に書き出しています（曲を変えるときはこのスクリプトの音符を編集）。
 

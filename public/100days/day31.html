@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>今日、三つだけ — やることを3つに絞るミニToDo</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #f4f2ea;
+    --paper: #fffdf8;
+    --ink: #2c2823;
+    --ink-soft: #6b6258;
+    --ink-faint: #a99f92;
+    --line: #e7ddce;
+    --line-soft: #f1eade;
+    --shu: #bb5a41;
+    --shu-deep: #9c4630;
+    --shu-soft: #f6e5df;
+    --sage: #7f8c68;
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink); background: var(--bg); min-height: 100vh; line-height: 1.85;
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.02em;
+  }
+
+  .wrap { max-width: 500px; margin: 0 auto; padding: 28px 20px 90px; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft);
+    text-decoration: none; padding: 7px 15px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--paper); transition: border-color .2s ease, color .2s ease;
+  }
+  .home-link:hover { color: var(--shu); border-color: var(--shu); }
+
+  /* Hero */
+  .hero { text-align: center; margin: 46px 0 26px; }
+  .eyebrow { font-family: "Shippori Mincho B1", serif; font-size: 12px; letter-spacing: 0.4em; color: var(--shu); font-weight: 600; }
+  .hero h1 { font-family: "Shippori Mincho B1", serif; font-weight: 700; font-size: clamp(30px, 8vw, 46px); line-height: 1.3; letter-spacing: 0.16em; margin: 12px 0 0; }
+  .hero p { color: var(--ink-soft); font-size: 13.5px; max-width: 360px; margin: 14px auto 0; line-height: 1.95; }
+
+  /* Card */
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 24px 28px; box-shadow: 0 10px 30px rgba(80,60,40,.06); transition: box-shadow .4s ease; }
+  .card.done-all { box-shadow: 0 10px 34px rgba(187,90,65,.14); border-color: var(--shu-soft); }
+
+  .card-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid var(--line-soft); }
+  .card-head .today { font-family: "Shippori Mincho B1", serif; font-size: 18px; font-weight: 700; letter-spacing: 0.06em; }
+  .card-head .today small { font-size: 12px; color: var(--ink-faint); margin-left: 6px; font-weight: 500; }
+  .streak { display: inline-flex; align-items: center; gap: 6px; font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--shu-deep); }
+  .streak svg { width: 16px; height: 16px; }
+  .streak.hide { display: none; }
+
+  /* Rows */
+  .rows { display: flex; flex-direction: column; gap: 14px; }
+  .row { display: flex; align-items: center; gap: 14px; }
+  .kanji { font-family: "Shippori Mincho B1", serif; font-size: 15px; color: var(--ink-faint); width: 16px; text-align: center; flex-shrink: 0; }
+  .check { width: 30px; height: 30px; flex-shrink: 0; border: 1.8px solid var(--line); border-radius: 50%; background: #fff; cursor: pointer; display: grid; place-items: center; transition: border-color .2s ease, background .2s ease; padding: 0; }
+  .check svg { width: 22px; height: 22px; opacity: 0; transform: scale(.4); transition: opacity .25s ease, transform .35s cubic-bezier(.3,1.5,.5,1); }
+  .check.on { border-color: var(--shu); background: var(--shu-soft); }
+  .check.on svg { opacity: 1; transform: scale(1); }
+  .row input {
+    flex: 1; min-width: 0; font-family: inherit; font-size: 15.5px; color: var(--ink);
+    border: none; border-bottom: 1.5px solid var(--line-soft); background: transparent; outline: none;
+    padding: 8px 2px; transition: border-color .2s ease, color .2s ease; letter-spacing: 0.02em;
+  }
+  .row input:focus { border-color: var(--shu); }
+  .row input::placeholder { color: var(--ink-faint); font-weight: 400; }
+  .row.done input { color: var(--ink-faint); text-decoration: line-through; text-decoration-color: var(--shu); text-decoration-thickness: 1.5px; }
+
+  /* Progress */
+  .progress { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 24px; }
+  .pdot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s ease, transform .3s ease; }
+  .pdot.on { background: var(--shu); transform: scale(1.15); }
+
+  /* Achieved banner */
+  .achieved { text-align: center; margin-top: 20px; max-height: 0; opacity: 0; overflow: hidden; transition: max-height .5s ease, opacity .4s ease, margin-top .4s ease; }
+  .achieved.show { max-height: 200px; opacity: 1; margin-top: 22px; }
+  .achieved .flower { width: 54px; height: 54px; margin: 0 auto 6px; }
+  .achieved .msg { font-family: "Shippori Mincho B1", serif; font-size: 16px; font-weight: 700; color: var(--shu-deep); letter-spacing: 0.08em; }
+  .achieved .sub { font-size: 12px; color: var(--ink-faint); margin-top: 4px; }
+
+  .hint { text-align: center; font-size: 11.5px; color: var(--ink-faint); margin-top: 22px; letter-spacing: 0.04em; line-height: 1.9; }
+
+  .footer { text-align: center; margin-top: 44px; padding-top: 24px; border-top: 1px solid var(--line); font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); line-height: 2.1; letter-spacing: 0.14em; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 22px 15px 74px; }
+    .hero { margin: 32px 0 20px; }
+    .card { padding: 22px 18px 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="home-link" href="../">← 一覧へもどる</a>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="eyebrow">THREE THINGS</div>
+    <h1>今日、三つだけ</h1>
+    <p>やることは、三つまで。欲ばらずに絞ると、今日はちゃんと前へ進みます。</p>
+  </header>
+
+  <!-- ============ CARD ============ -->
+  <section class="card" id="card">
+    <div class="card-head">
+      <div class="today" id="today">—</div>
+      <div class="streak hide" id="streak">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><g stroke="#9c4630" stroke-width="2.4" fill="none" stroke-linejoin="round">
+          <circle cx="20" cy="20" r="5.5"/>
+          <ellipse cx="20" cy="9" rx="4" ry="7"/>
+          <ellipse cx="30.5" cy="16.6" rx="4" ry="7" transform="rotate(72 30.5 16.6)"/>
+          <ellipse cx="26.5" cy="28.9" rx="4" ry="7" transform="rotate(144 26.5 28.9)"/>
+          <ellipse cx="13.5" cy="28.9" rx="4" ry="7" transform="rotate(216 13.5 28.9)"/>
+          <ellipse cx="9.5" cy="16.6" rx="4" ry="7" transform="rotate(288 9.5 16.6)"/>
+        </g></svg>
+        <span id="streakNum"></span>
+      </div>
+    </div>
+
+    <div class="rows" id="rows"></div>
+
+    <div class="progress" id="progress">
+      <span class="pdot"></span><span class="pdot"></span><span class="pdot"></span>
+    </div>
+
+    <div class="achieved" id="achieved">
+      <svg class="flower" viewBox="0 0 40 40" aria-hidden="true"><g stroke="#bb5a41" stroke-width="2.4" fill="none" stroke-linejoin="round">
+        <circle cx="20" cy="20" r="5.5"/>
+        <ellipse cx="20" cy="9" rx="4.2" ry="7.4"/>
+        <ellipse cx="30.5" cy="16.6" rx="4.2" ry="7.4" transform="rotate(72 30.5 16.6)"/>
+        <ellipse cx="26.5" cy="28.9" rx="4.2" ry="7.4" transform="rotate(144 26.5 28.9)"/>
+        <ellipse cx="13.5" cy="28.9" rx="4.2" ry="7.4" transform="rotate(216 13.5 28.9)"/>
+        <ellipse cx="9.5" cy="16.6" rx="4.2" ry="7.4" transform="rotate(288 9.5 16.6)"/>
+      </g></svg>
+      <div class="msg">今日のぶん、おつかれさま。</div>
+      <div class="sub" id="achievedSub"></div>
+    </div>
+  </section>
+
+  <div class="hint">入力すると自動で保存されます。日付が変わると、新しい三つに切り替わります。</div>
+
+  <footer class="footer">
+    今日、三つだけ ・ サーバー不要<br />
+    Built by mariri
+  </footer>
+
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const KEY = "mitsudake_v1";
+  const WEEK = ["日", "月", "火", "水", "木", "金", "土"];
+  const KAN = ["一", "二", "三"];
+
+  const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#bb5a41" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  let state = { date: "", tasks: [{ text: "", done: false }, { text: "", done: false }, { text: "", done: false }], streak: 0, lastDone: "" };
+
+  // ===== 日付 =====
+  function dstr(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function todayStr() { return dstr(new Date()); }
+  function yesterdayStr() { const d = new Date(); d.setDate(d.getDate() - 1); return dstr(d); }
+
+  // ===== 保存 =====
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function load() { try { const r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch (e) {} return null; }
+
+  // ===== 達成判定 =====
+  function isAchieved() {
+    const filled = state.tasks.filter((t) => t.text.trim() !== "");
+    return filled.length >= 1 && filled.every((t) => t.done);
+  }
+
+  // ===== 描画 =====
+  const PLACE = ["いちばん大事なこと", "つぎにやること", "できたら、これも"];
+  function buildRows() {
+    const box = $("rows");
+    box.innerHTML = "";
+    state.tasks.forEach((t, i) => {
+      const row = document.createElement("div");
+      row.className = "row" + (t.done ? " done" : "");
+      row.innerHTML =
+        '<span class="kanji">' + KAN[i] + '</span>' +
+        '<button class="check' + (t.done ? " on" : "") + '" data-i="' + i + '" aria-label="完了">' + CHECK_SVG + '</button>' +
+        '<input type="text" data-i="' + i + '" value="" placeholder="' + PLACE[i] + '" maxlength="40" />';
+      box.appendChild(row);
+      row.querySelector("input").value = t.text;
+      row.querySelector(".check").addEventListener("click", () => toggle(i));
+      row.querySelector("input").addEventListener("input", (e) => { state.tasks[i].text = e.target.value; if (e.target.value.trim() === "") state.tasks[i].done = false; refresh(); save(); });
+    });
+  }
+
+  function toggle(i) {
+    if (state.tasks[i].text.trim() === "") { const inp = $("rows").querySelectorAll("input")[i]; inp.focus(); return; }
+    state.tasks[i].done = !state.tasks[i].done;
+    // 行の見た目
+    const rows = $("rows").children;
+    rows[i].classList.toggle("done", state.tasks[i].done);
+    rows[i].querySelector(".check").classList.toggle("on", state.tasks[i].done);
+    handleAchievement();
+    refresh();
+    save();
+  }
+
+  function handleAchievement() {
+    if (isAchieved()) {
+      const t = todayStr();
+      if (state.lastDone !== t) {
+        state.streak = (state.lastDone === yesterdayStr()) ? state.streak + 1 : 1;
+        state.lastDone = t;
+      }
+    }
+  }
+
+  function refresh() {
+    // プログレスドット
+    const dots = $("progress").children;
+    state.tasks.forEach((t, i) => { dots[i].classList.toggle("on", t.done && t.text.trim() !== ""); });
+    // 達成バナー
+    const ach = isAchieved();
+    $("achieved").classList.toggle("show", ach);
+    $("card").classList.toggle("done-all", ach);
+    if (ach) {
+      const doneCount = state.tasks.filter((t) => t.text.trim() !== "" && t.done).length;
+      $("achievedSub").textContent = "三つのうち " + doneCount + " つ、やりきりました";
+    }
+    // ストリーク表示
+    const validStreak = (state.lastDone === todayStr() || state.lastDone === yesterdayStr()) ? state.streak : 0;
+    if (validStreak > 0) { $("streak").classList.remove("hide"); $("streakNum").textContent = validStreak + "日つづけて達成"; }
+    else $("streak").classList.add("hide");
+  }
+
+  function renderHead() {
+    const d = new Date();
+    $("today").innerHTML = (d.getMonth() + 1) + "月" + d.getDate() + "日 <small>（" + WEEK[d.getDay()] + "）</small>";
+  }
+
+  // ===== 初期化 =====
+  (function init() {
+    const saved = load();
+    if (saved) state = Object.assign(state, saved);
+    const t = todayStr();
+    if (state.date !== t) {
+      // 新しい日：タスクをリセット（ストリークは維持）
+      state.tasks = [{ text: "", done: false }, { text: "", done: false }, { text: "", done: false }];
+      state.date = t;
+      save();
+    }
+    renderHead();
+    buildRows();
+    refresh();
+  })();
+</script>
+</body>
+</html>

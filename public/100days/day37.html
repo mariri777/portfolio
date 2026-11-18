@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>時間の家計簿 — 24時間の使いみちを、色で見る</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #f6f1ea;
+    --bg-soft: #fbf8f3;
+    --panel: #fffdfa;
+    --ink: #3a332e;
+    --ink-soft: #7b7269;
+    --ink-faint: #a99f94;
+    --line: #e7ddd0;
+    --line-soft: #f0e9de;
+    --accent: #b7776a;
+    --shadow: 0 18px 40px -24px rgba(90, 70, 55, 0.35);
+    --radius: 18px;
+
+    /* カテゴリ色（ニュアンストーン） */
+    --c-sleep: #8a86b5;
+    --c-prep: #d5a3a9;
+    --c-work: #6f9a94;
+    --c-house: #c9a878;
+    --c-meal: #dda06e;
+    --c-move: #9aa981;
+    --c-hobby: #b294c0;
+    --c-people: #cf8fa3;
+    --c-rest: #a8b3bd;
+    --c-etc: #b3a99b;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", sans-serif;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #fceee6 0%, transparent 55%),
+      radial-gradient(900px 500px at -10% 10%, #f2ece2 0%, transparent 50%),
+      var(--bg);
+    color: var(--ink);
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+  }
+
+  /* ---- ヘッダー ---- */
+  header.masthead {
+    text-align: center;
+    margin-bottom: 44px;
+  }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.42em;
+    color: var(--ink-faint);
+    text-indent: 0.42em;
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-family: "Shippori Mincho", serif;
+    font-weight: 700;
+    font-size: clamp(30px, 6vw, 44px);
+    letter-spacing: 0.06em;
+    margin: 0 0 14px;
+    color: var(--ink);
+  }
+  .lead {
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    max-width: 30em;
+    margin: 0 auto;
+  }
+  .masthead .rule {
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+    margin: 26px auto 0;
+    opacity: 0.6;
+  }
+
+  /* ---- 日付ナビ ---- */
+  .datebar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+  .datebar button {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink-soft);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+  }
+  .datebar button:hover { border-color: var(--accent); color: var(--accent); }
+  .datebar .today-label {
+    font-family: "Shippori Mincho", serif;
+    font-size: 18px;
+    letter-spacing: 0.05em;
+    min-width: 12em;
+    text-align: center;
+  }
+  .datebar .today-label small {
+    display: block;
+    font-family: "Zen Kaku Gothic New", sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+
+  /* ---- パネル共通 ---- */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 26px;
+    margin-bottom: 24px;
+  }
+  .panel-title {
+    font-family: "Shippori Mincho", serif;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    margin: 0 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+  }
+  .panel-title::before {
+    content: "";
+    width: 5px; height: 16px;
+    border-radius: 3px;
+    background: var(--accent);
+    opacity: 0.65;
+  }
+
+  /* ---- 入力フォーム ---- */
+  .form-grid {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: 14px 16px;
+    align-items: end;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--ink-faint);
+  }
+  .times { display: flex; align-items: center; gap: 8px; }
+  .times .tilde { color: var(--ink-faint); font-size: 14px; }
+  input[type="time"], select, input[type="text"] {
+    font-family: "Zen Kaku Gothic New", sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  input[type="time"] { width: 106px; }
+  input[type="text"] { width: 100%; }
+  input:focus, select:focus { border-color: var(--accent); }
+
+  .cat-row {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--line);
+    background: var(--bg-soft);
+    border-radius: 999px;
+    padding: 7px 14px 7px 11px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+  .cat-chip .dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+  }
+  .cat-chip:hover { border-color: var(--ink-faint); }
+  .cat-chip.selected {
+    color: var(--ink);
+    border-color: var(--ink);
+    background: #fff;
+    font-weight: 500;
+  }
+
+  .form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .btn-add {
+    font-family: "Zen Kaku Gothic New", sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 26px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+  }
+  .btn-add:hover { background: #a4655a; }
+  .btn-add:active { transform: translateY(1px); }
+  .form-hint { font-size: 12px; color: var(--ink-faint); }
+
+  /* ---- 24時間タイムライン ---- */
+  .timeline-wrap { margin-top: 4px; }
+  .timeline {
+    position: relative;
+    height: 46px;
+    border-radius: 10px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--line-soft) 0, var(--line-soft) 1px,
+      transparent 1px, transparent calc(100% / 24)
+    );
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .timeline .seg {
+    position: absolute;
+    top: 0; bottom: 0;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+  }
+  .timeline .seg:hover { opacity: 1; }
+  .ticks {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+  }
+  .ticks span { flex: 0 0 auto; }
+
+  /* ---- サマリー（ドーナツ + 内訳） ---- */
+  .summary {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 30px;
+    align-items: center;
+  }
+  .donut-box { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .donut {
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    position: relative;
+    background: var(--line-soft);
+  }
+  .donut::after {
+    content: "";
+    position: absolute;
+    inset: 30px;
+    background: var(--panel);
+    border-radius: 50%;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 2;
+  }
+  .donut-center .h {
+    font-family: "Shippori Mincho", serif;
+    font-size: 26px;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .donut-center .h small { font-size: 13px; color: var(--ink-soft); margin-left: 2px; }
+  .donut-center .lbl { font-size: 10px; letter-spacing: 0.16em; color: var(--ink-faint); margin-top: 6px; }
+
+  .breakdown { display: flex; flex-direction: column; gap: 3px; }
+  .brk-row {
+    display: grid;
+    grid-template-columns: 14px 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 4px;
+    border-bottom: 1px dashed var(--line-soft);
+    font-size: 13.5px;
+  }
+  .brk-row:last-child { border-bottom: none; }
+  .brk-row .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .brk-row .name { color: var(--ink); }
+  .brk-row .hrs { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .brk-row .pct {
+    color: var(--ink-faint);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    min-width: 3.2em;
+    text-align: right;
+  }
+
+  /* ---- 記録リスト ---- */
+  .entry-list { display: flex; flex-direction: column; gap: 0; }
+  .entry {
+    display: grid;
+    grid-template-columns: 6px auto 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 13px 4px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .entry:last-child { border-bottom: none; }
+  .entry .bar { width: 6px; height: 34px; border-radius: 3px; }
+  .entry .time {
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .entry .time .dur { display: block; font-size: 11px; color: var(--ink-faint); }
+  .entry .body .cat { font-size: 14px; color: var(--ink); }
+  .entry .body .memo { font-size: 12.5px; color: var(--ink-soft); }
+  .entry .del {
+    border: none;
+    background: transparent;
+    color: var(--ink-faint);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.18s ease;
+    line-height: 1;
+  }
+  .entry .del:hover { color: var(--accent); background: var(--line-soft); }
+
+  .empty {
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 13.5px;
+    padding: 30px 10px;
+  }
+  .empty .mincho { font-family: "Shippori Mincho", serif; font-size: 15px; color: var(--ink-soft); }
+
+  footer.credit {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+  }
+
+  /* ---- レスポンシブ ---- */
+  @media (max-width: 640px) {
+    .wrap { padding: 40px 16px 80px; }
+    .panel { padding: 20px 16px; }
+    .form-grid { grid-template-columns: 1fr; gap: 12px; }
+    input[type="time"] { width: 100%; flex: 1; }
+    .summary { grid-template-columns: 1fr; gap: 22px; }
+    .donut-box { order: -1; }
+    .datebar .today-label { min-width: auto; font-size: 16px; }
+    .ticks span:nth-child(even) { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="masthead">
+      <div class="eyebrow">TIME BUDGET</div>
+      <h1>時間の家計簿</h1>
+      <p class="lead">1日は、だれにでも平等に24時間。<br />きょうの時間を何に使ったか、色で塗ってふりかえる帳簿です。</p>
+      <div class="rule"></div>
+    </header>
+
+    <div class="datebar">
+      <button id="prevDay" aria-label="前の日">‹</button>
+      <div class="today-label">
+        <span id="dateMain">—</span>
+        <small id="dateSub"></small>
+      </div>
+      <button id="nextDay" aria-label="次の日">›</button>
+    </div>
+
+    <!-- 入力 -->
+    <section class="panel">
+      <h2 class="panel-title">時間をつける</h2>
+      <div class="form-grid">
+        <div class="field">
+          <label>じかん</label>
+          <div class="times">
+            <input type="time" id="startTime" value="09:00" />
+            <span class="tilde">〜</span>
+            <input type="time" id="endTime" value="10:00" />
+          </div>
+        </div>
+        <div class="field" style="grid-column: 1 / -1;">
+          <label>なにに使った？</label>
+          <div class="cat-row" id="catRow"></div>
+        </div>
+        <div class="field" style="grid-column: 1 / -1;">
+          <label>ひとことメモ（任意）</label>
+          <input type="text" id="memo" placeholder="例：企画書づくり / 友だちとランチ" maxlength="40" />
+        </div>
+        <div class="form-actions">
+          <button class="btn-add" id="addBtn">帳簿につける</button>
+          <span class="form-hint" id="formHint">日をまたぐ時間（睡眠など）もそのまま入れてOK</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- タイムライン -->
+    <section class="panel">
+      <h2 class="panel-title">きょうの24時間</h2>
+      <div class="timeline-wrap">
+        <div class="timeline" id="timeline"></div>
+        <div class="ticks">
+          <span>0</span><span>3</span><span>6</span><span>9</span>
+          <span>12</span><span>15</span><span>18</span><span>21</span><span>24</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- サマリー -->
+    <section class="panel">
+      <h2 class="panel-title">使いみちのふりかえり</h2>
+      <div class="summary">
+        <div class="donut-box">
+          <div class="donut" id="donut">
+            <div class="donut-center">
+              <div class="h" id="totalH">0<small>h</small></div>
+              <div class="lbl">記録した時間</div>
+            </div>
+          </div>
+        </div>
+        <div class="breakdown" id="breakdown"></div>
+      </div>
+    </section>
+
+    <!-- 記録一覧 -->
+    <section class="panel">
+      <h2 class="panel-title">記録の一覧</h2>
+      <div class="entry-list" id="entryList"></div>
+    </section>
+
+    <footer class="credit">Built by mariri</footer>
+  </div>
+
+<script>
+  "use strict";
+
+  // ---- カテゴリ定義 ----
+  const CATEGORIES = [
+    { id: "sleep",  name: "睡眠",       color: "var(--c-sleep)"  },
+    { id: "prep",   name: "支度",       color: "var(--c-prep)"   },
+    { id: "work",   name: "仕事・勉強", color: "var(--c-work)"   },
+    { id: "house",  name: "家事",       color: "var(--c-house)"  },
+    { id: "meal",   name: "食事",       color: "var(--c-meal)"   },
+    { id: "move",   name: "移動",       color: "var(--c-move)"   },
+    { id: "hobby",  name: "趣味・自分", color: "var(--c-hobby)"  },
+    { id: "people", name: "人と過ごす", color: "var(--c-people)" },
+    { id: "rest",   name: "休息",       color: "var(--c-rest)"   },
+    { id: "etc",    name: "その他",     color: "var(--c-etc)"    },
+  ];
+  const catById = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
+
+  // ---- 状態 ----
+  const STORE_KEY = "time-budget-v1";
+  let selectedCat = "work";
+  let currentDate = new Date();
+
+  // ---- ユーティリティ ----
+  function dateKey(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+  function loadAll() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+    catch { return {}; }
+  }
+  function saveAll(data) {
+    localStorage.setItem(STORE_KEY, JSON.stringify(data));
+  }
+  function getEntries() {
+    return loadAll()[dateKey(currentDate)] || [];
+  }
+  function setEntries(list) {
+    const all = loadAll();
+    if (list.length === 0) delete all[dateKey(currentDate)];
+    else all[dateKey(currentDate)] = list;
+    saveAll(all);
+  }
+  function toMin(hhmm) {
+    const [h, m] = hhmm.split(":").map(Number);
+    return h * 60 + m;
+  }
+  // 継続時間（分）。end<=start なら翌日にまたいだとみなす。
+  function duration(e) {
+    let d = toMin(e.end) - toMin(e.start);
+    if (d <= 0) d += 24 * 60;
+    return d;
+  }
+  function fmtDur(min) {
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    if (h && m) return `${h}時間${m}分`;
+    if (h) return `${h}時間`;
+    return `${m}分`;
+  }
+
+  // ---- 描画 ----
+  function renderDateBar() {
+    const wd = ["日", "月", "火", "水", "木", "金", "土"][currentDate.getDay()];
+    const m = currentDate.getMonth() + 1;
+    const d = currentDate.getDate();
+    document.getElementById("dateMain").textContent = `${m}月${d}日（${wd}）`;
+    const today = dateKey(new Date()) === dateKey(currentDate);
+    document.getElementById("dateSub").textContent = today ? "きょう" : currentDate.getFullYear();
+  }
+
+  function renderCatChips() {
+    const row = document.getElementById("catRow");
+    row.innerHTML = "";
+    CATEGORIES.forEach(c => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "cat-chip" + (c.id === selectedCat ? " selected" : "");
+      chip.innerHTML = `<span class="dot" style="background:${c.color}"></span>${c.name}`;
+      chip.addEventListener("click", () => { selectedCat = c.id; renderCatChips(); });
+      row.appendChild(chip);
+    });
+  }
+
+  function renderTimeline(entries) {
+    const tl = document.getElementById("timeline");
+    tl.innerHTML = "";
+    const DAY = 24 * 60;
+    entries.forEach(e => {
+      const cat = catById[e.category];
+      const start = toMin(e.start);
+      let end = toMin(e.end);
+      // 区間を [start,end] のリストに（日またぎは分割）
+      const spans = [];
+      if (end <= start) {
+        spans.push([start, DAY]);
+        spans.push([0, end]);
+      } else {
+        spans.push([start, end]);
+      }
+      spans.forEach(([s, en]) => {
+        if (en <= s) return;
+        const seg = document.createElement("div");
+        seg.className = "seg";
+        seg.style.left = (s / DAY * 100) + "%";
+        seg.style.width = ((en - s) / DAY * 100) + "%";
+        seg.style.background = cat.color;
+        seg.title = `${cat.name}　${e.start}〜${e.end}`;
+        tl.appendChild(seg);
+      });
+    });
+  }
+
+  function renderSummary(entries) {
+    // カテゴリ別の合計分
+    const totals = {};
+    let grand = 0;
+    entries.forEach(e => {
+      const d = duration(e);
+      totals[e.category] = (totals[e.category] || 0) + d;
+      grand += d;
+    });
+
+    // ドーナツ（conic-gradient）
+    const donut = document.getElementById("donut");
+    if (grand === 0) {
+      donut.style.background = "var(--line-soft)";
+    } else {
+      let acc = 0;
+      const stops = [];
+      CATEGORIES.forEach(c => {
+        const v = totals[c.id];
+        if (!v) return;
+        const from = acc / grand * 360;
+        acc += v;
+        const to = acc / grand * 360;
+        stops.push(`${c.color} ${from.toFixed(2)}deg ${to.toFixed(2)}deg`);
+      });
+      donut.style.background = `conic-gradient(${stops.join(",")})`;
+    }
+
+    // 中央の合計
+    const gh = grand / 60;
+    const hStr = Number.isInteger(gh) ? gh : gh.toFixed(1);
+    document.getElementById("totalH").innerHTML = `${hStr}<small>h</small>`;
+
+    // 内訳リスト（多い順）
+    const brk = document.getElementById("breakdown");
+    brk.innerHTML = "";
+    const ranked = CATEGORIES
+      .filter(c => totals[c.id])
+      .sort((a, b) => totals[b.id] - totals[a.id]);
+    if (ranked.length === 0) {
+      brk.innerHTML = `<div class="empty">まだ記録がありません。<br /><span class="mincho">上のフォームから、きょうの時間をつけてみましょう。</span></div>`;
+      return;
+    }
+    ranked.forEach(c => {
+      const v = totals[c.id];
+      const pct = Math.round(v / grand * 100);
+      const row = document.createElement("div");
+      row.className = "brk-row";
+      row.innerHTML =
+        `<span class="dot" style="background:${c.color}"></span>` +
+        `<span class="name">${c.name}</span>` +
+        `<span class="hrs">${fmtDur(v)}</span>` +
+        `<span class="pct">${pct}%</span>`;
+      brk.appendChild(row);
+    });
+
+    // 未記録の残りをそっと添える
+    const unlogged = 24 * 60 - grand;
+    if (grand > 0 && unlogged > 0) {
+      const row = document.createElement("div");
+      row.className = "brk-row";
+      row.style.opacity = "0.6";
+      row.innerHTML =
+        `<span class="dot" style="background:var(--line);box-shadow:inset 0 0 0 1px var(--line-soft)"></span>` +
+        `<span class="name" style="color:var(--ink-faint)">未記録</span>` +
+        `<span class="hrs" style="color:var(--ink-faint)">${fmtDur(unlogged)}</span>` +
+        `<span class="pct">${Math.round(unlogged / (24 * 60) * 100)}%</span>`;
+      brk.appendChild(row);
+    }
+  }
+
+  function renderEntries(entries) {
+    const list = document.getElementById("entryList");
+    list.innerHTML = "";
+    if (entries.length === 0) {
+      list.innerHTML = `<div class="empty"><span class="mincho">まだ、きょうの帳簿は白紙です。</span></div>`;
+      return;
+    }
+    // 開始時刻順
+    const sorted = [...entries].sort((a, b) => toMin(a.start) - toMin(b.start));
+    sorted.forEach(e => {
+      const cat = catById[e.category];
+      const row = document.createElement("div");
+      row.className = "entry";
+      row.innerHTML =
+        `<span class="bar" style="background:${cat.color}"></span>` +
+        `<span class="time">${e.start}〜${e.end}<span class="dur">${fmtDur(duration(e))}</span></span>` +
+        `<span class="body"><span class="cat">${cat.name}</span>` +
+        (e.memo ? `<span class="memo">${escapeHtml(e.memo)}</span>` : ``) +
+        `</span>` +
+        `<button class="del" title="削除" data-id="${e.id}">×</button>`;
+      list.appendChild(row);
+    });
+    list.querySelectorAll(".del").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-id");
+        setEntries(getEntries().filter(e => String(e.id) !== id));
+        renderAll();
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, m =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+  }
+
+  function renderAll() {
+    const entries = getEntries();
+    renderDateBar();
+    renderTimeline(entries);
+    renderSummary(entries);
+    renderEntries(entries);
+  }
+
+  // ---- 追加処理 ----
+  function addEntry() {
+    const start = document.getElementById("startTime").value;
+    const end = document.getElementById("endTime").value;
+    const memo = document.getElementById("memo").value.trim();
+    const hint = document.getElementById("formHint");
+
+    if (!start || !end) {
+      hint.textContent = "開始と終了の時間を入れてください。";
+      hint.style.color = "var(--accent)";
+      return;
+    }
+    if (start === end) {
+      hint.textContent = "同じ時刻どうしは記録できません。";
+      hint.style.color = "var(--accent)";
+      return;
+    }
+
+    const entries = getEntries();
+    entries.push({
+      id: `${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      start, end, category: selectedCat, memo,
+    });
+    setEntries(entries);
+
+    document.getElementById("memo").value = "";
+    // 次の入力は今回の終了時刻から始めると便利
+    document.getElementById("startTime").value = end;
+    hint.textContent = "帳簿につけました。続けてどうぞ。";
+    hint.style.color = "var(--ink-faint)";
+    renderAll();
+  }
+
+  // ---- イベント ----
+  document.getElementById("addBtn").addEventListener("click", addEntry);
+  document.getElementById("memo").addEventListener("keydown", e => {
+    if (e.key === "Enter") addEntry();
+  });
+  document.getElementById("prevDay").addEventListener("click", () => {
+    currentDate.setDate(currentDate.getDate() - 1);
+    renderAll();
+  });
+  document.getElementById("nextDay").addEventListener("click", () => {
+    currentDate.setDate(currentDate.getDate() + 1);
+    renderAll();
+  });
+
+  // ---- 起動 ----
+  renderCatChips();
+  renderAll();
+</script>
+</body>
+</html>

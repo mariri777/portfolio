@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>記念日カウンター — あと何日、今日で何日目</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #f6f2ef;
+    --paper: #fffdfb;
+    --ink: #2c2724;
+    --ink-soft: #6b6058;
+    --ink-faint: #a89d94;
+    --line: #e8ded6;
+    --line-soft: #f2eae4;
+    --accent: #b06f7e;
+    --accent-deep: #8f5563;
+    --accent-soft: #f6e9ec;
+    --gold: #a8874e;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink); background: var(--bg); min-height: 100vh; line-height: 1.85;
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.02em;
+  }
+
+  .wrap { max-width: 620px; margin: 0 auto; padding: 28px 20px 90px; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft);
+    text-decoration: none; padding: 7px 15px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--paper); transition: border-color .2s ease, color .2s ease;
+  }
+  .home-link:hover { color: var(--accent-deep); border-color: var(--accent); }
+
+  /* Hero */
+  .hero { text-align: center; margin: 42px 0 26px; }
+  .eyebrow { font-family: "Shippori Mincho B1", serif; font-size: 12px; letter-spacing: 0.4em; color: var(--accent-deep); font-weight: 600; }
+  .hero h1 { font-family: "Shippori Mincho B1", serif; font-weight: 700; font-size: clamp(30px, 7.5vw, 44px); line-height: 1.32; letter-spacing: 0.1em; margin: 12px 0 0; }
+  .hero p { color: var(--ink-soft); font-size: 13.5px; max-width: 400px; margin: 14px auto 0; line-height: 1.95; }
+
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 22px 24px; margin-bottom: 16px; }
+  .panel h2 { font-family: "Shippori Mincho B1", serif; font-size: 15px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 16px; }
+
+  /* Add form */
+  .form { display: grid; gap: 11px; }
+  .row2 { display: flex; gap: 10px; }
+  .row2 .f1 { flex: 1.5; }
+  .row2 .f2 { flex: 1; }
+  .lbl { font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-soft); margin-bottom: 6px; letter-spacing: 0.06em; }
+  input[type="text"], input[type="date"] {
+    font-family: inherit; font-size: 14px; color: var(--ink); padding: 11px 13px;
+    border: 1px solid var(--line); border-radius: 10px; background: #fff; outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease; width: 100%;
+  }
+  input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  input::placeholder { color: var(--ink-faint); }
+
+  .toggle-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-soft); }
+  .toggle { position: relative; width: 42px; height: 24px; border-radius: 999px; background: var(--line); cursor: pointer; transition: background .2s ease; flex-shrink: 0; }
+  .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .2s ease; }
+  .toggle.on { background: var(--accent); }
+  .toggle.on::after { transform: translateX(18px); }
+
+  .btn { font-family: inherit; font-weight: 700; font-size: 14px; color: #fff; background: var(--accent); border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; transition: transform .15s ease, background .15s ease; letter-spacing: 0.04em; }
+  .btn:hover { transform: translateY(-1px); background: var(--accent-deep); }
+  .btn:active { transform: translateY(0); }
+
+  /* List */
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .item { display: flex; align-items: center; gap: 16px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 13px; background: var(--paper); transition: border-color .2s ease; }
+  .item.today { border-color: var(--accent); background: var(--accent-soft); }
+  .item .c-num { font-family: "Shippori Mincho B1", serif; font-weight: 700; line-height: 1; white-space: nowrap; min-width: 92px; text-align: center; color: var(--accent-deep); }
+  .item .c-num .big { font-size: 30px; }
+  .item .c-num small { font-size: 12px; color: var(--ink-faint); margin: 0 2px; font-weight: 500; }
+  .item.today .c-num .big { font-size: 24px; letter-spacing: 0.06em; }
+  .item .c-info { flex: 1; min-width: 0; }
+  .item .c-name { font-size: 15px; font-weight: 700; }
+  .item .c-date { font-size: 11.5px; color: var(--ink-faint); margin-top: 1px; }
+  .item .c-note { font-size: 11.5px; color: var(--accent-deep); margin-top: 3px; }
+  .item .c-note .mile { color: var(--gold); }
+  .item .c-del { border: none; background: none; cursor: pointer; color: var(--ink-faint); font-size: 17px; padding: 2px 4px; transition: color .15s ease; }
+  .item .c-del:hover { color: var(--accent-deep); }
+  .empty { font-size: 13px; color: var(--ink-faint); padding: 8px 2px; }
+
+  .yearly-tag { display: inline-block; font-size: 10px; color: var(--accent-deep); background: var(--accent-soft); border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: 1px; }
+  .item.today .yearly-tag { background: #fff; }
+
+  .reset-link { display: block; text-align: center; margin-top: 20px; font-size: 12px; color: var(--ink-faint); cursor: pointer; letter-spacing: 0.06em; }
+  .reset-link:hover { color: var(--accent-deep); text-decoration: underline; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(16px);
+    background: var(--ink); color: var(--paper); font-size: 13px; padding: 11px 22px; border-radius: 999px;
+    letter-spacing: 0.05em; opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease;
+    box-shadow: 0 8px 26px rgba(0,0,0,.22); z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .footer { text-align: center; margin-top: 44px; padding-top: 24px; border-top: 1px solid var(--line); font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); line-height: 2.1; letter-spacing: 0.14em; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 22px 15px 74px; }
+    .hero { margin: 30px 0 20px; }
+    .panel { padding: 20px 16px; }
+    .row2 { flex-direction: column; }
+    .item { padding: 14px 14px; gap: 12px; }
+    .item .c-num { min-width: 76px; }
+    .item .c-num .big { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="home-link" href="../">← 一覧へもどる</a>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="eyebrow">ANNIVERSARY</div>
+    <h1>記念日カウンター</h1>
+    <p>大切な日を登録すると、「あと何日」「今日で何日目」がひと目で。100日・1000日などの節目もお知らせします。</p>
+  </header>
+
+  <!-- ============ ADD ============ -->
+  <section class="panel">
+    <h2>記念日を追加</h2>
+    <div class="form">
+      <div class="row2">
+        <div class="f1">
+          <div class="lbl">なまえ</div>
+          <input type="text" id="name" placeholder="例：はじめて会った日" maxlength="20" />
+        </div>
+        <div class="f2">
+          <div class="lbl">日付</div>
+          <input type="date" id="date" />
+        </div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle on" id="yearlyToggle" role="switch" aria-checked="true"></div>
+        <span>毎年くりかえす（誕生日・記念日など）</span>
+      </div>
+      <button class="btn" id="btnAdd">追加する</button>
+    </div>
+  </section>
+
+  <!-- ============ LIST ============ -->
+  <section class="panel">
+    <h2>登録した記念日</h2>
+    <div class="list" id="list"></div>
+  </section>
+
+  <div class="reset-link" id="resetLink">すべて消す</div>
+
+  <footer class="footer">
+    記念日カウンター ・ サーバー不要<br />
+    Built by mariri
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const KEY = "kinenbi_v1";
+  const MILESTONES = [100, 200, 300, 365, 500, 730, 1000, 1500, 2000, 3000, 5000, 10000];
+  const WEEK = ["日", "月", "火", "水", "木", "金", "土"];
+
+  let items = [];      // {id, name, date:'YYYY-MM-DD', yearly:bool}
+  let yearly = true;
+
+  const uid = () => Math.random().toString(36).slice(2, 9);
+
+  // ===== 日付ユーティリティ（時刻の影響を受けない日数計算）=====
+  const toDays = (d) => Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+  function parseDate(s) { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); }
+  const todayDays = () => toDays(new Date());
+  function fmtDate(d) { return d.getFullYear() + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0"); }
+
+  function nextAnniv(base) {
+    const now = new Date();
+    let cand = new Date(now.getFullYear(), base.getMonth(), base.getDate());
+    if (toDays(cand) < todayDays()) cand = new Date(now.getFullYear() + 1, base.getMonth(), base.getDate());
+    return cand;
+  }
+
+  // ===== 計算 =====
+  function compute(it) {
+    const base = parseDate(it.date);
+    const td = todayDays();
+    const baseDays = toDays(base);
+    const elapsed = td - baseDays;             // 経過日数（当日は0）
+    const dayCount = elapsed + 1;              // 「◯日目」（当日を1日目）
+    const r = { base, elapsed, dayCount, yearly: it.yearly };
+
+    if (it.yearly) {
+      const na = nextAnniv(base);
+      r.until = toDays(na) - td;
+      r.years = na.getFullYear() - base.getFullYear();
+      r.nextDate = na;
+    } else if (baseDays >= td) {
+      r.until = baseDays - td;
+      r.nextDate = base;
+    } else {
+      r.until = null; // 過ぎた一度きりの日
+      const m = MILESTONES.find((x) => x > dayCount);
+      if (m) { r.mile = m; r.mileIn = m - dayCount; }
+    }
+    return r;
+  }
+
+  // ===== 保存 =====
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (e) {} }
+  function load() { try { const r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch (e) {} return null; }
+
+  // ===== 追加・削除 =====
+  function add() {
+    const name = $("name").value.trim();
+    const date = $("date").value;
+    if (!name) { toast("なまえを入力してください"); return; }
+    if (!date) { toast("日付を選んでください"); return; }
+    items.push({ id: uid(), name, date, yearly });
+    $("name").value = "";
+    render(); save();
+    toast("追加しました");
+  }
+  function remove(id) { items = items.filter((x) => x.id !== id); render(); save(); }
+
+  // ===== 描画 =====
+  function render() {
+    const box = $("list");
+    if (items.length === 0) { box.innerHTML = '<div class="empty">まだ登録がありません。</div>'; return; }
+
+    const rows = items.map((it) => ({ it, c: compute(it) }));
+    // 近い順（カウントダウンがあるものを先に）
+    rows.sort((a, b) => {
+      const ka = a.c.until == null ? Infinity : a.c.until;
+      const kb = b.c.until == null ? Infinity : b.c.until;
+      if (ka !== kb) return ka - kb;
+      return b.c.dayCount - a.c.dayCount;
+    });
+
+    box.innerHTML = "";
+    rows.forEach(({ it, c }) => {
+      const isToday = c.until === 0;
+      const el = document.createElement("div");
+      el.className = "item" + (isToday ? " today" : "");
+
+      // 主役の数字
+      let num;
+      if (isToday) num = '<span class="big">今日</span>';
+      else if (c.until != null) num = '<small>あと</small><span class="big">' + c.until + '</span><small>日</small>';
+      else num = '<span class="big">' + c.dayCount.toLocaleString() + '</span><small>日目</small>';
+
+      // 補足
+      let note = "";
+      if (c.yearly) {
+        note = isToday ? "🎉 " + c.years + "周年 おめでとうございます" : c.years + "周年 ・ " + fmtDate(c.nextDate);
+        if (c.elapsed >= 0) note += " ・ 今日で" + c.dayCount.toLocaleString() + "日目";
+      } else if (c.until != null) {
+        note = isToday ? "🎉 その日を迎えました" : WEEK[c.nextDate.getDay()] + "曜日";
+      } else if (c.mile) {
+        note = '<span class="mile">次の節目 ' + c.mile.toLocaleString() + "日まで あと" + c.mileIn.toLocaleString() + "日</span>";
+      }
+
+      el.innerHTML =
+        '<div class="c-num">' + num + '</div>' +
+        '<div class="c-info"><div class="c-name">' + escapeHtml(it.name) +
+        (it.yearly ? '<span class="yearly-tag">毎年</span>' : "") + '</div>' +
+        '<div class="c-date">' + fmtDate(c.base) + '</div>' +
+        (note ? '<div class="c-note">' + note + '</div>' : "") + '</div>' +
+        '<button class="c-del" title="削除">×</button>';
+      el.querySelector(".c-del").addEventListener("click", () => remove(it.id));
+      box.appendChild(el);
+    });
+  }
+
+  // ===== ユーティリティ =====
+  function escapeHtml(s) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove("show"), 1600);
+  }
+
+  // ===== イベント =====
+  $("yearlyToggle").addEventListener("click", () => {
+    yearly = !yearly;
+    $("yearlyToggle").classList.toggle("on", yearly);
+    $("yearlyToggle").setAttribute("aria-checked", yearly);
+  });
+  $("btnAdd").addEventListener("click", add);
+  $("name").addEventListener("keydown", (e) => { if (e.key === "Enter") add(); });
+  $("resetLink").addEventListener("click", () => {
+    if (confirm("登録した記念日をすべて消しますか？")) {
+      items = []; save(); render(); toast("消去しました");
+    }
+  });
+
+  // ===== 初期化 =====
+  (function init() {
+    const saved = load();
+    if (saved && saved.length) items = saved;
+    else {
+      items = [
+        { id: uid(), name: "つくりはじめた日", date: "2026-05-09", yearly: false },
+        { id: uid(), name: "誕生日", date: "1998-03-15", yearly: true },
+      ];
+      save();
+    }
+    // 日付入力の初期値を今日に
+    const n = new Date();
+    $("date").value = n.getFullYear() + "-" + String(n.getMonth() + 1).padStart(2, "0") + "-" + String(n.getDate()).padStart(2, "0");
+    render();
+  })();
+</script>
+</body>
+</html>

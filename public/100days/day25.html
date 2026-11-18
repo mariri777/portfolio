@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>今月、あといくら？ — 1日あたり使える額がわかる家計電卓</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #f2f2ec;
+    --paper: #fffefb;
+    --ink: #292a24;
+    --ink-soft: #666459;
+    --ink-faint: #a5a396;
+    --line: #e3e1d4;
+    --line-soft: #eeece0;
+    --accent: #5b8a72;
+    --accent-deep: #43705b;
+    --accent-soft: #e6efe9;
+    --shu: #bb5a41;
+    --shu-soft: #f6e4dd;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink); background: var(--bg); min-height: 100vh; line-height: 1.8;
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.02em;
+  }
+
+  .wrap { max-width: 600px; margin: 0 auto; padding: 28px 20px 90px; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft);
+    text-decoration: none; padding: 7px 15px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--paper); transition: border-color .2s ease, color .2s ease;
+  }
+  .home-link:hover { color: var(--accent-deep); border-color: var(--accent); }
+
+  /* Hero */
+  .hero { text-align: center; margin: 42px 0 26px; }
+  .eyebrow { font-family: "Shippori Mincho B1", serif; font-size: 12px; letter-spacing: 0.4em; color: var(--accent-deep); font-weight: 600; }
+  .hero h1 { font-family: "Shippori Mincho B1", serif; font-weight: 700; font-size: clamp(30px, 7.5vw, 44px); line-height: 1.3; letter-spacing: 0.08em; margin: 12px 0 0; }
+  .hero p { color: var(--ink-soft); font-size: 13.5px; max-width: 400px; margin: 14px auto 0; line-height: 1.95; }
+
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 22px 24px; margin-bottom: 16px; }
+  .panel h2 { font-family: "Shippori Mincho B1", serif; font-size: 15px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+  .panel h2 .mon { font-family: "Zen Kaku Gothic New", sans-serif; font-size: 12px; color: var(--ink-faint); font-weight: 500; letter-spacing: 0.06em; }
+
+  /* Budget input */
+  .budget-row { display: flex; align-items: center; gap: 10px; }
+  .budget-row .yen { font-family: "Shippori Mincho B1", serif; font-size: 22px; color: var(--ink-soft); }
+  input[type="text"], input[type="number"] {
+    font-family: inherit; font-size: 14px; color: var(--ink); padding: 11px 13px;
+    border: 1px solid var(--line); border-radius: 10px; background: #fff; outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease; width: 100%;
+  }
+  #budget { font-family: "Shippori Mincho B1", serif; font-size: 22px; font-weight: 700; padding: 10px 14px; }
+  input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  input::placeholder { color: var(--ink-faint); font-weight: 400; }
+
+  /* Headline card */
+  .headline { text-align: center; padding: 8px 0 4px; }
+  .headline .hl-cap { font-family: "Shippori Mincho B1", serif; font-size: 13px; color: var(--ink-soft); letter-spacing: 0.1em; }
+  .headline .hl-num { font-family: "Shippori Mincho B1", serif; font-size: clamp(44px, 13vw, 68px); font-weight: 700; line-height: 1.1; margin: 4px 0; color: var(--accent-deep); }
+  .headline .hl-num small { font-size: 20px; color: var(--ink-faint); margin-left: 4px; }
+  .headline .hl-sub { font-size: 12.5px; color: var(--ink-faint); letter-spacing: 0.04em; }
+  .headline.over .hl-num { color: var(--shu); }
+
+  .bar { height: 9px; border-radius: 999px; background: var(--line-soft); overflow: hidden; margin: 20px 0 14px; }
+  .bar span { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width .4s ease, background .3s ease; }
+  .bar.over span { background: var(--shu); }
+
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .fact { text-align: center; padding: 12px 6px; border: 1px solid var(--line); border-radius: 11px; background: var(--bg); }
+  .fact .f-lbl { font-size: 11px; color: var(--ink-faint); letter-spacing: 0.06em; }
+  .fact .f-num { font-family: "Shippori Mincho B1", serif; font-size: 18px; font-weight: 700; margin-top: 3px; }
+  .fact.rest .f-num { color: var(--accent-deep); }
+  .fact.rest.over .f-num { color: var(--shu); }
+
+  /* Expense form */
+  .exp-form { display: flex; gap: 9px; margin-bottom: 4px; }
+  .exp-form .amt { flex: 1; }
+  .exp-form .memo { flex: 1.4; }
+  .btn { font-family: inherit; font-weight: 700; font-size: 14px; color: #fff; background: var(--accent); border: none; padding: 11px 18px; border-radius: 10px; cursor: pointer; white-space: nowrap; transition: transform .15s ease, background .15s ease; letter-spacing: 0.04em; }
+  .btn:hover { transform: translateY(-1px); background: var(--accent-deep); }
+  .btn:active { transform: translateY(0); }
+
+  .exp-list { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .exp-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+  .exp-item .ei-main { flex: 1; min-width: 0; }
+  .exp-item .ei-memo { font-size: 14px; font-weight: 700; }
+  .exp-item .ei-date { font-size: 11px; color: var(--ink-faint); margin-top: 1px; }
+  .exp-item .ei-amt { font-family: "Shippori Mincho B1", serif; font-size: 16px; font-weight: 700; white-space: nowrap; }
+  .exp-item .ei-del { border: none; background: none; cursor: pointer; color: var(--ink-faint); font-size: 17px; padding: 2px 4px; transition: color .15s ease; }
+  .exp-item .ei-del:hover { color: var(--shu); }
+  .empty { font-size: 13px; color: var(--ink-faint); padding: 6px 2px; }
+
+  .reset-link { display: block; text-align: center; margin-top: 20px; font-size: 12px; color: var(--ink-faint); cursor: pointer; letter-spacing: 0.06em; }
+  .reset-link:hover { color: var(--shu); text-decoration: underline; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(16px);
+    background: var(--ink); color: var(--paper); font-size: 13px; padding: 11px 22px; border-radius: 999px;
+    letter-spacing: 0.05em; opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease;
+    box-shadow: 0 8px 26px rgba(0,0,0,.22); z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .footer { text-align: center; margin-top: 44px; padding-top: 24px; border-top: 1px solid var(--line); font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); line-height: 2.1; letter-spacing: 0.14em; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 22px 15px 74px; }
+    .hero { margin: 30px 0 20px; }
+    .panel { padding: 20px 16px; }
+    .exp-form { flex-wrap: wrap; }
+    .exp-form .amt, .exp-form .memo { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="home-link" href="../">← 一覧へもどる</a>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="eyebrow">MONTHLY BUDGET</div>
+    <h1>今月、あといくら？</h1>
+    <p>予算と使った額を入れるだけ。「今日から末日まで、1日いくら使えるか」を教えてくれる家計電卓です。</p>
+  </header>
+
+  <!-- ============ HEADLINE ============ -->
+  <section class="panel">
+    <div class="headline" id="headline">
+      <div class="hl-cap">1日あたり 使える</div>
+      <div class="hl-num"><span id="perDay">¥0</span></div>
+      <div class="hl-sub" id="perDaySub">予算を入力してください</div>
+    </div>
+    <div class="bar" id="bar"><span id="barFill" style="width:0%"></span></div>
+    <div class="facts">
+      <div class="fact"><div class="f-lbl">予算</div><div class="f-num" id="factBudget">¥0</div></div>
+      <div class="fact"><div class="f-lbl">使った</div><div class="f-num" id="factSpent">¥0</div></div>
+      <div class="fact rest" id="factRestBox"><div class="f-lbl">残り</div><div class="f-num" id="factRest">¥0</div></div>
+    </div>
+  </section>
+
+  <!-- ============ BUDGET ============ -->
+  <section class="panel">
+    <h2>今月の予算 <span class="mon" id="monLabel"></span></h2>
+    <div class="budget-row">
+      <span class="yen">¥</span>
+      <input type="number" id="budget" placeholder="150000" min="0" inputmode="numeric" />
+    </div>
+  </section>
+
+  <!-- ============ EXPENSES ============ -->
+  <section class="panel">
+    <h2>使った額を足す <span class="mon" id="spentCount"></span></h2>
+    <div class="exp-form">
+      <input class="amt" type="number" id="expAmount" placeholder="金額" min="1" inputmode="numeric" />
+      <input class="memo" type="text" id="expMemo" placeholder="何に（任意）" maxlength="20" />
+      <button class="btn" id="btnAddExpense">足す</button>
+    </div>
+    <div class="exp-list" id="expList"></div>
+  </section>
+
+  <div class="reset-link" id="resetLink">今月のデータを消す</div>
+
+  <footer class="footer">
+    今月あといくら？家計電卓 ・ サーバー不要<br />
+    Built by mariri
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const KEY = "kakei_v1";
+
+  let state = { budget: 0, month: "", expenses: [] }; // expenses: {id, amount, memo, ts}
+
+  const uid = () => Math.random().toString(36).slice(2, 9);
+  const yen = (n) => "¥" + Math.round(n).toLocaleString("ja-JP");
+
+  function monthKey(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); }
+
+  // ===== 保存・読み込み =====
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function load() {
+    try { const raw = localStorage.getItem(KEY); if (raw) return JSON.parse(raw); } catch (e) {}
+    return null;
+  }
+
+  // ===== 日付まわり =====
+  function dateInfo() {
+    const now = new Date();
+    const y = now.getFullYear(), m = now.getMonth();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    const today = now.getDate();
+    const remainingDays = daysInMonth - today + 1; // 今日を含む
+    return { now, month: m + 1, daysInMonth, today, remainingDays };
+  }
+
+  // ===== 追加・削除 =====
+  function addExpense() {
+    const amount = Math.floor(Number($("expAmount").value));
+    const memo = $("expMemo").value.trim() || "支出";
+    if (!(amount > 0)) { toast("金額を正しく入力してください"); return; }
+    state.expenses.push({ id: uid(), amount, memo, ts: Date.now() });
+    $("expAmount").value = ""; $("expMemo").value = "";
+    render(); save();
+  }
+  function removeExpense(id) {
+    state.expenses = state.expenses.filter((e) => e.id !== id);
+    render(); save();
+  }
+
+  // ===== 描画 =====
+  function render() {
+    const di = dateInfo();
+    $("monLabel").textContent = di.month + "月（末日まで残り" + di.remainingDays + "日）";
+
+    const budget = state.budget || 0;
+    const spent = state.expenses.reduce((s, e) => s + e.amount, 0);
+    const rest = budget - spent;
+    const over = rest < 0;
+    const perDay = rest > 0 ? Math.floor(rest / di.remainingDays) : 0;
+
+    // ヘッドライン
+    $("headline").classList.toggle("over", over);
+    if (budget <= 0) {
+      $("perDay").textContent = "¥0";
+      $("perDaySub").textContent = "予算を入力してください";
+    } else if (over) {
+      $("headline").querySelector(".hl-cap").textContent = "予算オーバー";
+      $("perDay").textContent = yen(-rest);
+      $("perDaySub").textContent = "予算を " + yen(-rest) + " オーバーしています";
+    } else {
+      $("headline").querySelector(".hl-cap").textContent = "1日あたり 使える";
+      $("perDay").textContent = yen(perDay);
+      $("perDaySub").textContent = "今日を含む残り" + di.remainingDays + "日 ・ " + di.month + "月末日まで";
+    }
+
+    // バー
+    const pct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
+    $("barFill").style.width = pct + "%";
+    $("bar").classList.toggle("over", over);
+
+    // ファクト
+    $("factBudget").textContent = yen(budget);
+    $("factSpent").textContent = yen(spent);
+    $("factRest").textContent = over ? "−" + yen(-rest) : yen(rest);
+    $("factRestBox").classList.toggle("over", over);
+
+    // 明細
+    renderList();
+    $("spentCount").textContent = state.expenses.length > 0 ? "合計 " + yen(spent) + "（" + state.expenses.length + "件）" : "";
+  }
+
+  function renderList() {
+    const box = $("expList");
+    if (state.expenses.length === 0) { box.innerHTML = '<div class="empty">まだ支出がありません。</div>'; return; }
+    box.innerHTML = "";
+    // 新しい順
+    [...state.expenses].reverse().forEach((e) => {
+      const d = new Date(e.ts);
+      const el = document.createElement("div");
+      el.className = "exp-item";
+      el.innerHTML =
+        '<div class="ei-main"><div class="ei-memo">' + escapeHtml(e.memo) + '</div>' +
+        '<div class="ei-date">' + (d.getMonth() + 1) + "/" + d.getDate() + '</div></div>' +
+        '<div class="ei-amt">' + yen(e.amount) + '</div>' +
+        '<button class="ei-del" title="削除">×</button>';
+      el.querySelector(".ei-del").addEventListener("click", () => removeExpense(e.id));
+      box.appendChild(el);
+    });
+  }
+
+  // ===== ユーティリティ =====
+  function escapeHtml(s) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove("show"), 1600);
+  }
+
+  // ===== イベント =====
+  $("budget").addEventListener("input", () => {
+    state.budget = Math.floor(Number($("budget").value)) || 0;
+    render(); save();
+  });
+  $("btnAddExpense").addEventListener("click", addExpense);
+  $("expAmount").addEventListener("keydown", (e) => { if (e.key === "Enter") addExpense(); });
+  $("expMemo").addEventListener("keydown", (e) => { if (e.key === "Enter") addExpense(); });
+  $("resetLink").addEventListener("click", () => {
+    if (confirm("今月の予算と支出をすべて消しますか？")) {
+      state = { budget: 0, month: monthKey(new Date()), expenses: [] };
+      save();
+      $("budget").value = "";
+      render();
+      toast("消去しました");
+    }
+  });
+
+  // ===== 初期化 =====
+  (function init() {
+    const nowKey = monthKey(new Date());
+    const saved = load();
+    if (saved) {
+      if (saved.month === nowKey) {
+        state = saved;
+      } else {
+        // 月が変わったら支出はリセット、予算だけ引き継ぐ
+        state = { budget: saved.budget || 0, month: nowKey, expenses: [] };
+        save();
+      }
+    } else {
+      // 初回はサンプルで雰囲気を見せる
+      state = { budget: 150000, month: nowKey, expenses: [
+        { id: uid(), amount: 3200, memo: "スーパー", ts: Date.now() },
+        { id: uid(), amount: 980, memo: "ランチ", ts: Date.now() },
+      ] };
+      save();
+    }
+    if (state.budget > 0) $("budget").value = state.budget;
+    render();
+  })();
+</script>
+</body>
+</html>

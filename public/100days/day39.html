@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>わりかん計算 — 1人あたり、いくら？</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #eef0ee;
+    --bg-soft: #f8f9f7;
+    --panel: #ffffff;
+    --ink: #2f3532;
+    --ink-soft: #6a726e;
+    --ink-faint: #9aa19d;
+    --line: #dde3df;
+    --line-soft: #eceeeb;
+    --accent: #4f7d74;
+    --accent-deep: #3f6a62;
+    --gold: #b08a4a;
+    --shadow: 0 18px 44px -26px rgba(40, 60, 55, 0.4);
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", sans-serif;
+    background:
+      radial-gradient(1100px 560px at 80% -12%, #eef4f0 0%, transparent 55%),
+      radial-gradient(880px 480px at -10% 6%, #e9edea 0%, transparent 52%),
+      var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .wrap { max-width: 720px; margin: 0 auto; padding: 56px 24px 96px; }
+
+  /* ---- ヘッダー ---- */
+  header.masthead { text-align: center; margin-bottom: 38px; }
+  .eyebrow { font-size: 12px; letter-spacing: 0.42em; color: var(--ink-faint); text-indent: 0.42em; margin-bottom: 18px; }
+  h1 { font-family: "Shippori Mincho", serif; font-weight: 700; font-size: clamp(30px, 6vw, 44px); letter-spacing: 0.1em; margin: 0 0 14px; }
+  .lead { font-size: 14.5px; color: var(--ink-soft); max-width: 28em; margin: 0 auto; }
+  .masthead .rule { width: 40px; height: 1px; background: var(--accent); margin: 24px auto 0; opacity: 0.6; }
+
+  /* ---- パネル ---- */
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px; margin-bottom: 20px; }
+  .panel-title { font-family: "Shippori Mincho", serif; font-size: 15px; letter-spacing: 0.08em; margin: 0 0 18px; display: flex; align-items: center; gap: 10px; }
+  .panel-title::before { content: ""; width: 5px; height: 15px; border-radius: 3px; background: var(--accent); opacity: 0.7; }
+
+  /* ---- 入力 ---- */
+  .inputs { display: grid; grid-template-columns: 1fr auto; gap: 22px; align-items: end; }
+  .field label { display: block; font-size: 11px; letter-spacing: 0.14em; color: var(--ink-faint); margin-bottom: 8px; }
+  .money-input { position: relative; }
+  .money-input .yen { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 22px; color: var(--ink-faint); font-family: "Shippori Mincho", serif; }
+  #totalInput {
+    font-family: "Shippori Mincho", serif; font-size: 30px; letter-spacing: 0.02em;
+    color: var(--ink); background: var(--bg-soft); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 16px 12px 40px; width: 100%; outline: none;
+    transition: border-color 0.2s ease; font-variant-numeric: tabular-nums;
+  }
+  #totalInput:focus { border-color: var(--accent); }
+
+  .stepper { display: flex; align-items: center; gap: 6px; }
+  .stepper button {
+    width: 42px; height: 50px; border: 1px solid var(--line); background: var(--bg-soft);
+    color: var(--ink-soft); font-size: 22px; border-radius: 12px; cursor: pointer;
+    transition: all 0.18s ease; line-height: 1;
+  }
+  .stepper button:hover { border-color: var(--accent); color: var(--accent); }
+  .stepper .count {
+    font-family: "Shippori Mincho", serif; font-size: 26px; min-width: 62px; text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .stepper .count small { font-size: 13px; color: var(--ink-faint); font-family: "Zen Kaku Gothic New", sans-serif; margin-left: 2px; }
+
+  .unit-row { display: flex; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .unit-row .ul { font-size: 11px; letter-spacing: 0.14em; color: var(--ink-faint); }
+  .unit-chip {
+    border: 1px solid var(--line); background: var(--bg-soft); color: var(--ink-soft);
+    border-radius: 999px; padding: 6px 15px; font-size: 13px; cursor: pointer; transition: all 0.18s ease;
+    font-variant-numeric: tabular-nums;
+  }
+  .unit-chip:hover { border-color: var(--ink-faint); }
+  .unit-chip.selected { color: #fff; background: var(--accent); border-color: var(--accent); }
+
+  /* ---- ヒーロー ---- */
+  .hero { text-align: center; padding: 30px 26px; background: linear-gradient(180deg, #f3f7f4, #ffffff); }
+  .hero .cap { font-size: 12px; letter-spacing: 0.24em; color: var(--ink-faint); }
+  .hero .amount { font-family: "Shippori Mincho", serif; font-size: clamp(46px, 12vw, 72px); line-height: 1.05; color: var(--accent-deep); letter-spacing: 0.02em; margin: 6px 0 4px; font-variant-numeric: tabular-nums; }
+  .hero .amount .yn { font-size: 0.5em; color: var(--ink-faint); margin-right: 4px; }
+  .hero .sub { font-size: 13px; color: var(--ink-soft); }
+  .hero .sub b { color: var(--ink); font-weight: 700; }
+
+  /* ---- 一人ずつ ---- */
+  .person {
+    display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center;
+    padding: 12px 4px; border-bottom: 1px solid var(--line-soft);
+  }
+  .person:last-child { border-bottom: none; }
+  .person .who { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .person .pname {
+    font-family: "Zen Kaku Gothic New", sans-serif; font-size: 15px; color: var(--ink);
+    background: transparent; border: none; border-bottom: 1px dashed var(--line);
+    padding: 4px 2px; width: 100%; max-width: 140px; outline: none; transition: border-color 0.2s ease;
+  }
+  .person .pname:focus { border-bottom-color: var(--accent); }
+  .kanji-btn {
+    flex: 0 0 auto; font-size: 10.5px; letter-spacing: 0.06em; border: 1px solid var(--line);
+    background: var(--bg-soft); color: var(--ink-faint); border-radius: 999px; padding: 3px 9px;
+    cursor: pointer; transition: all 0.18s ease; white-space: nowrap;
+  }
+  .kanji-btn.on { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .seg button {
+    border: none; background: var(--bg-soft); color: var(--ink-soft); font-size: 12px;
+    padding: 7px 11px; cursor: pointer; transition: all 0.15s ease; border-right: 1px solid var(--line);
+  }
+  .seg button:last-child { border-right: none; }
+  .seg button.on { background: var(--accent); color: #fff; }
+  .person .pamount {
+    font-family: "Shippori Mincho", serif; font-size: 20px; color: var(--ink);
+    text-align: right; min-width: 92px; font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .person .pamount .yn { font-size: 0.6em; color: var(--ink-faint); margin-right: 2px; }
+
+  .foot-note {
+    margin-top: 16px; font-size: 12.5px; color: var(--ink-soft);
+    display: flex; align-items: flex-start; gap: 8px; background: var(--bg-soft);
+    border: 1px solid var(--line-soft); border-radius: 10px; padding: 11px 13px;
+  }
+  .foot-note .dot { color: var(--gold); }
+  .foot-note b { color: var(--ink); }
+
+  .actions { display: flex; gap: 12px; margin-top: 18px; }
+  .btn {
+    font-family: "Zen Kaku Gothic New", sans-serif; font-size: 14px; letter-spacing: 0.06em;
+    border-radius: 10px; padding: 12px 22px; cursor: pointer; transition: all 0.2s ease; border: 1px solid var(--line);
+    background: var(--bg-soft); color: var(--ink-soft);
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn.primary:hover { background: var(--accent-deep); color: #fff; }
+  .copied-msg { font-size: 12.5px; color: var(--accent); align-self: center; opacity: 0; transition: opacity 0.2s ease; }
+  .copied-msg.show { opacity: 1; }
+
+  footer.credit { text-align: center; margin-top: 40px; font-size: 11px; letter-spacing: 0.18em; color: var(--ink-faint); }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 40px 16px 80px; }
+    .panel { padding: 20px 16px; }
+    .inputs { grid-template-columns: 1fr; gap: 18px; }
+    .person { grid-template-columns: 1fr auto; gap: 8px 10px; }
+    .person .seg { grid-column: 1 / 2; justify-self: start; }
+    .person .pamount { grid-column: 2 / 3; grid-row: 1 / 3; align-self: center; }
+    .hero .amount { font-size: 56px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="masthead">
+      <div class="eyebrow">WARIKAN</div>
+      <h1>わりかん計算</h1>
+      <p class="lead">合計と人数を入れるだけ。<br />「1人あたり、いくら？」を大きく出して、端数は幹事がすっと吸収します。</p>
+      <div class="rule"></div>
+    </header>
+
+    <!-- 入力 -->
+    <section class="panel">
+      <div class="inputs">
+        <div class="field money-input">
+          <label>合計金額</label>
+          <span class="yen">¥</span>
+          <input type="text" id="totalInput" inputmode="numeric" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>人数</label>
+          <div class="stepper">
+            <button id="minus" aria-label="減らす">−</button>
+            <span class="count"><span id="countNum">3</span><small>人</small></span>
+            <button id="plus" aria-label="増やす">＋</button>
+          </div>
+        </div>
+      </div>
+      <div class="unit-row">
+        <span class="ul">まるめ単位</span>
+        <button class="unit-chip" data-unit="1">1円</button>
+        <button class="unit-chip" data-unit="10">10円</button>
+        <button class="unit-chip selected" data-unit="100">100円</button>
+      </div>
+    </section>
+
+    <!-- ヒーロー -->
+    <section class="panel hero">
+      <div class="cap">1人あたり</div>
+      <div class="amount" id="heroAmount"><span class="yn">¥</span>0</div>
+      <div class="sub" id="heroSub">金額と人数を入れてください</div>
+    </section>
+
+    <!-- 一人ずつ -->
+    <section class="panel">
+      <h2 class="panel-title">一人ずつの負担</h2>
+      <div id="peopleList"></div>
+      <div class="foot-note">
+        <span class="dot">◆</span>
+        <span><b class="kanji-name">幹事</b>が、まるめで出た端数を引き受けます。名前・多め少なめ・幹事は自由に変えられます。</span>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="copyBtn">結果をコピー</button>
+        <button class="btn" id="resetBtn">リセット</button>
+        <span class="copied-msg" id="copiedMsg">コピーしました</span>
+      </div>
+    </section>
+
+    <footer class="credit">Built by mariri</footer>
+  </div>
+
+<script>
+  "use strict";
+
+  const WEIGHTS = { less: 0.8, normal: 1.0, more: 1.3 };
+  const WLABEL = { less: "少なめ", normal: "ふつう", more: "多め" };
+
+  let total = 0;
+  let unit = 100;
+  let people = [
+    { name: "", weight: "normal", kanji: true },
+    { name: "", weight: "normal", kanji: false },
+    { name: "", weight: "normal", kanji: false },
+  ];
+
+  const yen = n => "¥" + Math.round(n).toLocaleString("ja-JP");
+  const roundUnit = (x, u) => Math.round(x / u) * u;
+
+  function defaultName(i) { return people[i].kanji ? "幹事" : `メンバー${i + 1}`; }
+  function displayName(i) { return people[i].name.trim() || defaultName(i); }
+
+  // ---- 計算 ----
+  function computeShares() {
+    const n = people.length;
+    if (total <= 0 || n === 0) return people.map(() => 0);
+    const W = people.reduce((s, p) => s + WEIGHTS[p.weight], 0);
+    const shares = people.map(p => roundUnit(total * WEIGHTS[p.weight] / W, unit));
+    // 端数を幹事が吸収（合計を正確に）
+    let kanjiIdx = people.findIndex(p => p.kanji);
+    if (kanjiIdx < 0) kanjiIdx = 0;
+    const diff = total - shares.reduce((a, b) => a + b, 0);
+    shares[kanjiIdx] += diff;
+    return shares;
+  }
+
+  function evenPerPerson() {
+    if (total <= 0 || people.length === 0) return 0;
+    return roundUnit(total / people.length, unit);
+  }
+
+  // ---- 描画 ----
+  function renderHero() {
+    const even = evenPerPerson();
+    document.getElementById("heroAmount").innerHTML = `<span class="yn">¥</span>${even.toLocaleString("ja-JP")}`;
+    const sub = document.getElementById("heroSub");
+    if (total <= 0) { sub.textContent = "金額と人数を入れてください"; return; }
+    const exact = total / people.length;
+    const hasRemainder = Math.abs(exact - even) > 0.5;
+    const weighted = people.some(p => p.weight !== "normal");
+    let msg = `合計 <b>${yen(total)}</b> ÷ <b>${people.length}人</b>`;
+    if (hasRemainder || weighted) msg += `（端数・調整は下の一覧へ）`;
+    sub.innerHTML = msg;
+  }
+
+  function renderPeople() {
+    const shares = computeShares();
+    const list = document.getElementById("peopleList");
+    list.innerHTML = "";
+    people.forEach((p, i) => {
+      const row = document.createElement("div");
+      row.className = "person";
+
+      const who = document.createElement("div");
+      who.className = "who";
+      const input = document.createElement("input");
+      input.className = "pname";
+      input.type = "text";
+      input.maxLength = 12;
+      input.value = p.name;
+      input.placeholder = defaultName(i);
+      input.addEventListener("input", e => { p.name = e.target.value; updateCopyOnly(); });
+
+      const kbtn = document.createElement("button");
+      kbtn.className = "kanji-btn" + (p.kanji ? " on" : "");
+      kbtn.textContent = "幹事";
+      kbtn.title = "幹事にする（端数を引き受ける）";
+      kbtn.addEventListener("click", () => {
+        people.forEach(q => q.kanji = false);
+        p.kanji = true;
+        render();
+      });
+      who.appendChild(input);
+      who.appendChild(kbtn);
+
+      const seg = document.createElement("div");
+      seg.className = "seg";
+      ["less", "normal", "more"].forEach(w => {
+        const b = document.createElement("button");
+        b.textContent = WLABEL[w];
+        if (p.weight === w) b.classList.add("on");
+        b.addEventListener("click", () => { p.weight = w; render(); });
+        seg.appendChild(b);
+      });
+
+      const amt = document.createElement("div");
+      amt.className = "pamount";
+      amt.innerHTML = `<span class="yn">¥</span>${Math.round(shares[i]).toLocaleString("ja-JP")}`;
+
+      row.appendChild(who);
+      row.appendChild(seg);
+      row.appendChild(amt);
+      list.appendChild(row);
+    });
+  }
+
+  function render() {
+    renderHero();
+    renderPeople();
+  }
+  // 名前だけ変わったときは金額計算は不要（コピー用に保持するだけ）
+  function updateCopyOnly() { /* 名前はstateに反映済み */ }
+
+  // ---- 金額入力（カンマ整形） ----
+  const totalInput = document.getElementById("totalInput");
+  totalInput.addEventListener("input", e => {
+    const digits = e.target.value.replace(/[^\d]/g, "");
+    total = digits ? parseInt(digits, 10) : 0;
+    e.target.value = digits ? total.toLocaleString("ja-JP") : "";
+    render();
+  });
+
+  // ---- 人数ステッパー ----
+  function setCount(n) {
+    n = Math.max(1, Math.min(20, n));
+    while (people.length < n) people.push({ name: "", weight: "normal", kanji: false });
+    while (people.length > n) {
+      const removed = people.pop();
+      if (removed.kanji && people.length) people[0].kanji = true; // 幹事が消えたら先頭へ
+    }
+    if (!people.some(p => p.kanji) && people.length) people[0].kanji = true;
+    document.getElementById("countNum").textContent = people.length;
+    render();
+  }
+  document.getElementById("plus").addEventListener("click", () => setCount(people.length + 1));
+  document.getElementById("minus").addEventListener("click", () => setCount(people.length - 1));
+
+  // ---- まるめ単位 ----
+  document.querySelectorAll(".unit-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".unit-chip").forEach(c => c.classList.remove("selected"));
+      chip.classList.add("selected");
+      unit = parseInt(chip.dataset.unit, 10);
+      render();
+    });
+  });
+
+  // ---- コピー ----
+  document.getElementById("copyBtn").addEventListener("click", async () => {
+    const shares = computeShares();
+    let text = `わりかん  合計${yen(total)} / ${people.length}人\n`;
+    text += "――――――\n";
+    people.forEach((p, i) => {
+      const tag = p.kanji ? "幹事 " : "";
+      const w = p.weight !== "normal" ? `（${WLABEL[p.weight]}）` : "";
+      text += `${tag}${displayName(i)}${w}  ${yen(shares[i])}\n`;
+    });
+    try {
+      await navigator.clipboard.writeText(text);
+      const msg = document.getElementById("copiedMsg");
+      msg.classList.add("show");
+      setTimeout(() => msg.classList.remove("show"), 1600);
+    } catch (err) {
+      alert(text);
+    }
+  });
+
+  // ---- リセット ----
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    total = 0;
+    totalInput.value = "";
+    unit = 100;
+    document.querySelectorAll(".unit-chip").forEach(c => c.classList.toggle("selected", c.dataset.unit === "100"));
+    people = [
+      { name: "", weight: "normal", kanji: true },
+      { name: "", weight: "normal", kanji: false },
+      { name: "", weight: "normal", kanji: false },
+    ];
+    document.getElementById("countNum").textContent = people.length;
+    render();
+  });
+
+  // ---- 起動 ----
+  render();
+</script>
+</body>
+</html>

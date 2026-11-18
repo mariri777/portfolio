@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>あと何日カウント — 待ち遠しい日を、紙に貼っておく</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Yomogi&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --paper: #f4ecd8;        /* クラフト地 */
+    --card: #fffdf6;         /* 付箋の紙 */
+    --ink: #4a4038;
+    --ink-soft: #8a7f70;
+    --ink-faint: #b3a894;
+    --line: #e4d9bf;
+    --rule: #e9dfc6;         /* 方眼の線 */
+    --accent: #c67b5c;       /* 主役の色えんぴつ */
+
+    /* マステ / 色えんぴつ（くすみトーン） */
+    --w-coral:  #db8a7d;
+    --w-mustard:#d4a95e;
+    --w-sage:   #9bab7e;
+    --w-sky:    #86a6bd;
+    --w-plum:   #b18aad;
+    --w-slate:  #93897d;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    font-family: "Klee One", cursive;
+    color: var(--ink);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    background-color: var(--paper);
+    /* 方眼ノート風のうすい格子 + 紙の陰影 */
+    background-image:
+      radial-gradient(1200px 700px at 85% -10%, rgba(255,255,255,0.5) 0%, transparent 55%),
+      radial-gradient(900px 600px at -5% 105%, rgba(180,160,120,0.14) 0%, transparent 50%),
+      linear-gradient(var(--rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+    background-size: auto, auto, 26px 26px, 26px 26px;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 54px 24px 100px; }
+
+  /* ---- ヘッダー ---- */
+  header.masthead { text-align: center; margin-bottom: 34px; }
+  .eyebrow {
+    font-family: "Yomogi", cursive; font-size: 13px; letter-spacing: 0.2em;
+    color: var(--ink-soft); margin-bottom: 8px;
+  }
+  h1 {
+    font-family: "Klee One", cursive; font-weight: 600;
+    font-size: clamp(30px, 6.5vw, 46px); letter-spacing: 0.02em;
+    margin: 0 0 6px; color: var(--ink); position: relative; display: inline-block;
+  }
+  /* 手書きの下線 */
+  .underline { display: block; margin: 2px auto 0; width: min(280px, 80%); height: 12px; }
+  .underline path { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; opacity: 0.8; }
+  .lead { font-family: "Yomogi", cursive; font-size: 14px; color: var(--ink-soft); margin: 12px auto 0; max-width: 28em; }
+
+  /* ---- 入力（メモ用紙風） ---- */
+  .memo {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    box-shadow: 0 10px 26px -18px rgba(90,70,40,0.5), 0 1px 0 rgba(255,255,255,0.7) inset;
+    padding: 24px 24px 22px;
+    margin-bottom: 40px;
+    position: relative;
+    transform: rotate(-0.5deg);
+  }
+  /* メモを留めるマステ */
+  .memo::before {
+    content: ""; position: absolute; top: -13px; left: 50%; transform: translateX(-50%) rotate(-2deg);
+    width: 116px; height: 26px;
+    background: repeating-linear-gradient(45deg, rgba(198,123,92,0.28) 0 7px, rgba(198,123,92,0.16) 7px 14px);
+    border-left: 1px dashed rgba(150,90,60,0.25); border-right: 1px dashed rgba(150,90,60,0.25);
+  }
+  .memo-title {
+    font-family: "Yomogi", cursive; font-size: 15px; color: var(--ink-soft);
+    margin: 0 0 16px; text-align: center; letter-spacing: 0.06em;
+  }
+  .form-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field.grow { flex: 1 1 200px; }
+  .field label { font-family: "Yomogi", cursive; font-size: 12px; color: var(--ink-faint); }
+  input[type="text"], input[type="date"] {
+    font-family: "Klee One", cursive; font-size: 16px; color: var(--ink);
+    background: transparent; border: none;
+    border-bottom: 2px dashed var(--line); border-radius: 0;
+    padding: 7px 4px; outline: none; transition: border-color 0.2s ease; width: 100%;
+  }
+  input::placeholder { color: var(--ink-faint); }
+  input:focus { border-bottom-color: var(--accent); }
+  input[type="date"] { min-width: 160px; }
+
+  .swatches { display: flex; gap: 8px; padding-bottom: 4px; }
+  .swatch {
+    width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;
+    transition: transform 0.14s ease, border-color 0.14s ease; position: relative;
+  }
+  .swatch:hover { transform: translateY(-2px); }
+  .swatch.on { border-color: var(--ink); }
+  .swatch.on::after {
+    content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 13px; text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+  }
+
+  .btn-add {
+    font-family: "Yomogi", cursive; font-size: 15px; color: #fff;
+    background: var(--accent); border: none; border-radius: 999px;
+    padding: 10px 26px; cursor: pointer; box-shadow: 0 6px 14px -8px rgba(150,80,50,0.8);
+    transition: transform 0.12s ease, background 0.2s ease; transform: rotate(0.5deg);
+  }
+  .btn-add:hover { background: #b56b4d; }
+  .btn-add:active { transform: translateY(1px) rotate(0.5deg); }
+  .form-hint { font-family: "Yomogi", cursive; font-size: 12px; color: var(--ink-faint); margin-top: 12px; text-align: center; }
+
+  /* ---- ボード ---- */
+  .board-label {
+    font-family: "Yomogi", cursive; font-size: 13px; color: var(--ink-soft);
+    margin: 0 0 14px 4px; display: flex; align-items: center; gap: 8px;
+  }
+  .board-label::before { content: "📌"; font-size: 15px; }
+  .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px 20px; }
+
+  .tag {
+    position: relative; background: var(--card);
+    border-radius: 5px; padding: 26px 18px 18px;
+    box-shadow: 0 12px 26px -16px rgba(90,70,40,0.55);
+    text-align: center; transition: transform 0.16s ease, box-shadow 0.16s ease;
+  }
+  .tag:hover { transform: translateY(-3px) rotate(0deg) !important; box-shadow: 0 18px 32px -18px rgba(90,70,40,0.6); }
+  /* マステ */
+  .tag::before {
+    content: ""; position: absolute; top: -11px; left: 50%; transform: translateX(-50%) rotate(-3deg);
+    width: 92px; height: 22px; opacity: 0.85;
+    background: repeating-linear-gradient(45deg, var(--tape) 0 7px, color-mix(in srgb, var(--tape) 70%, #fff) 7px 14px);
+  }
+  .tag .name { font-family: "Klee One", cursive; font-weight: 600; font-size: 17px; color: var(--ink); margin-bottom: 4px; word-break: break-word; }
+  .tag .date { font-family: "Yomogi", cursive; font-size: 12px; color: var(--ink-soft); margin-bottom: 12px; }
+  .count { line-height: 1; margin: 6px 0 4px; }
+  .count .pre { font-family: "Yomogi", cursive; font-size: 13px; color: var(--ink-soft); }
+  .count .num {
+    font-family: "Klee One", cursive; font-weight: 600; font-size: 52px;
+    color: var(--tape-ink); margin: 0 3px; letter-spacing: -0.02em;
+  }
+  .count .unit { font-family: "Yomogi", cursive; font-size: 15px; color: var(--ink-soft); }
+  .count.today .big { font-family: "Klee One", cursive; font-weight: 600; font-size: 34px; color: var(--tape-ink); }
+  .tag.passed { opacity: 0.66; }
+  .tag.passed .count .num { color: var(--ink-faint); }
+  .tag .del {
+    position: absolute; top: 6px; right: 8px; border: none; background: transparent;
+    color: var(--ink-faint); cursor: pointer; font-size: 17px; line-height: 1; padding: 3px 6px;
+    border-radius: 6px; transition: all 0.16s ease; opacity: 0; font-family: sans-serif;
+  }
+  .tag:hover .del { opacity: 1; }
+  .tag .del:hover { color: var(--accent); background: rgba(198,123,92,0.12); }
+
+  .divider {
+    font-family: "Yomogi", cursive; font-size: 12px; color: var(--ink-faint);
+    margin: 34px 0 14px 4px; display: flex; align-items: center; gap: 10px;
+  }
+  .divider::after { content: ""; flex: 1; height: 1px; border-top: 1.5px dashed var(--line); }
+
+  .empty {
+    text-align: center; color: var(--ink-soft); padding: 40px 14px;
+    font-family: "Yomogi", cursive;
+  }
+  .empty .big { font-size: 17px; color: var(--ink); display: block; margin-bottom: 6px; }
+
+  footer.credit {
+    text-align: center; margin-top: 48px; font-family: "Yomogi", cursive;
+    font-size: 12px; letter-spacing: 0.14em; color: var(--ink-faint);
+  }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 38px 16px 84px; }
+    .board { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px 14px; }
+    .count .num { font-size: 44px; }
+    .memo { padding: 22px 16px 18px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="masthead">
+      <div class="eyebrow">c o u n t d o w n</div>
+      <h1>あと何日カウント</h1>
+      <svg class="underline" viewBox="0 0 280 12" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M4 8 Q70 2 140 6 T276 5" />
+      </svg>
+      <p class="lead">たのしみな日、わすれたくない日。<br />紙に貼っておくと、毎日ちょっとうれしい。</p>
+    </header>
+
+    <!-- 入力メモ -->
+    <section class="memo">
+      <p class="memo-title">〜 あたらしい予定をはる 〜</p>
+      <div class="form-row">
+        <div class="field grow">
+          <label>なんの日？</label>
+          <input type="text" id="nameInput" placeholder="例：旅行 / 推しのライブ / 誕生日" maxlength="24" />
+        </div>
+        <div class="field">
+          <label>その日づけ</label>
+          <input type="date" id="dateInput" />
+        </div>
+        <div class="field">
+          <label>テープの色</label>
+          <div class="swatches" id="swatches"></div>
+        </div>
+        <button class="btn-add" id="addBtn">はりつける</button>
+      </div>
+      <p class="form-hint" id="formHint">過ぎた日づけを入れると「◯日前」として記録できます</p>
+    </section>
+
+    <!-- ボード -->
+    <div class="board-label">はりつけた予定</div>
+    <div id="boardArea"></div>
+
+    <footer class="credit">Built by mariri</footer>
+  </div>
+
+<script>
+  "use strict";
+
+  const COLORS = [
+    { id: "coral",  tape: "var(--w-coral)",  ink: "#c15f4e" },
+    { id: "mustard",tape: "var(--w-mustard)",ink: "#b98431" },
+    { id: "sage",   tape: "var(--w-sage)",   ink: "#71834f" },
+    { id: "sky",    tape: "var(--w-sky)",    ink: "#5a809b" },
+    { id: "plum",   tape: "var(--w-plum)",   ink: "#8f6389" },
+    { id: "slate",  tape: "var(--w-slate)",  ink: "#6f665b" },
+  ];
+  const colorById = Object.fromEntries(COLORS.map(c => [c.id, c]));
+  const TILTS = [-2.2, 1.6, -1.2, 2.4, -1.8, 1.1, -2.6, 1.9];
+
+  const STORE_KEY = "countdown-days-v1";
+  let selectedColor = "coral";
+
+  function loadAll() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; }
+    catch { return []; }
+  }
+  function saveAll(list) { localStorage.setItem(STORE_KEY, JSON.stringify(list)); }
+
+  function todayMid() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+  function parseYmd(s) { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); }
+  function daysUntil(ymd) {
+    return Math.round((parseYmd(ymd) - todayMid()) / 86400000);
+  }
+  function fmtDate(ymd) {
+    const d = parseYmd(ymd);
+    const wd = ["日","月","火","水","木","金","土"][d.getDay()];
+    return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}（${wd}）`;
+  }
+
+  function renderSwatches() {
+    const box = document.getElementById("swatches");
+    box.innerHTML = "";
+    COLORS.forEach(c => {
+      const el = document.createElement("div");
+      el.className = "swatch" + (c.id === selectedColor ? " on" : "");
+      el.style.background = c.tape;
+      el.title = c.id;
+      el.addEventListener("click", () => { selectedColor = c.id; renderSwatches(); });
+      box.appendChild(el);
+    });
+  }
+
+  function makeTag(ev, tiltIndex) {
+    const c = colorById[ev.color] || colorById.coral;
+    const diff = daysUntil(ev.date);
+    const tag = document.createElement("div");
+    tag.className = "tag" + (diff < 0 ? " passed" : "");
+    tag.style.setProperty("--tape", c.tape);
+    tag.style.setProperty("--tape-ink", c.ink);
+    tag.style.transform = `rotate(${TILTS[tiltIndex % TILTS.length]}deg)`;
+
+    let countHtml;
+    if (diff > 0) {
+      countHtml = `<div class="count"><span class="pre">あと</span><span class="num">${diff}</span><span class="unit">日</span></div>`;
+    } else if (diff === 0) {
+      countHtml = `<div class="count today"><span class="big">🎉 きょう！</span></div>`;
+    } else {
+      countHtml = `<div class="count"><span class="num">${-diff}</span><span class="unit">日前</span></div>`;
+    }
+
+    tag.innerHTML =
+      `<button class="del" title="はがす" data-id="${ev.id}">×</button>` +
+      `<div class="name">${escapeHtml(ev.name)}</div>` +
+      `<div class="date">${fmtDate(ev.date)}</div>` +
+      countHtml;
+    return tag;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m =>
+      ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+  }
+
+  function renderBoard() {
+    const area = document.getElementById("boardArea");
+    const all = loadAll();
+    area.innerHTML = "";
+
+    if (all.length === 0) {
+      area.innerHTML =
+        `<div class="empty"><span class="big">まだ、はりつけた予定はありません。</span>` +
+        `たのしみな日を、ひとつ貼ってみましょう。</div>`;
+      return;
+    }
+
+    const upcoming = all.filter(e => daysUntil(e.date) >= 0).sort((a,b) => daysUntil(a.date) - daysUntil(b.date));
+    const passed   = all.filter(e => daysUntil(e.date) <  0).sort((a,b) => daysUntil(b.date) - daysUntil(a.date));
+
+    if (upcoming.length) {
+      const board = document.createElement("div");
+      board.className = "board";
+      upcoming.forEach((e, i) => board.appendChild(makeTag(e, i)));
+      area.appendChild(board);
+    }
+    if (passed.length) {
+      const div = document.createElement("div");
+      div.className = "divider";
+      div.textContent = "おわった予定";
+      area.appendChild(div);
+      const board = document.createElement("div");
+      board.className = "board";
+      passed.forEach((e, i) => board.appendChild(makeTag(e, i + 3)));
+      area.appendChild(board);
+    }
+
+    area.querySelectorAll(".del").forEach(btn => {
+      btn.addEventListener("click", () => {
+        saveAll(loadAll().filter(e => e.id !== btn.getAttribute("data-id")));
+        renderBoard();
+      });
+    });
+  }
+
+  function addEvent() {
+    const name = document.getElementById("nameInput").value.trim();
+    const date = document.getElementById("dateInput").value;
+    const hint = document.getElementById("formHint");
+
+    if (!name) { hint.textContent = "予定の名前を書いてください。"; hint.style.color = "var(--accent)"; return; }
+    if (!date) { hint.textContent = "日づけを選んでください。"; hint.style.color = "var(--accent)"; return; }
+
+    const all = loadAll();
+    all.push({ id: `${Date.now()}-${Math.floor(Math.random()*1000)}`, name, date, color: selectedColor });
+    saveAll(all);
+
+    document.getElementById("nameInput").value = "";
+    document.getElementById("dateInput").value = "";
+    hint.textContent = "貼りつけました！";
+    hint.style.color = "var(--ink-faint)";
+    renderBoard();
+    document.getElementById("nameInput").focus();
+  }
+
+  document.getElementById("addBtn").addEventListener("click", addEvent);
+  document.getElementById("nameInput").addEventListener("keydown", e => { if (e.key === "Enter") addEvent(); });
+  document.getElementById("dateInput").addEventListener("keydown", e => { if (e.key === "Enter") addEvent(); });
+
+  renderSwatches();
+  renderBoard();
+</script>
+</body>
+</html>

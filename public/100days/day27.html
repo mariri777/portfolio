@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>眠りの逆算 — 何時に寝ると気持ちよく起きられる？</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #1c2137;
+    --bg-2: #212747;
+    --panel: #252c48;
+    --ink: #ece7da;
+    --ink-soft: #a9abc0;
+    --ink-faint: #71749a;
+    --line: rgba(255,255,255,.09);
+    --line-2: rgba(255,255,255,.16);
+    --moon: #ddc890;
+    --moon-deep: #c9b070;
+    --moon-soft: rgba(221,200,144,.14);
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(1100px 600px at 78% -8%, #2c3560 0%, rgba(44,53,96,0) 55%),
+      linear-gradient(180deg, #1c2137 0%, #161b2e 100%);
+    background-attachment: fixed; min-height: 100vh; line-height: 1.85;
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.02em;
+  }
+
+  .wrap { max-width: 600px; margin: 0 auto; padding: 28px 20px 90px; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft);
+    text-decoration: none; padding: 7px 15px; border: 1px solid var(--line); border-radius: 999px;
+    background: rgba(255,255,255,.03); transition: border-color .2s ease, color .2s ease;
+  }
+  .home-link:hover { color: var(--moon); border-color: var(--line-2); }
+
+  /* Hero */
+  .hero { text-align: center; margin: 40px 0 26px; }
+  .moon-ico { width: 46px; height: 46px; margin: 0 auto 16px; display: block; }
+  .eyebrow { font-family: "Shippori Mincho B1", serif; font-size: 12px; letter-spacing: 0.42em; color: var(--moon); font-weight: 600; }
+  .hero h1 { font-family: "Shippori Mincho B1", serif; font-weight: 700; font-size: clamp(30px, 7.5vw, 44px); line-height: 1.32; letter-spacing: 0.12em; margin: 12px 0 0; }
+  .hero p { color: var(--ink-soft); font-size: 13.5px; max-width: 400px; margin: 14px auto 0; line-height: 1.95; }
+
+  /* Mode toggle */
+  .modes { display: flex; gap: 8px; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 999px; padding: 5px; margin-bottom: 22px; }
+  .mode { flex: 1; text-align: center; font-family: "Shippori Mincho B1", serif; font-size: 13.5px; font-weight: 600; padding: 11px 10px; border-radius: 999px; cursor: pointer; color: var(--ink-soft); transition: all .2s ease; letter-spacing: 0.04em; }
+  .mode.active { background: var(--moon); color: #23283f; }
+
+  .panel { background: rgba(255,255,255,.035); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 22px; margin-bottom: 18px; backdrop-filter: blur(2px); }
+
+  .ask { text-align: center; margin-bottom: 22px; }
+  .ask .a-label { font-family: "Shippori Mincho B1", serif; font-size: 13px; color: var(--ink-soft); letter-spacing: 0.1em; margin-bottom: 12px; }
+  input[type="time"] {
+    font-family: "Shippori Mincho B1", serif; font-size: 30px; font-weight: 700; color: var(--ink);
+    background: rgba(255,255,255,.05); border: 1px solid var(--line-2); border-radius: 12px;
+    padding: 8px 16px; outline: none; text-align: center; letter-spacing: 0.04em;
+    color-scheme: dark;
+  }
+  input[type="time"]:focus { border-color: var(--moon); box-shadow: 0 0 0 3px var(--moon-soft); }
+
+  .now-badge { font-family: "Shippori Mincho B1", serif; font-size: 26px; font-weight: 700; letter-spacing: 0.04em; }
+  .now-badge .lbl { font-family: "Zen Kaku Gothic New", sans-serif; font-size: 12px; color: var(--ink-faint); font-weight: 500; letter-spacing: 0.1em; }
+
+  .list-head { font-family: "Shippori Mincho B1", serif; font-size: 13px; color: var(--ink-soft); letter-spacing: 0.08em; margin-bottom: 12px; text-align: center; }
+
+  .cands { display: flex; flex-direction: column; gap: 10px; }
+  .cand { display: flex; align-items: center; gap: 14px; padding: 15px 18px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.02); transition: border-color .2s ease, background .2s ease; }
+  .cand .c-time { font-family: "Shippori Mincho B1", serif; font-size: 27px; font-weight: 700; line-height: 1; white-space: nowrap; }
+  .cand .c-time .nx { font-size: 12px; color: var(--moon); margin-right: 4px; vertical-align: 4px; }
+  .cand .c-info { flex: 1; }
+  .cand .c-cycle { font-size: 13.5px; font-weight: 700; }
+  .cand .c-dur { font-size: 11.5px; color: var(--ink-faint); margin-top: 1px; }
+  .cand .c-rec { font-family: "Shippori Mincho B1", serif; font-size: 11px; color: var(--moon); border: 1px solid var(--moon-deep); border-radius: 999px; padding: 4px 11px; white-space: nowrap; letter-spacing: 0.06em; }
+  .cand.rec { border-color: var(--moon-deep); background: var(--moon-soft); }
+
+  /* Fall-asleep adjust */
+  .adjust { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .adjust .a-lbl { font-size: 12px; color: var(--ink-faint); text-align: center; margin-bottom: 10px; letter-spacing: 0.06em; }
+  .chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .chip { font-family: "Shippori Mincho B1", serif; font-size: 12.5px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.02); color: var(--ink-soft); cursor: pointer; transition: all .15s ease; }
+  .chip:hover { border-color: var(--line-2); color: var(--ink); }
+  .chip.active { border-color: var(--moon); background: var(--moon); color: #23283f; font-weight: 700; }
+
+  .note { font-size: 12px; color: var(--ink-faint); line-height: 1.9; text-align: center; margin-top: 20px; }
+
+  .footer { text-align: center; margin-top: 44px; padding-top: 24px; border-top: 1px solid var(--line); font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); line-height: 2.1; letter-spacing: 0.14em; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 22px 15px 74px; }
+    .hero { margin: 28px 0 20px; }
+    .panel { padding: 20px 16px; }
+    .cand { padding: 14px 15px; gap: 12px; }
+    .cand .c-time { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="home-link" href="../">← 一覧へもどる</a>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <svg class="moon-ico" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <path d="M31 6a18 18 0 1 0 11 30A15 15 0 0 1 31 6z" fill="#ddc890" opacity="0.92"/>
+      <circle cx="14" cy="12" r="1.2" fill="#ddc890" opacity="0.7"/>
+      <circle cx="9" cy="22" r="0.9" fill="#ddc890" opacity="0.55"/>
+      <circle cx="18" cy="30" r="1" fill="#ddc890" opacity="0.6"/>
+    </svg>
+    <div class="eyebrow">GOOD NIGHT</div>
+    <h1>眠りの逆算</h1>
+    <p>睡眠は約90分の周期でめぐります。その区切りで目覚めると、すっきり起きやすいと言われています。</p>
+  </header>
+
+  <!-- ============ MODE TOGGLE ============ -->
+  <div class="modes">
+    <div class="mode active" data-mode="wake">起きたい時刻から</div>
+    <div class="mode" data-mode="now">今から寝るなら</div>
+  </div>
+
+  <!-- ============ PANEL ============ -->
+  <section class="panel">
+    <!-- ask area -->
+    <div class="ask" id="askArea"></div>
+    <!-- results -->
+    <div class="list-head" id="listHead"></div>
+    <div class="cands" id="cands"></div>
+
+    <!-- fall asleep adjust -->
+    <div class="adjust">
+      <div class="a-lbl">寝つくまでの時間</div>
+      <div class="chips" id="fallChips"></div>
+    </div>
+  </section>
+
+  <div class="note">
+    ※ 90分はあくまで平均。体調や日によって前後します。目安として気楽にお使いください。
+  </div>
+
+  <footer class="footer">
+    眠りの逆算 ・ サーバー不要<br />
+    Built by mariri
+  </footer>
+
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const CYCLE = 90;
+  let mode = "wake";       // wake | now
+  let fall = 15;           // 寝つくまで（分）
+  let tick = null;
+
+  const pad = (n) => String(n).padStart(2, "0");
+  function fmt(totalMin) {
+    const m = ((Math.round(totalMin) % 1440) + 1440) % 1440;
+    return Math.floor(m / 60) + ":" + pad(m % 60);
+  }
+  function durLabel(mins) {
+    const h = Math.floor(mins / 60), m = mins % 60;
+    return h + "時間" + (m ? m + "分" : "");
+  }
+  function nowMinutes() {
+    const d = new Date();
+    return d.getHours() * 60 + d.getMinutes();
+  }
+
+  // ===== 寝つき時間チップ =====
+  function buildFallChips() {
+    const box = $("fallChips");
+    box.innerHTML = "";
+    [0, 10, 15, 20, 30].forEach((v) => {
+      const el = document.createElement("span");
+      el.className = "chip" + (v === fall ? " active" : "");
+      el.textContent = v === 0 ? "すぐ" : v + "分";
+      el.addEventListener("click", () => { fall = v; buildFallChips(); render(); });
+      box.appendChild(el);
+    });
+  }
+
+  // ===== 描画 =====
+  function render() {
+    if (mode === "wake") renderWake();
+    else renderNow();
+  }
+
+  function renderWake() {
+    // 入力欄（起床時刻）
+    if (!$("wakeInput")) {
+      $("askArea").innerHTML =
+        '<div class="a-label">起きたい時刻</div>' +
+        '<input type="time" id="wakeInput" value="07:00" />';
+      $("wakeInput").addEventListener("input", render);
+    }
+    const [h, m] = $("wakeInput").value.split(":").map(Number);
+    const wakeMin = (h || 0) * 60 + (m || 0);
+
+    $("listHead").textContent = "この時刻に寝ると、区切りよく起きられます";
+    const box = $("cands");
+    box.innerHTML = "";
+    // 6→3サイクル（早い就寝＝長い睡眠）順
+    [6, 5, 4, 3].forEach((n) => {
+      const bed = wakeMin - fall - n * CYCLE;
+      const rec = n === 5 || n === 6;
+      box.appendChild(candEl(fmt(bed), false, n, rec, "に寝る"));
+    });
+  }
+
+  function renderNow() {
+    const nm = nowMinutes();
+    $("askArea").innerHTML =
+      '<div class="a-label">いま</div>' +
+      '<div class="now-badge">' + fmt(nm) + '<div class="lbl">現在の時刻</div></div>';
+    // 入力欄参照をリセット
+    $("listHead").textContent = "今から寝ると、この時刻に起きるのがおすすめ";
+    const box = $("cands");
+    box.innerHTML = "";
+    const base = nm + fall;
+    [3, 4, 5, 6].forEach((n) => {
+      const wake = base + n * CYCLE;
+      const nextDay = wake >= 1440;
+      const rec = n === 5 || n === 6;
+      box.appendChild(candEl(fmt(wake), nextDay, n, rec, "に起きる"));
+    });
+  }
+
+  function candEl(timeStr, nextDay, n, rec, suffix) {
+    const el = document.createElement("div");
+    el.className = "cand" + (rec ? " rec" : "");
+    el.innerHTML =
+      '<div class="c-time">' + (nextDay ? '<span class="nx">翌</span>' : "") + timeStr + '</div>' +
+      '<div class="c-info"><div class="c-cycle">' + n + 'サイクル ' + suffix + '</div>' +
+      '<div class="c-dur">睡眠 約' + durLabel(n * CYCLE) + '</div></div>' +
+      (rec ? '<div class="c-rec">おすすめ</div>' : "");
+    return el;
+  }
+
+  // ===== モード切替 =====
+  document.querySelectorAll(".mode").forEach((el) => {
+    el.addEventListener("click", () => {
+      document.querySelectorAll(".mode").forEach((x) => x.classList.remove("active"));
+      el.classList.add("active");
+      mode = el.dataset.mode;
+      // wake入力欄は作り直すのでクリア
+      $("askArea").innerHTML = "";
+      render();
+      setupTick();
+    });
+  });
+
+  function setupTick() {
+    if (tick) { clearInterval(tick); tick = null; }
+    if (mode === "now") tick = setInterval(render, 20000); // 現在時刻を更新
+  }
+
+  // ===== 初期化 =====
+  buildFallChips();
+  render();
+  setupTick();
+</script>
+</body>
+</html>

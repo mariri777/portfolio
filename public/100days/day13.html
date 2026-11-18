@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>よぞらダイアリー — きぶん日記</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,500&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bg: #10142b;
+      --bg-2: #1a1f44;
+      --panel: rgba(31, 38, 78, 0.55);
+      --panel-solid: #1d2350;
+      --line: rgba(150, 165, 230, 0.18);
+      --ink: #eef1ff;
+      --ink-soft: #a6adda;
+      --gold: #ffd98a;
+      --gold-deep: #f0b85a;
+      --glow: 0 18px 48px -22px rgba(120, 130, 255, 0.7);
+
+      /* 気分カラー */
+      --m-happy: #ffd166;
+      --m-calm:  #7fd4c8;
+      --m-love:  #ff9ec4;
+      --m-tired: #9aa0c7;
+      --m-sad:   #7aa6ff;
+      --m-angry: #ff8a73;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Zen Maru Gothic", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 15% 8%, #2a2f63 0%, transparent 42%),
+        radial-gradient(circle at 85% 4%, #3a2a5c 0%, transparent 38%),
+        radial-gradient(circle at 50% 100%, #182052 0%, transparent 55%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ちいさな星をちりばめる */
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: twinkle 3s ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; transform: scale(0.8); }
+      50% { opacity: 0.9; transform: scale(1.2); }
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+    }
+
+    /* ---- Header ---- */
+    .top {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .moon {
+      font-size: 38px;
+      display: inline-block;
+      filter: drop-shadow(0 0 16px rgba(255, 217, 138, 0.6));
+      animation: float 5s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .top h1 {
+      font-family: "Fraunces", serif;
+      font-weight: 500;
+      font-size: clamp(30px, 7vw, 44px);
+      letter-spacing: 0.01em;
+      margin-top: 6px;
+    }
+    .top h1 .ja {
+      display: block;
+      font-family: "Zen Maru Gothic", sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.32em;
+      color: var(--gold);
+      margin-top: 12px;
+    }
+    .top p {
+      margin-top: 14px;
+      color: var(--ink-soft);
+      font-size: 14px;
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: var(--ink-soft);
+      text-decoration: none;
+      padding: 8px 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      transition: all 0.3s ease;
+      margin-bottom: 28px;
+    }
+    .back:hover { color: var(--gold); border-color: var(--gold); }
+
+    /* ---- Panel ---- */
+    .panel {
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      box-shadow: var(--glow);
+      padding: 26px 24px;
+    }
+
+    /* ---- Calendar header ---- */
+    .cal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .cal-title {
+      font-family: "Fraunces", serif;
+      font-size: 22px;
+      letter-spacing: 0.02em;
+    }
+    .cal-title .yr { color: var(--ink-soft); font-size: 14px; margin-left: 8px; }
+    .nav-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      color: var(--ink);
+      font-size: 18px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: all 0.25s ease;
+    }
+    .nav-btn:hover { background: var(--gold); color: #1a1633; border-color: var(--gold); }
+
+    /* ---- Calendar grid ---- */
+    .dow {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .dow span {
+      text-align: center;
+      font-size: 11px;
+      color: var(--ink-soft);
+      letter-spacing: 0.05em;
+    }
+    .dow .sun { color: #ff9eb4; }
+    .dow .sat { color: #8fc0ff; }
+
+    .grid-cal {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+    .cell {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      overflow: hidden;
+    }
+    .cell.empty {
+      border: none;
+      background: transparent;
+      cursor: default;
+    }
+    .cell:not(.empty):hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 22px -10px rgba(0,0,0,0.5);
+    }
+    .cell .dnum {
+      font-size: 12px;
+      color: var(--ink-soft);
+      z-index: 1;
+    }
+    .cell .demoji {
+      font-size: clamp(16px, 5vw, 22px);
+      line-height: 1;
+      z-index: 1;
+    }
+    /* 気分があるセルは色のグローを背景に */
+    .cell .tint {
+      position: absolute;
+      inset: 0;
+      opacity: 0.28;
+      z-index: 0;
+    }
+    .cell.today {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px var(--gold) inset;
+    }
+    .cell.today .dnum { color: var(--gold); font-weight: 700; }
+    .cell.selected {
+      box-shadow: 0 0 0 2px var(--gold), 0 10px 24px -8px rgba(255,217,138,0.5);
+    }
+
+    /* ---- Mood picker (下のシート) ---- */
+    .editor {
+      margin-top: 18px;
+    }
+    .editor-date {
+      font-size: 14px;
+      color: var(--gold);
+      text-align: center;
+      margin-bottom: 14px;
+      letter-spacing: 0.03em;
+    }
+    .moods {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .mood {
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      color: var(--ink-soft);
+    }
+    .mood .e { font-size: 22px; line-height: 1; }
+    .mood .l { font-size: 9.5px; }
+    .mood:hover { transform: translateY(-2px); border-color: var(--mc); }
+    .mood.active {
+      background: var(--mc);
+      color: #1a1633;
+      border-color: var(--mc);
+      box-shadow: 0 8px 18px -8px var(--mc);
+    }
+    .mood.active .l { color: #1a1633; font-weight: 700; }
+
+    .note {
+      width: 100%;
+      min-height: 64px;
+      resize: vertical;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .note::placeholder { color: var(--ink-soft); opacity: 0.7; }
+    .note:focus { outline: none; border-color: var(--gold); }
+
+    .editor-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 999px;
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-save {
+      background: linear-gradient(120deg, var(--gold), var(--gold-deep));
+      color: #2a2008;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -10px var(--gold); }
+    .btn-clear {
+      flex: 0 0 auto;
+      padding: 12px 18px;
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+    }
+    .btn-clear:hover { color: #ff8a73; border-color: #ff8a73; }
+
+    .hint {
+      text-align: center;
+      color: var(--ink-soft);
+      font-size: 13px;
+      padding: 14px 0 4px;
+    }
+
+    /* ---- Summary ---- */
+    .summary {
+      margin-top: 22px;
+    }
+    .summary h3 {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      letter-spacing: 0.1em;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .bars { display: flex; flex-direction: column; gap: 9px; }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 78px 1fr 28px;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+    .bar-label { display: flex; align-items: center; gap: 6px; color: var(--ink-soft); }
+    .bar-track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.7s cubic-bezier(0.2,0.8,0.2,1);
+    }
+    .bar-num {
+      font-size: 12px;
+      color: var(--ink-soft);
+      text-align: right;
+    }
+    .summary-empty {
+      text-align: center;
+      color: var(--ink-soft);
+      font-size: 13px;
+      padding: 6px 0;
+    }
+
+    /* ---- toast ---- */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--panel-solid);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-size: 14px;
+      box-shadow: var(--glow);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.35s ease;
+      z-index: 10;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .foot {
+      text-align: center;
+      margin-top: 34px;
+      font-size: 12px;
+      color: var(--ink-soft);
+      opacity: 0.7;
+    }
+
+    /* ---- Mobile ---- */
+    @media (max-width: 640px) {
+      .wrap { padding: 36px 16px 64px; }
+      .panel { padding: 20px 16px; border-radius: 22px; }
+      .moods { gap: 6px; }
+      .mood .l { font-size: 8.5px; }
+      .bar-row { grid-template-columns: 70px 1fr 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars" id="stars" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <a class="back" href="../">← 一覧へもどる</a>
+
+    <div class="top">
+      <span class="moon">🌙</span>
+      <h1>Yozora Diary<span class="ja">よぞら きぶん日記</span></h1>
+      <p>その日の気分をひとつ選んで、夜空に星をともすように記録していきましょう。</p>
+    </div>
+
+    <div class="panel">
+      <!-- カレンダー -->
+      <div class="cal-head">
+        <button class="nav-btn" id="prev" aria-label="前の月">‹</button>
+        <div class="cal-title">
+          <span id="monthName">—</span><span class="yr" id="yearName"></span>
+        </div>
+        <button class="nav-btn" id="next" aria-label="次の月">›</button>
+      </div>
+
+      <div class="dow">
+        <span class="sun">日</span><span>月</span><span>火</span>
+        <span>水</span><span>木</span><span>金</span><span class="sat">土</span>
+      </div>
+      <div class="grid-cal" id="grid"></div>
+
+      <!-- 編集エリア -->
+      <div class="editor" id="editor" hidden>
+        <div class="editor-date" id="editorDate"></div>
+        <div class="moods" id="moods"></div>
+        <textarea class="note" id="note" placeholder="ひとことメモ（任意）… 今日はどんな一日でしたか？"></textarea>
+        <div class="editor-actions">
+          <button class="btn btn-save" id="save">この気分を記録する</button>
+          <button class="btn btn-clear" id="clearDay" title="この日の記録を消す">削除</button>
+        </div>
+      </div>
+      <div class="hint" id="hint">カレンダーの日付をタップすると気分を記録できます ✦</div>
+    </div>
+
+    <!-- 今月のサマリー -->
+    <div class="panel summary">
+      <h3>― この月のきぶん ―</h3>
+      <div class="bars" id="bars"></div>
+      <div class="summary-empty" id="summaryEmpty">まだ記録がありません。最初の星をともしましょう 🌟</div>
+    </div>
+
+    <p class="foot">あなたの記録はこのブラウザの中だけに保存されます（localStorage）</p>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ===== 気分の定義 =====
+    const MOODS = [
+      { key: "happy", emoji: "😊", label: "うれしい", color: "var(--m-happy)" },
+      { key: "calm",  emoji: "😌", label: "おだやか", color: "var(--m-calm)"  },
+      { key: "love",  emoji: "🥰", label: "しあわせ", color: "var(--m-love)"  },
+      { key: "tired", emoji: "😪", label: "つかれた", color: "var(--m-tired)" },
+      { key: "sad",   emoji: "😢", label: "かなしい", color: "var(--m-sad)"   },
+      { key: "angry", emoji: "😤", label: "もやもや", color: "var(--m-angry)" },
+    ];
+    const MOOD_MAP = Object.fromEntries(MOODS.map(m => [m.key, m]));
+    const MONTHS = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+    const STORE_KEY = "yozora-diary-v1";
+
+    // ===== データ（localStorage） =====
+    function loadData() {
+      try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+      catch (e) { return {}; }
+    }
+    function saveData(d) {
+      localStorage.setItem(STORE_KEY, JSON.stringify(d));
+    }
+    let data = loadData();
+
+    // ===== 状態 =====
+    const today = new Date();
+    let viewY = today.getFullYear();
+    let viewM = today.getMonth(); // 0-11
+    let selectedKey = null;       // "YYYY-M-D"
+    let draftMood = null;
+
+    function dateKey(y, m, d) { return `${y}-${m + 1}-${d}`; }
+    function pad(n) { return String(n).padStart(2, "0"); }
+
+    // ===== カレンダー描画 =====
+    const grid = document.getElementById("grid");
+    function renderCalendar() {
+      document.getElementById("monthName").textContent = MONTHS[viewM];
+      document.getElementById("yearName").textContent = viewY;
+
+      grid.innerHTML = "";
+      const firstDow = new Date(viewY, viewM, 1).getDay();
+      const days = new Date(viewY, viewM + 1, 0).getDate();
+
+      // 月初の空きマス
+      for (let i = 0; i < firstDow; i++) {
+        const e = document.createElement("div");
+        e.className = "cell empty";
+        grid.appendChild(e);
+      }
+
+      for (let d = 1; d <= days; d++) {
+        const key = dateKey(viewY, viewM, d);
+        const rec = data[key];
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        if (viewY === today.getFullYear() && viewM === today.getMonth() && d === today.getDate()) {
+          cell.classList.add("today");
+        }
+        if (key === selectedKey) cell.classList.add("selected");
+
+        if (rec && rec.mood) {
+          const m = MOOD_MAP[rec.mood];
+          const tint = document.createElement("div");
+          tint.className = "tint";
+          tint.style.background = m.color;
+          cell.appendChild(tint);
+          cell.innerHTML += `<span class="demoji">${m.emoji}</span><span class="dnum">${d}</span>`;
+        } else {
+          cell.innerHTML = `<span class="dnum">${d}</span>`;
+        }
+
+        cell.addEventListener("click", () => selectDay(key, d));
+        grid.appendChild(cell);
+      }
+      renderSummary();
+    }
+
+    // ===== 日付を選ぶ → 編集エリアを開く =====
+    const editor = document.getElementById("editor");
+    const hint = document.getElementById("hint");
+    const moodsEl = document.getElementById("moods");
+    const noteEl = document.getElementById("note");
+
+    function selectDay(key, d) {
+      selectedKey = key;
+      draftMood = data[key] ? data[key].mood : null;
+      noteEl.value = data[key] ? (data[key].note || "") : "";
+
+      document.getElementById("editorDate").textContent =
+        `${viewY}年 ${MONTHS[viewM]} ${d}日`;
+
+      renderMoodPicker();
+      editor.hidden = false;
+      hint.hidden = true;
+      renderCalendar();
+      editor.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function renderMoodPicker() {
+      moodsEl.innerHTML = "";
+      MOODS.forEach(m => {
+        const b = document.createElement("button");
+        b.className = "mood" + (draftMood === m.key ? " active" : "");
+        b.style.setProperty("--mc", m.color);
+        b.innerHTML = `<span class="e">${m.emoji}</span><span class="l">${m.label}</span>`;
+        b.addEventListener("click", () => {
+          draftMood = (draftMood === m.key) ? null : m.key;
+          renderMoodPicker();
+        });
+        moodsEl.appendChild(b);
+      });
+    }
+
+    // ===== 保存・削除 =====
+    document.getElementById("save").addEventListener("click", () => {
+      if (!selectedKey) return;
+      if (!draftMood) { showToast("気分をひとつ選んでね 🌙"); return; }
+      data[selectedKey] = { mood: draftMood, note: noteEl.value.trim() };
+      saveData(data);
+      renderCalendar();
+      showToast("記録しました ✨");
+    });
+
+    document.getElementById("clearDay").addEventListener("click", () => {
+      if (!selectedKey || !data[selectedKey]) { closeEditor(); return; }
+      delete data[selectedKey];
+      saveData(data);
+      closeEditor();
+      renderCalendar();
+      showToast("削除しました");
+    });
+
+    function closeEditor() {
+      editor.hidden = true;
+      hint.hidden = false;
+      selectedKey = null;
+      draftMood = null;
+    }
+
+    // ===== 月の移動 =====
+    document.getElementById("prev").addEventListener("click", () => {
+      viewM--; if (viewM < 0) { viewM = 11; viewY--; }
+      closeEditor(); renderCalendar();
+    });
+    document.getElementById("next").addEventListener("click", () => {
+      viewM++; if (viewM > 11) { viewM = 0; viewY++; }
+      closeEditor(); renderCalendar();
+    });
+
+    // ===== サマリー（今月の気分カウント） =====
+    const bars = document.getElementById("bars");
+    const summaryEmpty = document.getElementById("summaryEmpty");
+    function renderSummary() {
+      const counts = {};
+      MOODS.forEach(m => counts[m.key] = 0);
+      let total = 0;
+      Object.keys(data).forEach(k => {
+        const [y, mo] = k.split("-").map(Number);
+        if (y === viewY && mo === viewM + 1 && data[k].mood) {
+          counts[data[k].mood]++; total++;
+        }
+      });
+
+      if (total === 0) {
+        bars.innerHTML = "";
+        summaryEmpty.style.display = "block";
+        return;
+      }
+      summaryEmpty.style.display = "none";
+      bars.innerHTML = "";
+      MOODS.forEach(m => {
+        const c = counts[m.key];
+        const pct = total ? Math.round(c / total * 100) : 0;
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        row.innerHTML = `
+          <span class="bar-label">${m.emoji} ${m.label}</span>
+          <span class="bar-track"><span class="bar-fill" style="background:${m.color}"></span></span>
+          <span class="bar-num">${c}</span>`;
+        bars.appendChild(row);
+        requestAnimationFrame(() => {
+          row.querySelector(".bar-fill").style.width = pct + "%";
+        });
+      });
+    }
+
+    // ===== トースト =====
+    let toastTimer = null;
+    const toastEl = document.getElementById("toast");
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1800);
+    }
+
+    // ===== 星をちりばめる =====
+    (function makeStars() {
+      const sky = document.getElementById("stars");
+      const n = 60;
+      let html = "";
+      for (let i = 0; i < n; i++) {
+        const size = (Math.random() * 2 + 1).toFixed(1);
+        const left = (Math.random() * 100).toFixed(2);
+        const top = (Math.random() * 100).toFixed(2);
+        const delay = (Math.random() * 3).toFixed(2);
+        html += `<span class="star" style="width:${size}px;height:${size}px;left:${left}%;top:${top}%;animation-delay:${delay}s"></span>`;
+      }
+      sky.innerHTML = html;
+    })();
+
+    // ===== 起動 =====
+    renderCalendar();
+  </script>
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ことばシューター — レトロタイピングゲーム</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bg: #0d0d1a;
+      --screen: #101028;
+      --frame: #2b2b45;
+      --green: #4ade80;
+      --yellow: #facc15;
+      --red: #f87171;
+      --cyan: #22d3ee;
+      --pink: #f472b6;
+      --white: #f1f5f9;
+      --dim: #8c8cb0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "DotGothic16", monospace;
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 50% 0%, #1a1a38 0%, transparent 55%);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 14px 40px;
+      -webkit-font-smoothing: none;
+    }
+
+    .back {
+      align-self: flex-start;
+      font-family: "DotGothic16", monospace;
+      font-size: 13px;
+      color: var(--dim);
+      text-decoration: none;
+      padding: 7px 14px;
+      border: 2px solid var(--frame);
+      transition: all 0.2s;
+      margin-bottom: 14px;
+    }
+    .back:hover { color: var(--cyan); border-color: var(--cyan); }
+
+    h1 {
+      font-size: clamp(20px, 5vw, 30px);
+      letter-spacing: 0.12em;
+      color: var(--yellow);
+      text-shadow: 3px 3px 0 #7c2d12;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .subtitle {
+      font-family: "Press Start 2P", monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    /* ===== ステータスバー ===== */
+    .hud {
+      width: min(680px, 100%);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      padding: 10px 14px;
+      border: 3px solid var(--frame);
+      border-bottom: none;
+      background: #16162e;
+      flex-wrap: wrap;
+    }
+    .hud .label { color: var(--dim); font-size: 11px; }
+    .hud .val {
+      font-family: "Press Start 2P", monospace;
+      font-size: 13px;
+      color: var(--green);
+    }
+    .hud .lives { color: var(--red); font-size: 15px; letter-spacing: 0.15em; }
+
+    /* ===== ゲーム画面 ===== */
+    .screen-wrap {
+      width: min(680px, 100%);
+      position: relative;
+    }
+    #screen {
+      position: relative;
+      width: 100%;
+      height: min(54vh, 460px);
+      min-height: 320px;
+      background: var(--screen);
+      border: 3px solid var(--frame);
+      overflow: hidden;
+      cursor: text;
+    }
+    /* CRT スキャンライン */
+    #screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.22) 0px,
+        rgba(0, 0, 0, 0.22) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* 地面ライン */
+    .ground {
+      position: absolute;
+      left: 0; right: 0; bottom: 34px;
+      border-top: 2px dashed rgba(248, 113, 113, 0.5);
+      z-index: 1;
+    }
+    .cannon {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 22px;
+      z-index: 2;
+      transition: transform 0.08s;
+    }
+
+    /* ===== ことば ===== */
+    .word {
+      position: absolute;
+      text-align: center;
+      white-space: nowrap;
+      z-index: 3;
+      transform: translateX(-50%);
+    }
+    .word .ja {
+      font-size: clamp(13px, 3vw, 16px);
+      color: var(--white);
+      text-shadow: 2px 2px 0 #000;
+    }
+    .word .ro {
+      font-family: "Press Start 2P", monospace;
+      font-size: clamp(9px, 2.4vw, 12px);
+      letter-spacing: 0.1em;
+      margin-top: 4px;
+      color: var(--cyan);
+      text-shadow: 2px 2px 0 #000;
+    }
+    .word .ro .done { color: var(--yellow); }
+    .word.target .ja { color: var(--yellow); }
+    .word.target .ro { color: var(--white); }
+
+    /* 撃破エフェクト */
+    .boom {
+      position: absolute;
+      transform: translateX(-50%);
+      font-size: 20px;
+      z-index: 4;
+      animation: boom 0.45s steps(3) forwards;
+      pointer-events: none;
+    }
+    @keyframes boom {
+      0% { opacity: 1; transform: translateX(-50%) scale(0.6); }
+      100% { opacity: 0; transform: translateX(-50%) scale(1.8); }
+    }
+
+    /* ミス時の画面フラッシュ */
+    #screen.hit { animation: hitflash 0.3s steps(2); }
+    @keyframes hitflash {
+      0% { background: #3b1024; }
+      100% { background: var(--screen); }
+    }
+
+    /* ===== オーバーレイ（スタート / ゲームオーバー） ===== */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      background: rgba(13, 13, 26, 0.88);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      text-align: center;
+      padding: 20px;
+    }
+    .overlay[hidden] { display: none; }
+    .overlay h2 {
+      font-size: clamp(20px, 5vw, 28px);
+      color: var(--yellow);
+      text-shadow: 3px 3px 0 #7c2d12;
+      letter-spacing: 0.15em;
+    }
+    .overlay p {
+      font-size: 13px;
+      color: var(--dim);
+      line-height: 2;
+    }
+    .overlay .final {
+      font-family: "Press Start 2P", monospace;
+      font-size: 16px;
+      color: var(--green);
+    }
+    .overlay .newrecord {
+      color: var(--pink);
+      font-size: 14px;
+      animation: blink 0.8s steps(2) infinite;
+    }
+    .btn {
+      font-family: "DotGothic16", monospace;
+      font-size: 16px;
+      letter-spacing: 0.15em;
+      color: #0d0d1a;
+      background: var(--green);
+      border: none;
+      padding: 13px 34px;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #15803d;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+    .btn:hover { filter: brightness(1.1); }
+    .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #15803d; }
+    @keyframes blink { 50% { opacity: 0.2; } }
+
+    /* ===== スマホ用の見えない入力欄（タップでキーボードを開くため） ===== */
+    #typer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 2px;
+      height: 2px;
+      opacity: 0;
+      border: none;
+      padding: 0;
+      font-size: 16px; /* iOSの自動ズーム防止 */
+    }
+
+    /* ミスしたときの大砲の首ふり */
+    .cannon.miss { animation: wiggle 0.22s steps(2); }
+    @keyframes wiggle {
+      25% { transform: translateX(-50%) rotate(-18deg); }
+      75% { transform: translateX(-50%) rotate(14deg); }
+    }
+
+    .help {
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--dim);
+      text-align: center;
+      line-height: 2;
+    }
+    .help .key {
+      color: var(--cyan);
+    }
+
+    /* ===== Mobile ===== */
+    @media (max-width: 640px) {
+      body { padding: 14px 10px 30px; }
+      .hud { font-size: 12px; padding: 8px 10px; }
+      .hud .val { font-size: 11px; }
+      #screen { height: 46vh; min-height: 300px; }
+      .btn { font-size: 14px; padding: 12px 26px; }
+      #typer { font-size: 13px; padding: 12px 6px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back" href="../">← もどる</a>
+
+  <h1>ことばシューター</h1>
+  <p class="subtitle">KOTOBA SHOOTER</p>
+
+  <!-- ステータス -->
+  <div class="hud">
+    <div><span class="label">SCORE </span><span class="val" id="score">0</span></div>
+    <div><span class="label">HI </span><span class="val" id="hiscore">0</span></div>
+    <div><span class="label">LV </span><span class="val" id="level">1</span></div>
+    <div class="lives" id="lives">♥♥♥</div>
+  </div>
+
+  <!-- ゲーム画面 -->
+  <div class="screen-wrap">
+    <div id="screen">
+      <div class="ground"></div>
+      <div class="cannon" id="cannon">🔫</div>
+
+      <div class="overlay" id="startOverlay">
+        <h2>ことばシューター</h2>
+        <p>
+          うえから ふってくる ことばを<br />
+          ローマ字で うちおとせ！<br />
+          じめんに つくと ライフが へるぞ
+        </p>
+        <button class="btn" id="startBtn">スタート！</button>
+      </div>
+
+      <div class="overlay" id="overOverlay" hidden>
+        <h2>GAME OVER</h2>
+        <p class="final">SCORE <span id="finalScore">0</span></p>
+        <p class="newrecord" id="newRecord" hidden>★ しんきろく！ ★</p>
+        <button class="btn" id="retryBtn">もういちど</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- スマホでキーボードを開くための見えない入力欄 -->
+  <input
+    id="typer"
+    type="text"
+    autocomplete="off"
+    autocapitalize="off"
+    autocorrect="off"
+    spellcheck="false"
+    aria-label="ローマ字入力"
+    tabindex="-1"
+  />
+
+  <p class="help">
+    そのまま キーボードで <span class="key">ローマ字</span> を タイプ！<br />
+    うちこんだ ぶんだけ ことばが <span class="key">きいろ</span> に ひかるよ<br />
+    スマホの ひとは ゲームがめんを タップすると キーボードが ひらくよ
+  </p>
+
+  <script>
+    // ===== ことばリスト（ひらがな + ローマ字） =====
+    const WORDS = [
+      { ja: "ねこ", ro: "neko" },
+      { ja: "いぬ", ro: "inu" },
+      { ja: "うさぎ", ro: "usagi" },
+      { ja: "そら", ro: "sora" },
+      { ja: "ほし", ro: "hoshi" },
+      { ja: "つき", ro: "tsuki" },
+      { ja: "やま", ro: "yama" },
+      { ja: "うみ", ro: "umi" },
+      { ja: "かわ", ro: "kawa" },
+      { ja: "はな", ro: "hana" },
+      { ja: "さくら", ro: "sakura" },
+      { ja: "おちゃ", ro: "ocha" },
+      { ja: "ごはん", ro: "gohan" },
+      { ja: "おにぎり", ro: "onigiri" },
+      { ja: "たまご", ro: "tamago" },
+      { ja: "みかん", ro: "mikan" },
+      { ja: "りんご", ro: "ringo" },
+      { ja: "いちご", ro: "ichigo" },
+      { ja: "ぶどう", ro: "budou" },
+      { ja: "すいか", ro: "suika" },
+      { ja: "でんしゃ", ro: "densha" },
+      { ja: "じてんしゃ", ro: "jitensha" },
+      { ja: "ひこうき", ro: "hikouki" },
+      { ja: "くるま", ro: "kuruma" },
+      { ja: "とけい", ro: "tokei" },
+      { ja: "めがね", ro: "megane" },
+      { ja: "かばん", ro: "kaban" },
+      { ja: "ぼうし", ro: "boushi" },
+      { ja: "くつした", ro: "kutsushita" },
+      { ja: "てがみ", ro: "tegami" },
+      { ja: "ともだち", ro: "tomodachi" },
+      { ja: "せんせい", ro: "sensei" },
+      { ja: "がっこう", ro: "gakkou" },
+      { ja: "としょかん", ro: "toshokan" },
+      { ja: "こうえん", ro: "kouen" },
+      { ja: "おんがく", ro: "ongaku" },
+      { ja: "えいが", ro: "eiga" },
+      { ja: "まんが", ro: "manga" },
+      { ja: "おまつり", ro: "omatsuri" },
+      { ja: "はなび", ro: "hanabi" },
+    ];
+
+    const HISCORE_KEY = "kotoba-shooter-hiscore";
+
+    // ===== 要素 =====
+    const screen = document.getElementById("screen");
+    const scoreEl = document.getElementById("score");
+    const hiscoreEl = document.getElementById("hiscore");
+    const levelEl = document.getElementById("level");
+    const livesEl = document.getElementById("lives");
+    const typer = document.getElementById("typer");
+    const cannon = document.getElementById("cannon");
+    const startOverlay = document.getElementById("startOverlay");
+    const overOverlay = document.getElementById("overOverlay");
+
+    // ===== 状態 =====
+    let words = [];        // { el, roEl, x(%), y(px), speed, ja, ro, idx }
+    let target = null;
+    let score = 0;
+    let lives = 3;
+    let level = 1;
+    let playing = false;
+    let spawnTimer = 0;
+    let lastTime = 0;
+    let hiscore = Number(localStorage.getItem(HISCORE_KEY) || 0);
+    hiscoreEl.textContent = hiscore;
+
+    // ===== ことばの生成 =====
+    function spawnWord() {
+      const w = WORDS[Math.floor(Math.random() * WORDS.length)];
+      // 同じことばが画面にあるときは出さない
+      if (words.some(o => o.ro === w.ro)) return;
+
+      const el = document.createElement("div");
+      el.className = "word";
+      el.innerHTML = `<div class="ja">${w.ja}</div><div class="ro"></div>`;
+      const x = 14 + Math.random() * 72; // %
+      el.style.left = x + "%";
+      el.style.top = "-44px";
+      screen.appendChild(el);
+
+      const obj = {
+        el,
+        roEl: el.querySelector(".ro"),
+        x,
+        y: -44,
+        speed: 14 + level * 4 + Math.random() * 8, // px/秒
+        ja: w.ja,
+        ro: w.ro,
+        idx: 0,
+      };
+      renderRo(obj);
+      words.push(obj);
+    }
+
+    function renderRo(o) {
+      o.roEl.innerHTML =
+        `<span class="done">${o.ro.slice(0, o.idx)}</span>` + o.ro.slice(o.idx);
+    }
+
+    // ===== メインループ（setInterval駆動：非表示タブから戻っても dt は最大0.05秒） =====
+    let loopTimer = null;
+    function loop() {
+      if (!playing) return;
+      const t = performance.now();
+      const dt = Math.min((t - lastTime) / 1000, 0.05);
+      lastTime = t;
+
+      // 生成間隔（レベルで短く）
+      spawnTimer -= dt;
+      if (spawnTimer <= 0) {
+        spawnWord();
+        spawnTimer = Math.max(0.9, 2.6 - level * 0.18);
+      }
+
+      const groundY = screen.clientHeight - 34 - 40; // 地面ラインの少し上
+
+      for (let i = words.length - 1; i >= 0; i--) {
+        const o = words[i];
+        o.y += o.speed * dt;
+        o.el.style.top = o.y + "px";
+
+        if (o.y >= groundY) {
+          // 地面に到達 → ミス
+          removeWord(o, false);
+          loseLife();
+        }
+      }
+    }
+
+    function removeWord(o, destroyed) {
+      const i = words.indexOf(o);
+      if (i >= 0) words.splice(i, 1);
+      if (target === o) target = null;
+
+      if (destroyed) {
+        const b = document.createElement("div");
+        b.className = "boom";
+        b.textContent = "💥";
+        b.style.left = o.x + "%";
+        b.style.top = o.y + "px";
+        screen.appendChild(b);
+        setTimeout(() => b.remove(), 500);
+      }
+      o.el.remove();
+    }
+
+    function loseLife() {
+      lives--;
+      livesEl.textContent = "♥".repeat(lives) + "♡".repeat(3 - lives);
+      screen.classList.remove("hit");
+      void screen.offsetWidth; // アニメをリセット
+      screen.classList.add("hit");
+      if (lives <= 0) gameOver();
+    }
+
+    // ===== タイピング処理 =====
+    function handleChar(ch) {
+      if (!playing) return "none";
+      ch = ch.toLowerCase();
+      if (!/^[a-z-]$/.test(ch)) return "none";
+
+      if (!target) {
+        // いちばん下にある、その文字で始まることばを狙う
+        const cands = words
+          .filter(o => o.ro[0] === ch)
+          .sort((a, b) => b.y - a.y);
+        if (cands.length === 0) return "miss";
+        target = cands[0];
+        target.el.classList.add("target");
+      } else if (target.ro[target.idx] !== ch) {
+        return "miss"; // ちがう文字
+      }
+
+      target.idx++;
+      renderRo(target);
+      cannon.style.transform = "translateX(-50%) translateY(-3px)";
+      setTimeout(() => (cannon.style.transform = "translateX(-50%)"), 80);
+
+      if (target.idx >= target.ro.length) {
+        score += target.ro.length * 10;
+        scoreEl.textContent = score;
+        removeWord(target, true);
+        updateLevel();
+      }
+      return "hit";
+    }
+
+    // ミスしたときのフィードバック（大砲が首をふる）
+    function missFeedback() {
+      cannon.classList.remove("miss");
+      void cannon.offsetWidth;
+      cannon.classList.add("miss");
+    }
+
+    function updateLevel() {
+      const newLevel = Math.floor(score / 150) + 1;
+      if (newLevel !== level) {
+        level = newLevel;
+        levelEl.textContent = level;
+      }
+    }
+
+    // ===== キー入力（フォーカス不要：ページのどこにいても拾う） =====
+    function processChar(ch) {
+      const result = handleChar(ch);
+      if (result === "miss") missFeedback();
+    }
+
+    // PC：document 全体で keydown を拾うので、フォーカスを気にしなくていい
+    document.addEventListener("keydown", (e) => {
+      if (!playing) return;
+      if (e.target === typer) return; // 入力欄フォーカス時は input イベント側で処理（二重防止）
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key.length !== 1) return;
+      const ch = e.key.toLowerCase();
+      if (/^[a-z-]$/.test(ch)) processChar(ch);
+    });
+
+    // スマホ：見えない入力欄でソフトキーボードの文字を受け取る
+    typer.addEventListener("input", (e) => {
+      if (e.isComposing) return; // 変換中は確定を待つ
+      const v = typer.value;
+      typer.value = "";
+      if (!v) return;
+      const ch = v[v.length - 1].toLowerCase();
+      if (/^[a-z-]$/.test(ch)) processChar(ch);
+    });
+    typer.addEventListener("compositionend", (e) => {
+      const txt = (e.data || "").toLowerCase();
+      typer.value = "";
+      for (const ch of txt) {
+        if (/^[a-z-]$/.test(ch)) processChar(ch);
+      }
+    });
+
+    // スマホ：画面タップでキーボードを開く（PCでは入力欄にフォーカスさせない）
+    const isTouch = "ontouchstart" in window;
+    screen.addEventListener("click", () => {
+      if (isTouch) typer.focus();
+    });
+
+    // ===== ゲーム開始 / 終了 =====
+    function startGame() {
+      words.forEach(o => o.el.remove());
+      words = [];
+      target = null;
+      score = 0;
+      lives = 3;
+      level = 1;
+      scoreEl.textContent = "0";
+      levelEl.textContent = "1";
+      livesEl.textContent = "♥♥♥";
+      startOverlay.hidden = true;
+      overOverlay.hidden = true;
+      playing = true;
+      spawnTimer = 0;
+      lastTime = performance.now();
+      if (isTouch) typer.focus(); // スマホはここでキーボードを開く
+      clearInterval(loopTimer);
+      loopTimer = setInterval(loop, 1000 / 30);
+    }
+
+    function gameOver() {
+      playing = false;
+      clearInterval(loopTimer);
+      words.forEach(o => o.el.remove());
+      words = [];
+      target = null;
+
+      document.getElementById("finalScore").textContent = score;
+      const isRecord = score > hiscore;
+      if (isRecord) {
+        hiscore = score;
+        localStorage.setItem(HISCORE_KEY, String(hiscore));
+        hiscoreEl.textContent = hiscore;
+      }
+      document.getElementById("newRecord").hidden = !isRecord;
+      overOverlay.hidden = false;
+    }
+
+    document.getElementById("startBtn").addEventListener("click", startGame);
+    document.getElementById("retryBtn").addEventListener("click", startGame);
+  </script>
+</body>
+</html>

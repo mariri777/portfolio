@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>配色をツクル — ニュアンスカラー・パレット</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --paper: #fffdfa;
+    --ink: #2c2824;
+    --ink-soft: #6d665e;
+    --ink-faint: #a89f94;
+    --line: #e8e2d8;
+    --line-soft: #f0ebe3;
+    --gold: #a8895f;
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink); background: var(--bg); min-height: 100vh; line-height: 1.85;
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.02em;
+  }
+
+  .wrap { max-width: 780px; margin: 0 auto; padding: 30px 22px 96px; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft);
+    text-decoration: none; padding: 7px 15px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--paper); transition: border-color .2s ease, color .2s ease;
+  }
+  .home-link:hover { color: var(--gold); border-color: var(--gold); }
+
+  /* Hero */
+  .hero { margin: 58px 0 40px; text-align: center; }
+  .eyebrow { font-family: "Shippori Mincho B1", serif; font-size: 13px; letter-spacing: 0.42em; color: var(--gold); font-weight: 600; }
+  .hero h1 { font-family: "Shippori Mincho B1", serif; font-weight: 700; font-size: clamp(36px, 9vw, 58px); line-height: 1.3; letter-spacing: 0.08em; margin: 16px 0 0; }
+  .hero p { color: var(--ink-soft); font-size: 14.5px; max-width: 460px; margin: 18px auto 0; line-height: 2; }
+  .hero .rule { width: 34px; height: 1px; background: var(--gold); margin: 26px auto 0; opacity: .6; }
+
+  /* Controls */
+  .controls { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 26px 28px; margin-bottom: 22px; }
+  .ctl-label { font-family: "Shippori Mincho B1", serif; font-size: 13px; font-weight: 600; color: var(--ink); letter-spacing: 0.14em; margin-bottom: 13px; }
+  .ctl-label:not(:first-child) { margin-top: 24px; }
+
+  .moods { display: flex; flex-wrap: wrap; gap: 9px; }
+  .mood {
+    font-family: "Shippori Mincho B1", serif; font-size: 13.5px; font-weight: 500;
+    padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink-soft); cursor: pointer; transition: all .18s ease;
+    display: inline-flex; align-items: center; gap: 8px; letter-spacing: 0.06em;
+  }
+  .mood .dot { width: 11px; height: 11px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+  .mood:hover { border-color: var(--gold); color: var(--ink); }
+  .mood.active { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+
+  .slider-row { display: flex; align-items: center; gap: 16px; }
+  .slider-row .cap { font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); white-space: nowrap; min-width: 30px; }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none; flex: 1; height: 4px; border-radius: 999px;
+    background: var(--line); outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--paper); border: 1px solid var(--line); box-shadow: 0 1px 4px rgba(0,0,0,.14); cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%; background: var(--paper);
+    border: 1px solid var(--line); box-shadow: 0 1px 4px rgba(0,0,0,.14); cursor: pointer;
+  }
+
+  .btn-row { display: flex; flex-wrap: wrap; gap: 11px; margin-top: 26px; }
+  .btn {
+    font-family: inherit; font-weight: 700; font-size: 14px; color: var(--paper); background: var(--ink);
+    border: none; padding: 12px 22px; border-radius: 11px; cursor: pointer;
+    transition: transform .15s ease, opacity .15s ease; letter-spacing: 0.04em;
+  }
+  .btn:hover { transform: translateY(-1px); opacity: .92; }
+  .btn:active { transform: translateY(0); }
+  .btn.ghost { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
+  .btn.ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* Palette */
+  .palette-name { text-align: center; font-family: "Shippori Mincho B1", serif; font-size: 20px; font-weight: 600; letter-spacing: 0.14em; margin: 6px 0 18px; }
+  .palette-name small { display: block; font-family: "Zen Kaku Gothic New", sans-serif; font-size: 11.5px; color: var(--ink-faint); letter-spacing: 0.16em; margin-top: 5px; font-weight: 500; }
+
+  .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+  .swatch {
+    border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--paper);
+    cursor: pointer; transition: transform .16s ease, box-shadow .16s ease; text-align: center;
+  }
+  .swatch:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(60,50,40,.12); }
+  .swatch .chip { height: 92px; }
+  .swatch .meta { padding: 10px 6px 12px; }
+  .swatch .role { font-family: "Shippori Mincho B1", serif; font-size: 12.5px; font-weight: 600; color: var(--ink); letter-spacing: 0.08em; }
+  .swatch .hex { font-family: "Zen Kaku Gothic New", monospace; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.05em; margin-top: 3px; text-transform: uppercase; }
+
+  /* Preview */
+  .preview-wrap { margin-bottom: 22px; }
+  .preview-cap { font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); letter-spacing: 0.2em; text-align: center; margin-bottom: 12px; }
+  .pv-outer { border: 1px solid var(--line); border-radius: var(--radius); padding: 30px; transition: background .4s ease; }
+  .pv-card { border-radius: 14px; padding: 26px 26px 28px; transition: background .4s ease; box-shadow: 0 6px 20px rgba(60,50,40,.06); }
+  .pv-eyebrow { font-family: "Shippori Mincho B1", serif; font-size: 11.5px; letter-spacing: 0.34em; font-weight: 600; transition: color .4s ease; }
+  .pv-title { font-family: "Shippori Mincho B1", serif; font-size: 25px; font-weight: 700; line-height: 1.5; margin: 12px 0 10px; letter-spacing: 0.04em; transition: color .4s ease; }
+  .pv-body { font-size: 13.5px; line-height: 2; transition: color .4s ease; }
+  .pv-foot { display: flex; align-items: center; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
+  .pv-btn { font-family: inherit; font-weight: 700; font-size: 13px; padding: 10px 22px; border-radius: 9px; border: none; transition: background .4s ease, color .4s ease; letter-spacing: 0.06em; }
+  .pv-pill { font-family: "Shippori Mincho B1", serif; font-size: 12px; padding: 6px 15px; border-radius: 999px; transition: background .4s ease, color .4s ease; letter-spacing: 0.08em; }
+
+  /* Copy all */
+  .copy-all { text-align: center; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(16px);
+    background: var(--ink); color: var(--paper); font-size: 13px; padding: 11px 22px; border-radius: 999px;
+    letter-spacing: 0.05em; opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease;
+    box-shadow: 0 8px 26px rgba(0,0,0,.22); z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .footer { text-align: center; margin-top: 52px; padding-top: 26px; border-top: 1px solid var(--line); font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); line-height: 2.1; letter-spacing: 0.14em; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 24px 16px 76px; }
+    .hero { margin: 36px 0 30px; }
+    .palette { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .swatch .chip { height: 64px; }
+    .swatch .meta { padding: 8px 2px 10px; }
+    .swatch .role { font-size: 11px; }
+    .swatch .hex { font-size: 9px; }
+    .controls { padding: 22px 18px 24px; }
+    .pv-outer { padding: 18px; }
+    .pv-card { padding: 22px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="home-link" href="../">← 一覧へもどる</a>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="eyebrow">NUANCE PALETTE</div>
+    <h1>配色をツクル</h1>
+    <p>気分をひとつ選ぶだけで、上品な「くすみ色」5色の組み合わせをご提案します。気に入った色は押せばコピー。あなたの作品にそのまま使えます。</p>
+    <div class="rule"></div>
+  </header>
+
+  <!-- ============ CONTROLS ============ -->
+  <section class="controls">
+    <div class="ctl-label">気分をえらぶ</div>
+    <div class="moods" id="moods"></div>
+
+    <div class="ctl-label">色あい（色相）</div>
+    <div class="slider-row">
+      <span class="cap">寒</span>
+      <input type="range" id="hue" min="0" max="359" value="205" />
+      <span class="cap">暖</span>
+    </div>
+
+    <div class="ctl-label">あざやかさ</div>
+    <div class="slider-row">
+      <span class="cap">霞</span>
+      <input type="range" id="vivid" min="0" max="100" value="42" />
+      <span class="cap">鮮</span>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" id="btnShuffle">べつの配色にする</button>
+      <button class="btn ghost" id="btnCopyAll">5色まとめてコピー</button>
+    </div>
+  </section>
+
+  <!-- ============ PALETTE ============ -->
+  <div class="palette-name" id="paletteName">朝もや<small>MORNING MIST</small></div>
+  <div class="palette" id="palette"></div>
+
+  <!-- ============ PREVIEW ============ -->
+  <div class="preview-wrap">
+    <div class="preview-cap">— 使ってみた例 —</div>
+    <div class="pv-outer" id="pvOuter">
+      <div class="pv-card" id="pvCard">
+        <div class="pv-eyebrow" id="pvEyebrow">SEASON'S LETTER</div>
+        <div class="pv-title" id="pvTitle">静かな朝に、ひとさじの余白を。</div>
+        <div class="pv-body" id="pvBody">配色は、言葉を発する前に空気を決めます。やわらかなくすみ色は、読む人の肩の力をそっと抜いてくれます。</div>
+        <div class="pv-foot">
+          <button class="pv-btn" id="pvBtn">よみはじめる</button>
+          <span class="pv-pill" id="pvPill">新着</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="copy-all">
+    <span style="font-size:12px;color:var(--ink-faint);letter-spacing:0.1em">色を押すと、その1色だけコピーできます</span>
+  </div>
+
+  <footer class="footer">
+    NUANCE PALETTE MAKER<br />
+    Built by mariri
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // ===== 気分プリセット（色相 h と あざやかさ v）=====
+  const MOODS = [
+    { key: "mist",    jp: "朝もや", en: "MORNING MIST", h: 205, v: 30 },
+    { key: "fog",     jp: "霧",     en: "FOG",          h: 220, v: 14 },
+    { key: "leaf",    jp: "若葉",   en: "YOUNG LEAF",   h: 108, v: 38 },
+    { key: "matcha",  jp: "抹茶",   en: "MATCHA",       h: 78,  v: 34 },
+    { key: "honey",   jp: "蜂蜜",   en: "HONEY",        h: 40,  v: 52 },
+    { key: "coral",   jp: "珊瑚",   en: "CORAL",        h: 12,  v: 48 },
+    { key: "sakura",  jp: "桜",     en: "SAKURA",       h: 346, v: 36 },
+    { key: "wisteria",jp: "藤",     en: "WISTERIA",     h: 268, v: 32 },
+  ];
+
+  const ROLES = ["背景", "ベース", "メイン", "アクセント", "文字"];
+
+  let state = { h: 205, v: 42, name: "朝もや", en: "MORNING MIST" };
+
+  // ===== HSL → HEX =====
+  function hslToHex(h, s, l) {
+    h = ((h % 360) + 360) % 360; s /= 100; l /= 100;
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = l - c / 2;
+    let r = 0, g = 0, b = 0;
+    if (h < 60)      { r = c; g = x; }
+    else if (h < 120){ r = x; g = c; }
+    else if (h < 180){ g = c; b = x; }
+    else if (h < 240){ g = x; b = c; }
+    else if (h < 300){ r = x; b = c; }
+    else             { r = c; b = x; }
+    const to = (v) => Math.round((v + m) * 255).toString(16).padStart(2, "0");
+    return "#" + to(r) + to(g) + to(b);
+  }
+
+  // ===== パレット生成（背景/ベース/メイン/アクセント/文字）=====
+  function makePalette(h, v) {
+    const S = 8 + (v / 100) * 50; // あざやかさ 8〜58
+    return [
+      { role: "背景",     h: h,             s: S * 0.30, l: 95 },
+      { role: "ベース",   h: h + 6,         s: S * 0.48, l: 87 },
+      { role: "メイン",   h: h,             s: S * 1.00, l: 58 },
+      { role: "アクセント", h: (h + 168) % 360, s: S * 1.08, l: 55 },
+      { role: "文字",     h: h,             s: S * 0.62, l: 24 },
+    ].map((c) => ({ role: c.role, hex: hslToHex(c.h, Math.min(c.s, 62), c.l) }));
+  }
+
+  let current = [];
+
+  function render() {
+    current = makePalette(state.h, state.v);
+
+    // 名前
+    $("paletteName").innerHTML = state.name + "<small>" + state.en + "</small>";
+
+    // スウォッチ
+    const pal = $("palette");
+    pal.innerHTML = "";
+    current.forEach((c) => {
+      const el = document.createElement("div");
+      el.className = "swatch";
+      el.innerHTML =
+        '<div class="chip" style="background:' + c.hex + '"></div>' +
+        '<div class="meta"><div class="role">' + c.role + '</div>' +
+        '<div class="hex">' + c.hex + '</div></div>';
+      el.addEventListener("click", () => copyOne(c.hex));
+      pal.appendChild(el);
+    });
+
+    // プレビュー反映
+    const [bg, base, main, accent, ink] = current.map((c) => c.hex);
+    $("pvOuter").style.background = bg;
+    $("pvCard").style.background = base;
+    $("pvEyebrow").style.color = accent;
+    $("pvTitle").style.color = ink;
+    $("pvBody").style.color = ink;
+    $("pvBody").style.opacity = "0.78";
+    $("pvBtn").style.background = main;
+    $("pvBtn").style.color = bg;
+    $("pvPill").style.background = accent;
+    $("pvPill").style.color = bg;
+
+    // スライダー同期
+    $("hue").value = Math.round(state.h);
+    $("vivid").value = Math.round(state.v);
+  }
+
+  // ===== コピー =====
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove("show"), 1600);
+  }
+  function copyText(text, msg) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => toast(msg)).catch(() => fallback(text, msg));
+    } else { fallback(text, msg); }
+  }
+  function fallback(text, msg) {
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); toast(msg); } catch (e) { toast("コピーできませんでした"); }
+    document.body.removeChild(ta);
+  }
+  function copyOne(hex) { copyText(hex, hex.toUpperCase() + " をコピーしました"); }
+  function copyAll() {
+    const text = current.map((c) => c.hex).join("\n");
+    copyText(text, "5色すべてコピーしました");
+  }
+
+  // ===== 気分チップ =====
+  function buildMoods() {
+    const box = $("moods");
+    MOODS.forEach((m) => {
+      const dotHex = hslToHex(m.h, Math.min(8 + (m.v / 100) * 50, 62), 58);
+      const el = document.createElement("button");
+      el.className = "mood";
+      el.dataset.key = m.key;
+      el.innerHTML = '<span class="dot" style="background:' + dotHex + '"></span>' + m.jp;
+      el.addEventListener("click", () => {
+        document.querySelectorAll(".mood").forEach((x) => x.classList.remove("active"));
+        el.classList.add("active");
+        state.h = m.h; state.v = m.v; state.name = m.jp; state.en = m.en;
+        render();
+      });
+      box.appendChild(el);
+    });
+    box.firstChild.classList.add("active");
+  }
+
+  // ===== スライダー =====
+  $("hue").addEventListener("input", (e) => {
+    state.h = +e.target.value;
+    state.name = "オリジナル"; state.en = "YOUR OWN";
+    document.querySelectorAll(".mood").forEach((x) => x.classList.remove("active"));
+    render();
+  });
+  $("vivid").addEventListener("input", (e) => {
+    state.v = +e.target.value;
+    state.name = "オリジナル"; state.en = "YOUR OWN";
+    document.querySelectorAll(".mood").forEach((x) => x.classList.remove("active"));
+    render();
+  });
+
+  // ===== べつの配色 =====
+  $("btnShuffle").addEventListener("click", () => {
+    state.h = Math.floor(Math.random() * 360);
+    state.v = 18 + Math.floor(Math.random() * 44); // 18〜62
+    state.name = "オリジナル"; state.en = "YOUR OWN";
+    document.querySelectorAll(".mood").forEach((x) => x.classList.remove("active"));
+    render();
+  });
+  $("btnCopyAll").addEventListener("click", copyAll);
+
+  // ===== init =====
+  buildMoods();
+  render();
+</script>
+</body>
+</html>

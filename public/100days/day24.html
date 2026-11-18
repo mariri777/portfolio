@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>たてかえ精算メモ — 誰が誰にいくら返す？</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #f3f1ea;
+    --paper: #fffdf9;
+    --ink: #2b2925;
+    --ink-soft: #6b635a;
+    --ink-faint: #a89f92;
+    --line: #e5ddce;
+    --line-soft: #efe9dc;
+    --accent: #4e7c74;      /* 受取（青竹） */
+    --accent-deep: #3a635c;
+    --accent-soft: #e5efec;
+    --shu: #bb5a41;         /* 支払（朱） */
+    --shu-soft: #f6e4dd;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink); background: var(--bg); min-height: 100vh; line-height: 1.8;
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.02em;
+  }
+
+  .wrap { max-width: 640px; margin: 0 auto; padding: 28px 20px 90px; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft);
+    text-decoration: none; padding: 7px 15px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--paper); transition: border-color .2s ease, color .2s ease;
+  }
+  .home-link:hover { color: var(--accent-deep); border-color: var(--accent); }
+
+  /* Hero */
+  .hero { text-align: center; margin: 44px 0 30px; }
+  .eyebrow { font-family: "Shippori Mincho B1", serif; font-size: 12px; letter-spacing: 0.4em; color: var(--accent-deep); font-weight: 600; }
+  .hero h1 { font-family: "Shippori Mincho B1", serif; font-weight: 700; font-size: clamp(30px, 7.5vw, 44px); line-height: 1.3; letter-spacing: 0.1em; margin: 12px 0 0; }
+  .hero p { color: var(--ink-soft); font-size: 13.5px; max-width: 420px; margin: 14px auto 0; line-height: 1.95; }
+
+  /* Panel */
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 22px 24px; margin-bottom: 16px; }
+  .panel h2 { font-family: "Shippori Mincho B1", serif; font-size: 16px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 4px; display: flex; align-items: center; gap: 9px; }
+  .panel h2 .n { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; font-family: "Zen Kaku Gothic New", sans-serif; }
+  .panel .desc { font-size: 12.5px; color: var(--ink-faint); margin-bottom: 16px; padding-left: 31px; }
+
+  /* Members */
+  .member-add { display: flex; gap: 9px; margin-bottom: 14px; }
+  input[type="text"], input[type="number"], select {
+    font-family: inherit; font-size: 14px; color: var(--ink); padding: 11px 13px;
+    border: 1px solid var(--line); border-radius: 10px; background: #fff; outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease; width: 100%;
+  }
+  input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  input::placeholder { color: var(--ink-faint); }
+
+  .btn { font-family: inherit; font-weight: 700; font-size: 14px; color: #fff; background: var(--accent); border: none; padding: 11px 20px; border-radius: 10px; cursor: pointer; white-space: nowrap; transition: transform .15s ease, opacity .15s ease, background .15s ease; letter-spacing: 0.04em; }
+  .btn:hover { transform: translateY(-1px); background: var(--accent-deep); }
+  .btn:active { transform: translateY(0); }
+  .btn.dark { background: var(--ink); }
+  .btn.dark:hover { background: #000; }
+  .btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .btn.ghost:hover { border-color: var(--accent); color: var(--accent-deep); background: var(--paper); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .mchip { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; padding: 7px 8px 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); }
+  .mchip button { border: none; background: none; cursor: pointer; color: var(--ink-faint); font-size: 15px; line-height: 1; padding: 2px 4px; border-radius: 50%; transition: color .15s ease; }
+  .mchip button:hover { color: var(--shu); }
+  .empty { font-size: 13px; color: var(--ink-faint); }
+
+  /* Expense form */
+  .exp-form { display: grid; gap: 11px; }
+  .exp-row { display: flex; gap: 9px; }
+  .exp-row .col-payer { flex: 1.1; }
+  .exp-row .col-amount { flex: 1; }
+  .field-label { font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-soft); margin-bottom: 6px; letter-spacing: 0.08em; }
+  .parts-toggle { font-size: 12px; color: var(--accent-deep); cursor: pointer; user-select: none; letter-spacing: 0.04em; }
+  .parts-toggle:hover { text-decoration: underline; }
+  .parts-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 4px; }
+  .pchip { font-size: 12.5px; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--ink-faint); cursor: pointer; transition: all .15s ease; }
+  .pchip.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-deep); font-weight: 700; }
+
+  /* Expense list */
+  .exp-list { margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
+  .exp-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+  .exp-item .ei-main { flex: 1; min-width: 0; }
+  .exp-item .ei-memo { font-size: 14px; font-weight: 700; }
+  .exp-item .ei-sub { font-size: 11.5px; color: var(--ink-faint); margin-top: 1px; }
+  .exp-item .ei-amount { font-family: "Shippori Mincho B1", serif; font-size: 16px; font-weight: 700; white-space: nowrap; }
+  .exp-item .ei-del { border: none; background: none; cursor: pointer; color: var(--ink-faint); font-size: 17px; padding: 2px 4px; transition: color .15s ease; }
+  .exp-item .ei-del:hover { color: var(--shu); }
+
+  /* Result */
+  .result-total { text-align: center; margin-bottom: 20px; }
+  .result-total .rt-label { font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); letter-spacing: 0.16em; }
+  .result-total .rt-num { font-family: "Shippori Mincho B1", serif; font-size: clamp(34px, 9vw, 46px); font-weight: 700; line-height: 1.15; }
+  .result-total .rt-num small { font-size: 16px; color: var(--ink-faint); margin-left: 4px; }
+
+  .balances { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 9px; margin-bottom: 22px; }
+  .bal { border: 1px solid var(--line); border-radius: 11px; padding: 12px 14px; background: var(--paper); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .bal .b-name { font-size: 13.5px; font-weight: 700; }
+  .bal .b-net { font-family: "Shippori Mincho B1", serif; font-size: 15px; font-weight: 700; white-space: nowrap; }
+  .bal.plus .b-net { color: var(--accent-deep); }
+  .bal.minus .b-net { color: var(--shu); }
+  .bal.zero .b-net { color: var(--ink-faint); }
+
+  .settle-head { font-family: "Shippori Mincho B1", serif; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .settle-head .badge { font-family: "Zen Kaku Gothic New", sans-serif; font-size: 11px; font-weight: 700; color: var(--accent-deep); background: var(--accent-soft); padding: 3px 10px; border-radius: 999px; letter-spacing: 0.04em; }
+  .transfers { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20px; }
+  .tx { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+  .tx .tx-flow { flex: 1; display: flex; align-items: center; gap: 10px; font-size: 14.5px; flex-wrap: wrap; }
+  .tx .tx-from { font-weight: 700; color: var(--shu); }
+  .tx .tx-arrow { color: var(--ink-faint); font-size: 16px; }
+  .tx .tx-to { font-weight: 700; color: var(--accent-deep); }
+  .tx .tx-amt { font-family: "Shippori Mincho B1", serif; font-size: 17px; font-weight: 700; white-space: nowrap; }
+
+  .result-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .settle-done { text-align: center; padding: 24px 10px; color: var(--ink-soft); font-size: 14px; }
+  .settle-done .sd-mark { font-size: 26px; margin-bottom: 6px; }
+
+  .reset-link { display: block; text-align: center; margin-top: 20px; font-size: 12px; color: var(--ink-faint); cursor: pointer; letter-spacing: 0.06em; }
+  .reset-link:hover { color: var(--shu); text-decoration: underline; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(16px);
+    background: var(--ink); color: var(--paper); font-size: 13px; padding: 11px 22px; border-radius: 999px;
+    letter-spacing: 0.05em; opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease;
+    box-shadow: 0 8px 26px rgba(0,0,0,.22); z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .footer { text-align: center; margin-top: 44px; padding-top: 24px; border-top: 1px solid var(--line); font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); line-height: 2.1; letter-spacing: 0.14em; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 22px 15px 74px; }
+    .hero { margin: 30px 0 22px; }
+    .panel { padding: 20px 16px; }
+    .panel .desc { padding-left: 0; }
+    .exp-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="home-link" href="../">← 一覧へもどる</a>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="eyebrow">SETTLE UP</div>
+    <h1>たてかえ精算メモ</h1>
+    <p>誰が何を立て替えたかを入れるだけ。「誰が誰にいくら返せば良いか」を、いちばん少ない送金回数で計算します。</p>
+  </header>
+
+  <!-- ============ 1. MEMBERS ============ -->
+  <section class="panel">
+    <h2><span class="n">1</span>メンバー</h2>
+    <div class="desc">精算する人を追加します。</div>
+    <div class="member-add">
+      <input type="text" id="memberName" placeholder="なまえ（例：はなこ）" maxlength="12" />
+      <button class="btn" id="btnAddMember">追加</button>
+    </div>
+    <div class="chips" id="memberChips"></div>
+  </section>
+
+  <!-- ============ 2. EXPENSES ============ -->
+  <section class="panel">
+    <h2><span class="n">2</span>立替を追加</h2>
+    <div class="desc">「誰が・いくら・何に」払ったかを記録します。</div>
+
+    <div class="exp-form">
+      <div class="exp-row">
+        <div class="col-payer">
+          <div class="field-label">払った人</div>
+          <select id="expPayer"></select>
+        </div>
+        <div class="col-amount">
+          <div class="field-label">金額（円）</div>
+          <input type="number" id="expAmount" placeholder="0" min="1" inputmode="numeric" />
+        </div>
+      </div>
+      <div>
+        <div class="field-label">内容（任意）</div>
+        <input type="text" id="expMemo" placeholder="例：宿泊費、ランチ、タクシー" maxlength="24" />
+      </div>
+      <div>
+        <div class="parts-toggle" id="partsToggle">▸ 割り勘の対象をえらぶ（初期は全員）</div>
+        <div class="parts-chips" id="partsChips" style="display:none"></div>
+      </div>
+      <button class="btn dark" id="btnAddExpense">この立替を追加する</button>
+    </div>
+
+    <div class="exp-list" id="expList"></div>
+  </section>
+
+  <!-- ============ 3. RESULT ============ -->
+  <section class="panel">
+    <h2><span class="n">3</span>精算結果</h2>
+    <div class="desc">貸し借りを相殺して、最小の送金にまとめます。</div>
+    <div id="resultBody"></div>
+  </section>
+
+  <div class="reset-link" id="resetLink">すべてのデータを消す</div>
+
+  <footer class="footer">
+    たてかえ精算メモ ・ サーバー不要<br />
+    Built by mariri
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const KEY = "tatekae_v1";
+
+  let members = [];   // {id, name}
+  let expenses = [];  // {id, payerId, amount, memo, participantIds:[]}
+  let selected = new Set(); // 次に追加する立替の割り勘対象
+
+  const uid = () => Math.random().toString(36).slice(2, 9);
+  const yen = (n) => "¥" + Math.round(n).toLocaleString("ja-JP");
+
+  // ===== 保存・読み込み =====
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify({ members, expenses })); } catch (e) {}
+  }
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) { const d = JSON.parse(raw); members = d.members || []; expenses = d.expenses || []; return true; }
+    } catch (e) {}
+    return false;
+  }
+  function seed() {
+    members = [{ id: "a", name: "はなこ" }, { id: "b", name: "たろう" }, { id: "c", name: "さくら" }];
+    expenses = [
+      { id: uid(), payerId: "a", amount: 6000, memo: "宿泊費", participantIds: ["a", "b", "c"] },
+      { id: uid(), payerId: "b", amount: 3300, memo: "ランチ", participantIds: ["a", "b", "c"] },
+    ];
+  }
+
+  // ===== メンバー =====
+  function addMember() {
+    const name = $("memberName").value.trim();
+    if (!name) { toast("なまえを入力してください"); return; }
+    if (members.some((m) => m.name === name)) { toast("同じ名前があります"); return; }
+    const id = uid();
+    members.push({ id, name });
+    selected.add(id);
+    $("memberName").value = "";
+    renderAll(); save();
+  }
+  function removeMember(id) {
+    if (expenses.some((e) => e.payerId === id || e.participantIds.includes(id))) {
+      toast("この人が関わる立替があります。先に立替を消してください");
+      return;
+    }
+    members = members.filter((m) => m.id !== id);
+    selected.delete(id);
+    renderAll(); save();
+  }
+
+  function renderMembers() {
+    const box = $("memberChips");
+    if (members.length === 0) { box.innerHTML = '<span class="empty">まだメンバーがいません。</span>'; return; }
+    box.innerHTML = "";
+    members.forEach((m) => {
+      const el = document.createElement("span");
+      el.className = "mchip";
+      el.innerHTML = m.name + ' <button title="削除">×</button>';
+      el.querySelector("button").addEventListener("click", () => removeMember(m.id));
+      box.appendChild(el);
+    });
+  }
+
+  // ===== 立替フォーム =====
+  function renderPayerOptions() {
+    const sel = $("expPayer");
+    const prev = sel.value;
+    sel.innerHTML = "";
+    members.forEach((m) => {
+      const o = document.createElement("option");
+      o.value = m.id; o.textContent = m.name;
+      sel.appendChild(o);
+    });
+    if (members.some((m) => m.id === prev)) sel.value = prev;
+  }
+  function renderPartsChips() {
+    const box = $("partsChips");
+    box.innerHTML = "";
+    members.forEach((m) => {
+      const el = document.createElement("span");
+      el.className = "pchip" + (selected.has(m.id) ? " on" : "");
+      el.textContent = m.name;
+      el.addEventListener("click", () => {
+        if (selected.has(m.id)) selected.delete(m.id); else selected.add(m.id);
+        renderPartsChips();
+      });
+      box.appendChild(el);
+    });
+  }
+  $("partsToggle").addEventListener("click", () => {
+    const box = $("partsChips");
+    const open = box.style.display !== "none";
+    box.style.display = open ? "none" : "flex";
+    $("partsToggle").textContent = (open ? "▸" : "▾") + " 割り勘の対象をえらぶ（初期は全員）";
+  });
+
+  function addExpense() {
+    if (members.length === 0) { toast("先にメンバーを追加してください"); return; }
+    const payerId = $("expPayer").value;
+    const amount = Math.floor(Number($("expAmount").value));
+    const memo = $("expMemo").value.trim() || "立替";
+    if (!payerId) { toast("払った人を選んでください"); return; }
+    if (!(amount > 0)) { toast("金額を正しく入力してください"); return; }
+    const participantIds = members.filter((m) => selected.has(m.id)).map((m) => m.id);
+    if (participantIds.length === 0) { toast("割り勘の対象を1人以上選んでください"); return; }
+    expenses.push({ id: uid(), payerId, amount, memo, participantIds });
+    $("expAmount").value = ""; $("expMemo").value = "";
+    renderAll(); save();
+    toast("立替を追加しました");
+  }
+  function removeExpense(id) {
+    expenses = expenses.filter((e) => e.id !== id);
+    renderAll(); save();
+  }
+
+  function nameOf(id) { const m = members.find((x) => x.id === id); return m ? m.name : "（削除）"; }
+
+  function renderExpenses() {
+    const box = $("expList");
+    if (expenses.length === 0) { box.innerHTML = '<div class="empty" style="padding:6px 2px">まだ立替がありません。</div>'; return; }
+    box.innerHTML = "";
+    expenses.forEach((e) => {
+      const partNames = e.participantIds.length === members.length ? "全員" : e.participantIds.map(nameOf).join("・");
+      const el = document.createElement("div");
+      el.className = "exp-item";
+      el.innerHTML =
+        '<div class="ei-main"><div class="ei-memo">' + escapeHtml(e.memo) + '</div>' +
+        '<div class="ei-sub">' + nameOf(e.payerId) + ' が立替 ・ 割り勘：' + partNames + '</div></div>' +
+        '<div class="ei-amount">' + yen(e.amount) + '</div>' +
+        '<button class="ei-del" title="削除">×</button>';
+      el.querySelector(".ei-del").addEventListener("click", () => removeExpense(e.id));
+      box.appendChild(el);
+    });
+  }
+
+  // ===== 計算 =====
+  function computeNets() {
+    const net = {};
+    members.forEach((m) => (net[m.id] = 0));
+    expenses.forEach((e) => {
+      const parts = e.participantIds.filter((id) => id in net);
+      if (parts.length === 0) return;
+      const base = Math.floor(e.amount / parts.length);
+      const rem = e.amount - base * parts.length;
+      parts.forEach((id, idx) => { net[id] -= base + (idx < rem ? 1 : 0); });
+      if (e.payerId in net) net[e.payerId] += e.amount;
+    });
+    return members.map((m) => ({ id: m.id, name: m.name, net: net[m.id] }));
+  }
+
+  function settle(nets) {
+    const cred = nets.filter((p) => p.net > 0).map((p) => ({ name: p.name, v: p.net })).sort((a, b) => b.v - a.v);
+    const deb = nets.filter((p) => p.net < 0).map((p) => ({ name: p.name, v: -p.net })).sort((a, b) => b.v - a.v);
+    const tx = [];
+    let i = 0, j = 0;
+    while (i < deb.length && j < cred.length) {
+      const amt = Math.min(deb[i].v, cred[j].v);
+      if (amt > 0) tx.push({ from: deb[i].name, to: cred[j].name, amt });
+      deb[i].v -= amt; cred[j].v -= amt;
+      if (deb[i].v === 0) i++;
+      if (cred[j].v === 0) j++;
+    }
+    return tx;
+  }
+
+  function renderResult() {
+    const box = $("resultBody");
+    if (members.length === 0 || expenses.length === 0) {
+      box.innerHTML = '<div class="settle-done"><div class="sd-mark">···</div>メンバーと立替を入力すると、ここに精算結果が出ます。</div>';
+      return;
+    }
+    const nets = computeNets();
+    const total = expenses.reduce((s, e) => s + e.amount, 0);
+    const tx = settle(nets);
+
+    let html = "";
+    html += '<div class="result-total"><div class="rt-label">立替の合計</div>' +
+            '<div class="rt-num">' + yen(total) + '<small>（' + expenses.length + '件）</small></div></div>';
+
+    html += '<div class="balances">';
+    nets.forEach((p) => {
+      const cls = p.net > 0 ? "plus" : p.net < 0 ? "minus" : "zero";
+      const sign = p.net > 0 ? "受取 " : p.net < 0 ? "支払 " : "±";
+      const val = p.net === 0 ? "0" : yen(Math.abs(p.net));
+      html += '<div class="bal ' + cls + '"><span class="b-name">' + escapeHtml(p.name) + '</span>' +
+              '<span class="b-net">' + sign + val + '</span></div>';
+    });
+    html += "</div>";
+
+    if (tx.length === 0) {
+      html += '<div class="settle-done"><div class="sd-mark">✓</div>貸し借りはありません。精算不要です。</div>';
+    } else {
+      html += '<div class="settle-head">精算のしかた <span class="badge">送金 ' + tx.length + ' 回</span></div>';
+      html += '<div class="transfers">';
+      tx.forEach((t) => {
+        html += '<div class="tx"><div class="tx-flow"><span class="tx-from">' + escapeHtml(t.from) + '</span>' +
+                '<span class="tx-arrow">→</span><span class="tx-to">' + escapeHtml(t.to) + '</span></div>' +
+                '<span class="tx-amt">' + yen(t.amt) + '</span></div>';
+      });
+      html += "</div>";
+      html += '<div class="result-actions">' +
+              '<button class="btn" id="btnCopyResult">精算メモをコピー</button>' +
+              '<button class="btn ghost" id="btnCopyLine">LINE用の文面をコピー</button></div>';
+    }
+    box.innerHTML = html;
+
+    if (tx.length > 0) {
+      $("btnCopyResult").addEventListener("click", () => copyText(buildText(nets, tx, total, false)));
+      $("btnCopyLine").addEventListener("click", () => copyText(buildText(nets, tx, total, true)));
+    }
+  }
+
+  function buildText(nets, tx, total, forLine) {
+    let s = "【たてかえ精算メモ】\n";
+    s += "立替の合計 " + yen(total) + "（" + expenses.length + "件）\n\n";
+    s += "■ 精算（送金 " + tx.length + " 回）\n";
+    tx.forEach((t) => { s += "・" + t.from + " → " + t.to + "　" + yen(t.amt) + "\n"; });
+    if (!forLine) {
+      s += "\n■ 各自の収支\n";
+      nets.forEach((p) => {
+        const label = p.net > 0 ? "受取 " + yen(p.net) : p.net < 0 ? "支払 " + yen(-p.net) : "±0";
+        s += "・" + p.name + "：" + label + "\n";
+      });
+    }
+    return s.trim();
+  }
+
+  // ===== ユーティリティ =====
+  function escapeHtml(s) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove("show"), 1700);
+  }
+  function copyText(text) {
+    const done = () => toast("コピーしました");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else fallbackCopy(text, done);
+  }
+  function fallbackCopy(text, done) {
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) { toast("コピーできませんでした"); }
+    document.body.removeChild(ta);
+  }
+
+  // ===== まとめて描画 =====
+  function renderAll() {
+    renderMembers();
+    renderPayerOptions();
+    renderPartsChips();
+    renderExpenses();
+    renderResult();
+  }
+
+  $("btnAddMember").addEventListener("click", addMember);
+  $("memberName").addEventListener("keydown", (e) => { if (e.key === "Enter") addMember(); });
+  $("btnAddExpense").addEventListener("click", addExpense);
+  $("expAmount").addEventListener("keydown", (e) => { if (e.key === "Enter") addExpense(); });
+  $("resetLink").addEventListener("click", () => {
+    if (confirm("すべてのメンバーと立替を消しますか？")) {
+      members = []; expenses = []; selected = new Set();
+      try { localStorage.removeItem(KEY); } catch (e) {}
+      renderAll();
+      toast("消去しました");
+    }
+  });
+
+  // ===== 初期化 =====
+  if (!load()) seed();
+  members.forEach((m) => selected.add(m.id));
+  renderAll();
+</script>
+</body>
+</html>

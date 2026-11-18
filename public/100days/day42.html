@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>お買い物メモ — よく買うものは、ワンタップで</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Murecho:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #fbfbfa;
+    --surface: #ffffff;
+    --ink: #1c1d1b;
+    --ink-2: #55574f;
+    --ink-3: #8b8d84;
+    --ink-4: #b9bab2;
+    --line: #ecece8;
+    --line-2: #f4f4f1;
+    --accent: #3f9e6e;
+    --accent-soft: #eaf5ef;
+    --accent-deep: #328058;
+
+    /* カテゴリ色 */
+    --c-veg:   #5aa66a;
+    --c-meat:  #cc6b62;
+    --c-dairy: #d7a750;
+    --c-staple:#c19a6b;
+    --c-drink: #5b8fb0;
+    --c-daily: #8b8f98;
+    --c-other: #a9a59c;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    font-family: "Murecho", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: 0.01em;
+    min-height: 100vh;
+  }
+
+  .wrap { max-width: 660px; margin: 0 auto; padding: 60px 22px 110px; }
+
+  /* ---- ヘッダー ---- */
+  header.masthead { margin-bottom: 34px; }
+  .eyebrow {
+    font-size: 11px; letter-spacing: 0.32em; color: var(--ink-4);
+    font-weight: 500; text-transform: uppercase; margin-bottom: 12px;
+  }
+  h1 {
+    font-weight: 700; font-size: clamp(28px, 6vw, 38px);
+    letter-spacing: 0.01em; margin: 0 0 8px; color: var(--ink);
+  }
+  .lead { font-size: 14px; color: var(--ink-3); font-weight: 400; margin: 0; }
+
+  /* ---- 追加バー ---- */
+  .addbar {
+    display: flex; gap: 10px; align-items: stretch;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 8px; margin-bottom: 18px;
+    box-shadow: 0 2px 10px -6px rgba(20,25,20,0.12);
+  }
+  .addbar input[type="text"] {
+    flex: 1; min-width: 0; font-family: "Murecho", sans-serif; font-size: 16px;
+    color: var(--ink); background: transparent; border: none; outline: none; padding: 8px 10px;
+  }
+  .addbar input::placeholder { color: var(--ink-4); }
+  .addbar select {
+    font-family: "Murecho", sans-serif; font-size: 13px; color: var(--ink-2);
+    background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
+    padding: 0 10px; outline: none; cursor: pointer;
+  }
+  .addbar .btn-add {
+    flex: 0 0 auto; font-family: "Murecho", sans-serif; font-size: 20px; font-weight: 500;
+    color: #fff; background: var(--accent); border: none; border-radius: 9px;
+    width: 46px; cursor: pointer; transition: background 0.18s ease; line-height: 1;
+  }
+  .addbar .btn-add:hover { background: var(--accent-deep); }
+  .addbar .btn-add:active { transform: translateY(1px); }
+
+  /* ---- よく買うもの ---- */
+  .quick { margin-bottom: 30px; }
+  .quick .q-label {
+    font-size: 11.5px; letter-spacing: 0.16em; color: var(--ink-3);
+    font-weight: 500; margin: 0 0 11px 2px; display: flex; align-items: center; gap: 6px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-family: "Murecho", sans-serif; font-size: 13.5px; color: var(--ink-2);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 13px 6px 11px; cursor: pointer; transition: all 0.15s ease;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent-deep); background: var(--accent-soft); }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .chip .plus { color: var(--ink-4); font-size: 14px; margin-left: 1px; }
+  .chip:hover .plus { color: var(--accent); }
+
+  /* ---- リスト ---- */
+  .list-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin: 0 2px 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line);
+  }
+  .list-head .t { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .list-head .count { font-size: 13px; color: var(--ink-3); }
+  .list-head .count b { color: var(--accent-deep); font-weight: 700; font-size: 15px; }
+
+  .cat-group { margin-bottom: 18px; }
+  .cat-name {
+    font-size: 11px; letter-spacing: 0.14em; color: var(--ink-3); font-weight: 600;
+    margin: 0 2px 6px; display: flex; align-items: center; gap: 7px;
+  }
+  .cat-name .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .item {
+    display: flex; align-items: center; gap: 13px;
+    padding: 12px 8px; border-radius: 10px; cursor: pointer;
+    transition: background 0.14s ease;
+  }
+  .item:hover { background: var(--line-2); }
+  .item .check {
+    flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--ink-4); transition: all 0.15s ease;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .item .check svg { width: 12px; height: 12px; opacity: 0; transition: opacity 0.15s ease; }
+  .item .name { flex: 1; font-size: 15.5px; color: var(--ink); }
+  .item .rm {
+    flex: 0 0 auto; border: none; background: transparent; color: var(--ink-4);
+    font-size: 18px; cursor: pointer; padding: 2px 6px; border-radius: 6px; line-height: 1;
+    opacity: 0; transition: all 0.15s ease;
+  }
+  .item:hover .rm { opacity: 1; }
+  .item .rm:hover { color: var(--c-meat); background: #fbeeed; }
+
+  /* カゴの中（done） */
+  .done-sec { margin-top: 26px; }
+  .item.done .check { background: var(--accent); border-color: var(--accent); }
+  .item.done .check svg { opacity: 1; }
+  .item.done .name { color: var(--ink-4); text-decoration: line-through; text-decoration-color: var(--ink-4); }
+
+  .actions { display: flex; gap: 10px; margin-top: 22px; }
+  .btn-ghost {
+    font-family: "Murecho", sans-serif; font-size: 13px; color: var(--ink-2);
+    background: transparent; border: 1px solid var(--line); border-radius: 9px;
+    padding: 9px 16px; cursor: pointer; transition: all 0.15s ease;
+  }
+  .btn-ghost:hover { border-color: var(--ink-3); color: var(--ink); }
+  .btn-ghost.danger:hover { border-color: var(--c-meat); color: var(--c-meat); }
+
+  .empty {
+    text-align: center; color: var(--ink-3); font-size: 14px; padding: 40px 14px;
+  }
+  .empty .big { display: block; font-size: 16px; color: var(--ink-2); font-weight: 600; margin-bottom: 4px; }
+
+  footer.credit {
+    text-align: center; margin-top: 52px; font-size: 11px;
+    letter-spacing: 0.14em; color: var(--ink-4);
+  }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 42px 16px 90px; }
+    .addbar { flex-wrap: wrap; }
+    .addbar input[type="text"] { flex: 1 1 100%; order: -1; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="masthead">
+      <div class="eyebrow">Shopping list</div>
+      <h1>お買い物メモ</h1>
+      <p class="lead">よく買うものはワンタップ。カゴに入れたら、チェックで消していく。</p>
+    </header>
+
+    <!-- 追加バー -->
+    <div class="addbar">
+      <input type="text" id="nameInput" placeholder="買うものを入力…" maxlength="24" />
+      <select id="catSelect" aria-label="カテゴリ"></select>
+      <button class="btn-add" id="addBtn" aria-label="追加">＋</button>
+    </div>
+
+    <!-- よく買うもの -->
+    <div class="quick" id="quickBox">
+      <p class="q-label">🔁 よく買うもの</p>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <!-- リスト -->
+    <div class="list-head">
+      <span class="t">買うものリスト</span>
+      <span class="count"><b id="remainCount">0</b> 点</span>
+    </div>
+    <div id="listArea"></div>
+
+    <div class="actions" id="actions" style="display:none">
+      <button class="btn-ghost" id="clearDone">チェック済みを消す</button>
+      <button class="btn-ghost danger" id="clearAll">ぜんぶ消す</button>
+    </div>
+
+    <footer class="credit">Built by mariri</footer>
+  </div>
+
+<script>
+  "use strict";
+
+  const CATEGORIES = [
+    { id: "veg",    name: "野菜・果物", color: "var(--c-veg)"    },
+    { id: "meat",   name: "肉・魚",     color: "var(--c-meat)"   },
+    { id: "dairy",  name: "乳製品・卵", color: "var(--c-dairy)"  },
+    { id: "staple", name: "主食・パン", color: "var(--c-staple)" },
+    { id: "drink",  name: "飲みもの",   color: "var(--c-drink)"  },
+    { id: "daily",  name: "日用品",     color: "var(--c-daily)"  },
+    { id: "other",  name: "その他",     color: "var(--c-other)"  },
+  ];
+  const catById = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
+
+  // 初期サジェスト（履歴が無いとき用）
+  const DEFAULTS = [
+    { name: "牛乳", category: "dairy" }, { name: "たまご", category: "dairy" },
+    { name: "食パン", category: "staple" }, { name: "玉ねぎ", category: "veg" },
+    { name: "鶏むね肉", category: "meat" }, { name: "ヨーグルト", category: "dairy" },
+    { name: "バナナ", category: "veg" }, { name: "トイレットペーパー", category: "daily" },
+  ];
+
+  const LIST_KEY = "shop-list-v1";
+  const FREQ_KEY = "shop-freq-v1";
+  let selectedCat = "veg";
+
+  function loadList() { try { return JSON.parse(localStorage.getItem(LIST_KEY)) || []; } catch { return []; } }
+  function saveList(l) { localStorage.setItem(LIST_KEY, JSON.stringify(l)); }
+  function loadFreq() { try { return JSON.parse(localStorage.getItem(FREQ_KEY)) || {}; } catch { return {}; } }
+  function saveFreq(f) { localStorage.setItem(FREQ_KEY, JSON.stringify(f)); }
+
+  function bumpFreq(name, category) {
+    const f = loadFreq();
+    const key = name;
+    if (!f[key]) f[key] = { count: 0, category };
+    f[key].count++;
+    f[key].category = category;
+    saveFreq(f);
+  }
+
+  // ---- カテゴリ select / 起動 ----
+  function initCatSelect() {
+    const sel = document.getElementById("catSelect");
+    sel.innerHTML = CATEGORIES.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+    sel.value = selectedCat;
+    sel.addEventListener("change", () => { selectedCat = sel.value; });
+  }
+
+  // ---- 追加 ----
+  function addItem(name, category) {
+    name = name.trim();
+    if (!name) return false;
+    const list = loadList();
+    // 未チェックの同名があれば重複追加しない
+    if (list.some(i => i.name === name && !i.done)) { flash(name); return true; }
+    list.push({ id: `${Date.now()}-${Math.floor(Math.random()*1000)}`, name, category, done: false });
+    saveList(list);
+    bumpFreq(name, category);
+    renderAll();
+    return true;
+  }
+
+  function flash(name) {
+    // 既にリストにある場合は軽く知らせる
+    const el = [...document.querySelectorAll(".item .name")].find(n => n.textContent === name);
+    if (el) {
+      el.closest(".item").animate(
+        [{ background: "var(--accent-soft)" }, { background: "transparent" }],
+        { duration: 700, easing: "ease-out" }
+      );
+    }
+  }
+
+  function addFromInput() {
+    const input = document.getElementById("nameInput");
+    if (addItem(input.value, selectedCat)) { input.value = ""; input.focus(); }
+  }
+
+  // ---- よく買うもの ----
+  function renderChips() {
+    const freq = loadFreq();
+    let items = Object.keys(freq).map(name => ({ name, count: freq[name].count, category: freq[name].category }));
+    if (items.length === 0) items = DEFAULTS.map(d => ({ ...d, count: 0 }));
+    items.sort((a, b) => b.count - a.count);
+
+    const activeNames = new Set(loadList().filter(i => !i.done).map(i => i.name));
+    const chips = items.filter(i => !activeNames.has(i.name)).slice(0, 10);
+
+    const box = document.getElementById("chips");
+    const quick = document.getElementById("quickBox");
+    if (chips.length === 0) { quick.style.display = "none"; return; }
+    quick.style.display = "block";
+    box.innerHTML = "";
+    chips.forEach(i => {
+      const c = catById[i.category] || catById.other;
+      const el = document.createElement("button");
+      el.className = "chip";
+      el.innerHTML = `<span class="dot" style="background:${c.color}"></span>${escapeHtml(i.name)}<span class="plus">＋</span>`;
+      el.addEventListener("click", () => addItem(i.name, i.category));
+      box.appendChild(el);
+    });
+  }
+
+  // ---- リスト描画 ----
+  const CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+
+  function itemRow(item) {
+    const c = catById[item.category] || catById.other;
+    const row = document.createElement("div");
+    row.className = "item" + (item.done ? " done" : "");
+    row.innerHTML =
+      `<span class="check">${CHECK_SVG}</span>` +
+      `<span class="name">${escapeHtml(item.name)}</span>` +
+      `<button class="rm" title="削除" data-id="${item.id}">×</button>`;
+    row.addEventListener("click", e => {
+      if (e.target.closest(".rm")) return;
+      toggleDone(item.id);
+    });
+    row.querySelector(".rm").addEventListener("click", () => removeItem(item.id));
+    return row;
+  }
+
+  function renderList() {
+    const list = loadList();
+    const area = document.getElementById("listArea");
+    const actions = document.getElementById("actions");
+    area.innerHTML = "";
+
+    const active = list.filter(i => !i.done);
+    const done = list.filter(i => i.done);
+    document.getElementById("remainCount").textContent = active.length;
+
+    if (list.length === 0) {
+      area.innerHTML = `<div class="empty"><span class="big">リストは空っぽです。</span>上から買うものを足していきましょう。</div>`;
+      actions.style.display = "none";
+      return;
+    }
+    actions.style.display = "flex";
+
+    // アクティブをカテゴリ順にグループ表示
+    CATEGORIES.forEach(cat => {
+      const items = active.filter(i => i.category === cat.id);
+      if (items.length === 0) return;
+      const group = document.createElement("div");
+      group.className = "cat-group";
+      group.innerHTML = `<div class="cat-name"><span class="dot" style="background:${cat.color}"></span>${cat.name}</div>`;
+      items.forEach(i => group.appendChild(itemRow(i)));
+      area.appendChild(group);
+    });
+
+    // カゴの中（done）
+    if (done.length) {
+      const sec = document.createElement("div");
+      sec.className = "done-sec";
+      sec.innerHTML = `<div class="cat-name">🛒 カゴの中（${done.length}）</div>`;
+      done.forEach(i => sec.appendChild(itemRow(i)));
+      area.appendChild(sec);
+    }
+  }
+
+  function toggleDone(id) {
+    const list = loadList();
+    const it = list.find(i => i.id === id);
+    if (it) it.done = !it.done;
+    saveList(list);
+    renderAll();
+  }
+  function removeItem(id) {
+    saveList(loadList().filter(i => i.id !== id));
+    renderAll();
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m =>
+      ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+  }
+
+  function renderAll() { renderChips(); renderList(); }
+
+  // ---- イベント ----
+  document.getElementById("addBtn").addEventListener("click", addFromInput);
+  document.getElementById("nameInput").addEventListener("keydown", e => { if (e.key === "Enter") addFromInput(); });
+  document.getElementById("clearDone").addEventListener("click", () => {
+    saveList(loadList().filter(i => !i.done)); renderAll();
+  });
+  document.getElementById("clearAll").addEventListener("click", () => {
+    if (confirm("リストをぜんぶ消しますか？")) { saveList([]); renderAll(); }
+  });
+
+  // ---- 起動 ----
+  initCatSelect();
+  renderAll();
+</script>
+</body>
+</html>

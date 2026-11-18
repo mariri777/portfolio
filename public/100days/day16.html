@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>今日の七十二候 — 一年を七十二の季節に</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    /* 既定（夏） */
+    --bg: #eef2f1;
+    --bg2: #e3ebe9;
+    --ink: #34403f;
+    --sub: #6f7e7c;
+    --accent: #5b8a86;
+    --line: rgba(52,64,63,0.14);
+    --card: rgba(255,255,255,0.55);
+  }
+  /* 季節ごとのニュアンスカラー */
+  body.spring {
+    --bg: #f7eef0; --bg2: #efe2e6; --ink: #4a3b42; --sub: #8a7480;
+    --accent: #b97a86; --line: rgba(74,59,66,0.13); --card: rgba(255,255,255,0.5);
+  }
+  body.summer {
+    --bg: #eef2f1; --bg2: #e2ebe9; --ink: #34403f; --sub: #6f7e7c;
+    --accent: #5b8a86; --line: rgba(52,64,63,0.14); --card: rgba(255,255,255,0.55);
+  }
+  body.autumn {
+    --bg: #f4ede2; --bg2: #ece0cf; --ink: #463a30; --sub: #8a7458;
+    --accent: #b3704a; --line: rgba(70,58,48,0.13); --card: rgba(255,255,255,0.46);
+  }
+  body.winter {
+    --bg: #eef0f3; --bg2: #e2e6ec; --ink: #3a3f47; --sub: #757d88;
+    --accent: #6b7480; --line: rgba(58,63,71,0.13); --card: rgba(255,255,255,0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Shippori Mincho B1", serif;
+    color: var(--ink);
+    background:
+      radial-gradient(120% 90% at 50% -10%, var(--bg2), transparent 60%),
+      var(--bg);
+    transition: background 1.2s ease, color 1.2s ease;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(28px, 6vw, 72px) 20px;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── ヘッダ ── */
+  header { text-align: center; margin-bottom: clamp(28px, 5vw, 48px); }
+  .brand {
+    font-size: 13px; letter-spacing: 0.5em; color: var(--sub);
+    font-weight: 500; padding-left: 0.5em;
+  }
+  .brand-en {
+    font-size: 10px; letter-spacing: 0.34em; color: var(--sub);
+    opacity: 0.7; margin-top: 8px; font-weight: 400;
+  }
+
+  /* ── 中央カード ── */
+  .stage {
+    width: min(680px, 100%);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    backdrop-filter: blur(6px);
+    padding: clamp(30px, 5vw, 44px) clamp(24px, 5vw, 56px);
+    box-shadow: 0 24px 60px -40px rgba(0,0,0,0.4);
+    text-align: center;
+    position: relative;
+  }
+
+  .season-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 14px; color: var(--sub); font-size: 14px; letter-spacing: 0.18em;
+    margin-bottom: 6px;
+  }
+  .season-row .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent); display: inline-block;
+  }
+  .sekki {
+    font-size: clamp(15px, 3.6vw, 18px); color: var(--accent);
+    letter-spacing: 0.28em; font-weight: 600; margin-bottom: 2px;
+    padding-left: 0.28em;
+  }
+  .position {
+    font-size: 12px; color: var(--sub); letter-spacing: 0.3em;
+    padding-left: 0.3em;
+  }
+
+  /* 候の名前（縦書き） */
+  .ko-name {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    font-weight: 800;
+    font-size: clamp(38px, 9vw, 58px);
+    letter-spacing: 0.1em;
+    line-height: 1.08;
+    margin: clamp(18px, 3vw, 26px) auto clamp(14px, 2.4vw, 20px);
+    height: auto;
+    color: var(--ink);
+  }
+  .reading {
+    font-size: clamp(15px, 3.8vw, 19px);
+    color: var(--accent);
+    letter-spacing: 0.16em;
+    margin-bottom: clamp(18px, 3vw, 26px);
+    font-weight: 500;
+  }
+  .desc {
+    font-size: clamp(15px, 3.6vw, 17px);
+    color: var(--ink);
+    max-width: 30em;
+    margin: 0 auto clamp(20px, 3.5vw, 28px);
+    line-height: 2.1;
+  }
+  .range {
+    display: inline-block;
+    font-size: 13px; letter-spacing: 0.16em; color: var(--sub);
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+  .range .no { opacity: 0.75; margin-left: 0.5em; }
+
+  /* ── 三候のステップ ── */
+  .steps {
+    display: flex; justify-content: center; gap: 0;
+    margin-top: clamp(22px, 4vw, 30px);
+  }
+  .step {
+    flex: 1; max-width: 150px; text-align: center;
+    padding: 12px 6px; cursor: pointer;
+    border: none; border-top: 2px solid var(--line);
+    color: var(--sub); font-size: 12px; letter-spacing: 0.08em;
+    transition: color 0.4s ease, border-color 0.4s ease;
+    background: none; font-family: inherit; line-height: 1.7;
+  }
+  .step .lab { display: block; font-size: 10px; letter-spacing: 0.3em; opacity: 0.7; margin-bottom: 4px; }
+  .step.on { color: var(--accent); border-top-color: var(--accent); font-weight: 600; }
+  .step:hover { color: var(--ink); }
+
+  /* ── 操作 ── */
+  .controls {
+    display: flex; align-items: center; justify-content: center;
+    gap: 18px; margin-top: clamp(26px, 5vw, 38px); flex-wrap: wrap;
+  }
+  .nav {
+    font-family: inherit; font-size: 14px; letter-spacing: 0.16em;
+    color: var(--ink); background: transparent;
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 10px 22px; cursor: pointer;
+    transition: border-color 0.4s ease, color 0.4s ease, background 0.4s ease;
+  }
+  .nav:hover { border-color: var(--accent); color: var(--accent); }
+  .today-btn {
+    font-family: inherit; font-size: 13px; letter-spacing: 0.18em;
+    color: var(--sub); background: transparent; border: none;
+    cursor: pointer; padding: 6px; border-bottom: 1px solid transparent;
+  }
+  .today-btn:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .pickwrap {
+    margin-top: 22px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .pickwrap label { font-size: 11px; letter-spacing: 0.24em; color: var(--sub); }
+  input[type="date"] {
+    font-family: inherit; font-size: 14px; color: var(--ink);
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 3px; padding: 8px 12px; letter-spacing: 0.06em;
+  }
+
+  footer {
+    margin-top: clamp(36px, 6vw, 60px);
+    font-size: 11px; letter-spacing: 0.3em; color: var(--sub);
+    opacity: 0.7; text-align: center;
+  }
+  footer a { color: inherit; }
+
+  /* ふわっと切り替え */
+  .fade { animation: fade 0.7s ease; }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 24px 14px 40px; }
+    .stage { padding: 30px 20px; }
+    .steps { gap: 0; }
+    .step { font-size: 11px; }
+    .controls { gap: 12px; }
+    .nav { padding: 9px 18px; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">七　十　二　候</div>
+    <div class="brand-en">THE 72 MICRO-SEASONS OF JAPAN</div>
+  </header>
+
+  <main class="stage" id="stage">
+    <div class="season-row">
+      <span class="dot"></span><span id="season">夏</span><span class="dot"></span>
+    </div>
+    <div class="sekki" id="sekki">夏至</div>
+    <div class="position" id="position">次候</div>
+
+    <div class="ko-name fade" id="koName">菖蒲華</div>
+    <div class="reading fade" id="reading">あやめはなさく</div>
+    <p class="desc fade" id="desc">あやめの花が、咲きはじめる。</p>
+    <div class="range" id="range">6月27日 〜 7月1日<span class="no">第二十九候</span></div>
+
+    <div class="steps" id="steps"></div>
+
+    <div class="controls">
+      <button class="nav" id="prev">← 前の候</button>
+      <button class="nav" id="next">次の候 →</button>
+    </div>
+
+    <div class="pickwrap">
+      <button class="today-btn" id="todayBtn">今日へ戻る</button>
+      <label for="datePick">日付で見る</label>
+      <input type="date" id="datePick" />
+    </div>
+  </main>
+
+  <footer>
+    Built by mariri
+  </footer>
+
+<script>
+  // 七十二候データ（番号順 1〜72）。m/d は各候の始まる月日。
+  const KO = [
+    {n:"東風解凍", y:"はるかぜこおりをとく", s:"立春", d:"春の風が、冬の氷をやわらかく解かしはじめる。", m:2, dy:4},
+    {n:"黄鶯睍睆", y:"うぐいすなく", s:"立春", d:"山里で鶯が、はじめて春を告げて鳴く。", m:2, dy:9},
+    {n:"魚上氷", y:"うおこおりをいずる", s:"立春", d:"割れた氷の間から、魚が跳ねあがる。", m:2, dy:14},
+    {n:"土脉潤起", y:"つちのしょううるおいおこる", s:"雨水", d:"雨が大地をうるおし、土がめざめはじめる。", m:2, dy:19},
+    {n:"霞始靆", y:"かすみはじめてたなびく", s:"雨水", d:"春霞が、ほのかにたなびきはじめる。", m:2, dy:24},
+    {n:"草木萌動", y:"そうもくめばえいずる", s:"雨水", d:"草木が、いっせいに芽吹きはじめる。", m:3, dy:1},
+    {n:"蟄虫啓戸", y:"すごもりむしとをひらく", s:"啓蟄", d:"冬ごもりの虫が、戸を開けて出てくる。", m:3, dy:6},
+    {n:"桃始笑", y:"ももはじめてさく", s:"啓蟄", d:"桃の花が、ふっとほころびはじめる。", m:3, dy:11},
+    {n:"菜虫化蝶", y:"なむしちょうとなる", s:"啓蟄", d:"青虫が羽化して、蝶へと姿を変える。", m:3, dy:16},
+    {n:"雀始巣", y:"すずめはじめてすくう", s:"春分", d:"雀が、巣をつくりはじめる。", m:3, dy:21},
+    {n:"桜始開", y:"さくらはじめてひらく", s:"春分", d:"桜の花が、いよいよ咲きはじめる。", m:3, dy:26},
+    {n:"雷乃発声", y:"かみなりすなわちこえをはっす", s:"春分", d:"遠くで、春の雷が鳴りはじめる。", m:3, dy:31},
+    {n:"玄鳥至", y:"つばめきたる", s:"清明", d:"燕が、海を渡って帰ってくる。", m:4, dy:5},
+    {n:"鴻雁北", y:"こうがんかえる", s:"清明", d:"雁が、北の国へと帰っていく。", m:4, dy:10},
+    {n:"虹始見", y:"にじはじめてあらわる", s:"清明", d:"雨上がりの空に、虹がはじめて見える。", m:4, dy:15},
+    {n:"葭始生", y:"あしはじめてしょうず", s:"穀雨", d:"水辺に、葦が芽を出しはじめる。", m:4, dy:20},
+    {n:"霜止出苗", y:"しもやみてなえいずる", s:"穀雨", d:"霜が終わり、苗がすくすく育ちはじめる。", m:4, dy:25},
+    {n:"牡丹華", y:"ぼたんはなさく", s:"穀雨", d:"牡丹が、大きな花をひらく。", m:4, dy:30},
+    {n:"蛙始鳴", y:"かわずはじめてなく", s:"立夏", d:"蛙が、田で鳴きはじめる。", m:5, dy:5},
+    {n:"蚯蚓出", y:"みみずいずる", s:"立夏", d:"蚯蚓が、土の中から這い出てくる。", m:5, dy:10},
+    {n:"竹笋生", y:"たけのこしょうず", s:"立夏", d:"筍が、地面から顔を出す。", m:5, dy:15},
+    {n:"蚕起食桑", y:"かいこおきてくわをはむ", s:"小満", d:"蚕が起きて、桑の葉を食べはじめる。", m:5, dy:21},
+    {n:"紅花栄", y:"べにばなさかう", s:"小満", d:"紅花が、あざやかに咲きそろう。", m:5, dy:26},
+    {n:"麦秋至", y:"むぎのときいたる", s:"小満", d:"麦が実り、黄金色の収穫期を迎える。", m:5, dy:31},
+    {n:"蟷螂生", y:"かまきりしょうず", s:"芒種", d:"蟷螂が、卵からそっと生まれてくる。", m:6, dy:6},
+    {n:"腐草為螢", y:"くされたるくさほたるとなる", s:"芒種", d:"朽ちた草のかげから、蛍が舞いはじめる。", m:6, dy:11},
+    {n:"梅子黄", y:"うめのみきばむ", s:"芒種", d:"梅の実が、黄色く色づく。", m:6, dy:16},
+    {n:"乃東枯", y:"なつかれくさかるる", s:"夏至", d:"夏枯草が、ひっそりと枯れていく。", m:6, dy:21},
+    {n:"菖蒲華", y:"あやめはなさく", s:"夏至", d:"あやめの花が、咲きはじめる。", m:6, dy:27},
+    {n:"半夏生", y:"はんげしょうず", s:"夏至", d:"半夏（烏柄杓）が、生えはじめる。", m:7, dy:2},
+    {n:"温風至", y:"あつかぜいたる", s:"小暑", d:"南から、あたたかな風が吹いてくる。", m:7, dy:7},
+    {n:"蓮始開", y:"はすはじめてひらく", s:"小暑", d:"蓮の花が、静かに開きはじめる。", m:7, dy:12},
+    {n:"鷹乃学習", y:"たかすなわちわざをならう", s:"小暑", d:"鷹の雛が、飛ぶことを覚えはじめる。", m:7, dy:17},
+    {n:"桐始結花", y:"きりはじめてはなをむすぶ", s:"大暑", d:"桐が、来年の花の蕾を結ぶ。", m:7, dy:23},
+    {n:"土潤溽暑", y:"つちうるおうてむしあつし", s:"大暑", d:"土が湿り、蒸し暑さがいよいよ増す。", m:7, dy:29},
+    {n:"大雨時行", y:"たいうときどきふる", s:"大暑", d:"夏の大雨が、時おり激しく降る。", m:8, dy:3},
+    {n:"涼風至", y:"すずかぜいたる", s:"立秋", d:"かすかに、涼しい風が立ちはじめる。", m:8, dy:8},
+    {n:"寒蝉鳴", y:"ひぐらしなく", s:"立秋", d:"ひぐらしが、もの寂しく鳴きはじめる。", m:8, dy:13},
+    {n:"蒙霧升降", y:"ふかききりまとう", s:"立秋", d:"深い霧が、あたりに立ちこめる。", m:8, dy:18},
+    {n:"綿柎開", y:"わたのはなしべひらく", s:"処暑", d:"綿の実を包む萼が、開きはじめる。", m:8, dy:23},
+    {n:"天地始粛", y:"てんちはじめてさむし", s:"処暑", d:"天地の暑さが、ようやく鎮まりはじめる。", m:8, dy:28},
+    {n:"禾乃登", y:"こくものすなわちみのる", s:"処暑", d:"稲が実り、穂を重たげに垂れはじめる。", m:9, dy:2},
+    {n:"草露白", y:"くさのつゆしろし", s:"白露", d:"草に降りた露が、白く光る。", m:9, dy:8},
+    {n:"鶺鴒鳴", y:"せきれいなく", s:"白露", d:"鶺鴒が、しきりに鳴きはじめる。", m:9, dy:13},
+    {n:"玄鳥去", y:"つばめさる", s:"白露", d:"燕が、南の空へと帰っていく。", m:9, dy:18},
+    {n:"雷乃収声", y:"かみなりすなわちこえをおさむ", s:"秋分", d:"夕立の雷が、鳴りやんでいく。", m:9, dy:23},
+    {n:"蟄虫坏戸", y:"むしかくれてとをふさぐ", s:"秋分", d:"虫が、土にこもって戸をふさぐ。", m:9, dy:28},
+    {n:"水始涸", y:"みずはじめてかるる", s:"秋分", d:"田の水を抜き、稲刈りに備える。", m:10, dy:3},
+    {n:"鴻雁来", y:"こうがんきたる", s:"寒露", d:"雁が、北の国から渡ってくる。", m:10, dy:8},
+    {n:"菊花開", y:"きくのはなひらく", s:"寒露", d:"菊の花が、ひらきはじめる。", m:10, dy:13},
+    {n:"蟋蟀在戸", y:"きりぎりすとにあり", s:"寒露", d:"蟋蟀が、戸口のあたりで鳴く。", m:10, dy:18},
+    {n:"霜始降", y:"しもはじめてふる", s:"霜降", d:"霜が、はじめて降りはじめる。", m:10, dy:23},
+    {n:"霎時施", y:"こさめときどきふる", s:"霜降", d:"小雨が、時おりさっと降っては止む。", m:10, dy:28},
+    {n:"楓蔦黄", y:"もみじつたきばむ", s:"霜降", d:"楓や蔦が、あざやかに色づきはじめる。", m:11, dy:2},
+    {n:"山茶始開", y:"つばきはじめてひらく", s:"立冬", d:"山茶花が、咲きはじめる。", m:11, dy:7},
+    {n:"地始凍", y:"ちはじめてこおる", s:"立冬", d:"大地が、はじめて凍りはじめる。", m:11, dy:12},
+    {n:"金盞香", y:"きんせんかさく", s:"立冬", d:"水仙が、ほのかに香りはじめる。", m:11, dy:17},
+    {n:"虹蔵不見", y:"にじかくれてみえず", s:"小雪", d:"虹を見かけることが、なくなっていく。", m:11, dy:22},
+    {n:"朔風払葉", y:"きたかぜこのはをはらう", s:"小雪", d:"北風が、木の葉を払い落とす。", m:11, dy:27},
+    {n:"橘始黄", y:"たちばなはじめてきばむ", s:"小雪", d:"橘の実が、黄色く色づく。", m:12, dy:2},
+    {n:"閉塞成冬", y:"そらさむくふゆとなる", s:"大雪", d:"空がふさがり、本格的な冬になる。", m:12, dy:7},
+    {n:"熊蟄穴", y:"くまあなにこもる", s:"大雪", d:"熊が、穴にこもって冬眠する。", m:12, dy:12},
+    {n:"鱖魚群", y:"さけのうおむらがる", s:"大雪", d:"鮭が、群れをなして川をのぼる。", m:12, dy:17},
+    {n:"乃東生", y:"なつかれくさしょうず", s:"冬至", d:"夏枯草が、ひそかに芽を出す。", m:12, dy:22},
+    {n:"麋角解", y:"さわしかのつのおつる", s:"冬至", d:"大鹿の角が、ほろりと抜け落ちる。", m:12, dy:27},
+    {n:"雪下出麦", y:"ゆきわたりてむぎいずる", s:"冬至", d:"雪の下で、麦が芽を伸ばしはじめる。", m:1, dy:1},
+    {n:"芹乃栄", y:"せりすなわちさかう", s:"小寒", d:"芹が、青々と生い茂る。", m:1, dy:5},
+    {n:"水泉動", y:"しみずあたたかをふくむ", s:"小寒", d:"凍った泉が、地中でかすかに動きはじめる。", m:1, dy:10},
+    {n:"雉始雊", y:"きじはじめてなく", s:"小寒", d:"雄の雉が、求愛して鳴きはじめる。", m:1, dy:15},
+    {n:"款冬華", y:"ふきのはなさく", s:"大寒", d:"蕗の薹が、雪の下からつぼみを出す。", m:1, dy:20},
+    {n:"水沢腹堅", y:"さわみずこおりつめる", s:"大寒", d:"沢の水が、厚く凍りつめる。", m:1, dy:25},
+    {n:"鶏始乳", y:"にわとりはじめてとやにつく", s:"大寒", d:"鶏が、春を感じて卵を産みはじめる。", m:1, dy:30},
+  ];
+
+  const SEASON_OF = (i) => i < 18 ? "春" : i < 36 ? "夏" : i < 54 ? "秋" : "冬";
+  const SEASON_CLASS = { "春":"spring", "夏":"summer", "秋":"autumn", "冬":"winter" };
+  const POS = ["初候", "次候", "末候"];
+  const KAN = ["零","一","二","三","四","五","六","七","八","九","十"];
+
+  // 1〜72 を漢数字に（第〇〇候）
+  function kanNum(num) {
+    if (num <= 10) return KAN[num];
+    if (num < 20) return "十" + (num % 10 === 0 ? "" : KAN[num % 10]);
+    const t = Math.floor(num / 10), o = num % 10;
+    return KAN[t] + "十" + (o === 0 ? "" : KAN[o]);
+  }
+
+  // 日付(月,日)からその日が属する候の番号(0始まり)を返す
+  function indexForDate(month, day) {
+    const val = month * 100 + day;
+    let best = 65; // 1/1始まりの「雪下出麦」を既定に
+    let bestVal = -1;
+    for (let i = 0; i < KO.length; i++) {
+      const v = KO[i].m * 100 + KO[i].dy;
+      if (v <= val && v > bestVal) { best = i; bestVal = v; }
+    }
+    return best;
+  }
+
+  // その候の終了日（次の候の前日）を「○月○日」で
+  function endLabel(i) {
+    const next = KO[(i + 1) % KO.length];
+    // 2025年(平年)を基準に前日を計算
+    const d = new Date(2025, next.m - 1, next.dy);
+    d.setDate(d.getDate() - 1);
+    return (d.getMonth() + 1) + "月" + d.getDate() + "日";
+  }
+
+  let current = 0;
+
+  function render(i, animate = true) {
+    current = (i + KO.length) % KO.length;
+    const k = KO[current];
+    const season = SEASON_OF(current);
+
+    document.body.className = SEASON_CLASS[season];
+
+    document.getElementById("season").textContent = season;
+    document.getElementById("sekki").textContent = k.s;
+    document.getElementById("position").textContent = POS[current % 3];
+
+    const name = document.getElementById("koName");
+    const reading = document.getElementById("reading");
+    const desc = document.getElementById("desc");
+    name.textContent = k.n;
+    reading.textContent = k.y;
+    desc.textContent = k.d;
+
+    document.getElementById("range").innerHTML =
+      k.m + "月" + k.dy + "日 〜 " + endLabel(current) +
+      '<span class="no">第' + kanNum(current + 1) + "候</span>";
+
+    // 三候ステップ（この節気の初候・次候・末候）
+    const base = current - (current % 3);
+    const steps = document.getElementById("steps");
+    steps.innerHTML = "";
+    for (let p = 0; p < 3; p++) {
+      const idx = base + p;
+      const btn = document.createElement("button");
+      btn.className = "step" + (idx === current ? " on" : "");
+      btn.innerHTML = '<span class="lab">' + POS[p] + "</span>" + KO[idx].n;
+      btn.addEventListener("click", () => render(idx));
+      steps.appendChild(btn);
+    }
+
+    if (animate) {
+      [name, reading, desc].forEach(el => {
+        el.classList.remove("fade");
+        void el.offsetWidth; // リフロー
+        el.classList.add("fade");
+      });
+    }
+  }
+
+  // 操作
+  document.getElementById("prev").addEventListener("click", () => render(current - 1));
+  document.getElementById("next").addEventListener("click", () => render(current + 1));
+
+  const datePick = document.getElementById("datePick");
+  datePick.addEventListener("change", () => {
+    if (!datePick.value) return;
+    const [, mm, dd] = datePick.value.split("-").map(Number);
+    render(indexForDate(mm, dd));
+  });
+
+  function goToday() {
+    const now = new Date();
+    const m = now.getMonth() + 1, d = now.getDate();
+    datePick.value = now.toISOString().slice(0, 10);
+    render(indexForDate(m, d));
+  }
+  document.getElementById("todayBtn").addEventListener("click", goToday);
+
+  // 初期表示は今日の候
+  goToday();
+</script>
+</body>
+</html>

@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>余白の度胆テスト — どこまで、ふちへ寄せられる？</title>
+<meta name="description" content="紙のふちへ点や文字をどこまで寄せられるか。見えない破綻ラインを越えず、攻めた余白を狙うミニゲーム。" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;500;700;900&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #efe9dc;
+    --bg-2: #e6dece;
+    --paper: #f6f1e6;
+    --paper-2: #f1eadc;
+    --ink: #2b2723;
+    --ink-soft: #6f665a;
+    --ink-faint: #a79d8c;
+    --line: #ded4c1;
+    --line-soft: #e8e0d0;
+    --ai: #3d5a73;      /* 藍 */
+    --ai-soft: #e3e8ec;
+    --enji: #9c4a45;    /* 臙脂（破綻） */
+    --enji-soft: #f0e2df;
+    --kin: #a2823f;     /* 金茶（凛） */
+    --kin-soft: #efe6cf;
+    --shadow: 0 24px 60px -30px rgba(50, 40, 25, .55);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: "Shippori Mincho B1", serif;
+    color: var(--ink);
+    background:
+      radial-gradient(120% 90% at 50% -10%, #f4eee1 0%, var(--bg) 55%, var(--bg-2) 100%);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 64px;
+  }
+
+  .wrap { width: 100%; max-width: 560px; }
+
+  /* ---- header ---- */
+  header { text-align: center; margin-bottom: 22px; }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: .42em;
+    color: var(--ink-faint);
+    margin: 0 0 14px;
+    padding-left: .42em;
+  }
+  h1 {
+    font-family: "Zen Old Mincho", serif;
+    font-weight: 900;
+    font-size: clamp(30px, 8vw, 44px);
+    letter-spacing: .06em;
+    margin: 0;
+    line-height: 1.2;
+  }
+  .lead {
+    margin: 14px auto 0;
+    max-width: 30em;
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--ink-soft);
+  }
+
+  /* ---- card ---- */
+  .card {
+    position: relative;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    padding: 20px 20px 24px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .topbar .round-no { letter-spacing: .1em; }
+  .topbar .round-no b {
+    font-family: "Zen Old Mincho", serif;
+    font-size: 17px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .topbar .total { letter-spacing: .06em; }
+  .topbar .total b {
+    font-family: "Zen Old Mincho", serif;
+    font-size: 17px;
+    color: var(--ai);
+  }
+
+  .round-name {
+    font-family: "Zen Old Mincho", serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    margin: 0 0 3px;
+  }
+  .round-hint {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 16px;
+    min-height: 1.5em;
+    letter-spacing: .02em;
+  }
+
+  /* ---- the paper stage ---- */
+  .stage-outer { position: relative; }
+  .stage {
+    position: relative;
+    height: 240px;
+    background:
+      linear-gradient(180deg, #fbf7ee, #f3ecdd);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    touch-action: none;
+    cursor: ew-resize;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+    transition: box-shadow .2s ease;
+  }
+  /* faint composition frame */
+  .stage::after {
+    content: "";
+    position: absolute;
+    inset: 18px;
+    border: 1px dashed var(--line);
+    border-radius: 2px;
+    pointer-events: none;
+    opacity: .8;
+  }
+  .stage.tense { box-shadow: inset 0 0 0 1px rgba(156,74,69,.18), inset 0 1px 0 rgba(255,255,255,.6); }
+  .stage.broke {
+    box-shadow: inset 0 0 0 1px rgba(156,74,69,.5);
+    background: linear-gradient(180deg, #f7ece8, #f0e2dd);
+  }
+
+  .track {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .subject {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    user-select: none;
+  }
+  /* subject variants */
+  .s-dot { width: 26px; height: 26px; border-radius: 50%; background: var(--ink); }
+  .s-kanji { font-family: "Zen Old Mincho", serif; font-size: 76px; font-weight: 500; line-height: 1; }
+  .s-line { font-family: "Shippori Mincho B1", serif; font-size: 22px; letter-spacing: .12em; white-space: nowrap; }
+  .s-comma { font-family: "Zen Old Mincho", serif; font-size: 60px; line-height: 1; padding-bottom: 20px; }
+  .s-flower svg { display: block; }
+
+  /* break line marker (revealed) */
+  .breakline {
+    position: absolute;
+    top: 8%;
+    height: 84%;
+    width: 0;
+    border-left: 1.5px dashed var(--enji);
+    opacity: 0;
+    transition: opacity .35s ease;
+  }
+  .breakline.show { opacity: .85; }
+  .breakline .tag {
+    position: absolute;
+    top: -4px;
+    left: 6px;
+    font-size: 11px;
+    letter-spacing: .12em;
+    color: var(--enji);
+    white-space: nowrap;
+  }
+
+  /* your stop marker (revealed) */
+  .stopline {
+    position: absolute;
+    top: 8%;
+    height: 84%;
+    width: 0;
+    border-left: 1.5px solid var(--ai);
+    opacity: 0;
+    transition: opacity .35s ease;
+  }
+  .stopline.show { opacity: .8; }
+  .stopline .tag {
+    position: absolute;
+    bottom: -2px;
+    right: 6px;
+    font-size: 11px;
+    letter-spacing: .12em;
+    color: var(--ai);
+    white-space: nowrap;
+  }
+
+  /* ---- meter ---- */
+  .meter-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 2px 4px;
+  }
+  .meter {
+    position: relative;
+    flex: 1;
+    height: 7px;
+    background: var(--line-soft);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .meter-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0%;
+    background: linear-gradient(90deg, var(--ai), var(--kin) 72%, var(--enji));
+    border-radius: 99px;
+    transition: width .06s linear;
+  }
+  .meter-label {
+    font-size: 12px;
+    letter-spacing: .1em;
+    color: var(--ink-soft);
+    min-width: 4.2em;
+    text-align: right;
+  }
+  .meter-label.tense { color: var(--kin); }
+  .meter-label.danger { color: var(--enji); }
+
+  .readout {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+    min-height: 2.6em;
+  }
+  .readout .label { font-size: 12px; letter-spacing: .16em; color: var(--ink-faint); }
+  .readout .val {
+    font-family: "Zen Old Mincho", serif;
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .readout .val.danger { color: var(--enji); }
+  .readout .unit { font-size: 13px; color: var(--ink-soft); }
+
+  /* ---- buttons ---- */
+  .actions { display: flex; gap: 10px; margin-top: 8px; }
+  button {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 15px;
+    letter-spacing: .08em;
+    padding: 13px 18px;
+    border-radius: 3px;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: #f6f1e6;
+    cursor: pointer;
+    flex: 1;
+    transition: transform .08s ease, background .2s ease, opacity .2s ease;
+  }
+  button:hover { background: #3a352e; }
+  button:active { transform: translateY(1px); }
+  button.ghost {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--line);
+  }
+  button.ghost:hover { background: #efe8da; }
+  button:disabled { opacity: .4; cursor: default; }
+
+  /* ---- reveal critique ---- */
+  .critique {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-left: 2px solid var(--line);
+    background: var(--paper-2);
+    border-radius: 2px;
+    display: none;
+  }
+  .critique.show { display: block; }
+  .critique .verdict {
+    font-family: "Zen Old Mincho", serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    margin: 0 0 5px;
+  }
+  .critique .verdict.enji { color: var(--enji); }
+  .critique .verdict.kin { color: var(--kin); }
+  .critique .verdict.ai { color: var(--ai); }
+  .critique .msg { font-size: 13.5px; line-height: 1.8; color: var(--ink-soft); margin: 0; }
+  .critique .gained { font-size: 13px; color: var(--ink); margin: 8px 0 0; letter-spacing: .04em; }
+  .critique .gained b { font-family: "Zen Old Mincho", serif; font-size: 18px; }
+
+  .hint-guide {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--ink-faint);
+    text-align: center;
+    letter-spacing: .04em;
+  }
+
+  /* ---- result screen ---- */
+  .result { display: none; text-align: center; }
+  .result.show { display: block; }
+  .result .r-eyebrow { font-size: 12px; letter-spacing: .3em; color: var(--ink-faint); margin: 4px 0 14px; }
+  .result .r-type {
+    font-family: "Zen Old Mincho", serif;
+    font-size: clamp(24px, 7vw, 32px);
+    font-weight: 900;
+    letter-spacing: .04em;
+    margin: 0 0 6px;
+  }
+  .result .r-score { font-size: 14px; color: var(--ink-soft); letter-spacing: .06em; margin: 0 0 4px; }
+  .result .r-score b { font-family: "Zen Old Mincho", serif; font-size: 28px; color: var(--ai); }
+  .result .r-desc {
+    font-size: 14px; line-height: 1.9; color: var(--ink-soft);
+    max-width: 28em; margin: 16px auto 20px;
+  }
+  .r-breakdown {
+    display: flex; flex-direction: column; gap: 2px;
+    max-width: 320px; margin: 0 auto 22px;
+    font-size: 13px;
+  }
+  .r-breakdown .row {
+    display: flex; justify-content: space-between;
+    padding: 8px 4px; border-bottom: 1px solid var(--line-soft);
+    color: var(--ink-soft);
+  }
+  .r-breakdown .row .rn { letter-spacing: .04em; }
+  .r-breakdown .row .rs { font-family: "Zen Old Mincho", serif; color: var(--ink); }
+  .r-breakdown .row .rs.zero { color: var(--enji); }
+
+  footer {
+    margin-top: 34px;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: .1em;
+    color: var(--ink-faint);
+  }
+  footer a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 1px; }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 14px 48px; }
+    .stage { height: 200px; }
+    .s-kanji { font-size: 60px; }
+    .readout .val { font-size: 30px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">NERVE OF NEGATIVE SPACE</p>
+      <h1>余白の度胆テスト</h1>
+      <p class="lead">
+        紙のふちへ、そっと寄せていく。ふちに近いほど"攻めた余白"で高得点。<br />
+        でも見えない<b>破綻ライン</b>を越えれば、割れて0点。<br />
+        近づくほど紙がかすかに震えます。さあ、あなたの度胆は。
+      </p>
+    </header>
+
+    <div class="card">
+      <!-- PLAY -->
+      <section id="play">
+        <div class="topbar">
+          <span class="round-no">第 <b id="roundNo">1</b> / 5 席</span>
+          <span class="total">総計 <b id="totalScore">0</b></span>
+        </div>
+
+        <h2 class="round-name" id="roundName">墨の一点</h2>
+        <p class="round-hint" id="roundHint">紙のすみへ、どこまで寄せられる？</p>
+
+        <div class="stage-outer">
+          <div class="stage" id="stage">
+            <div class="track" id="track">
+              <div class="subject" id="subject"><div class="s-dot"></div></div>
+              <div class="breakline" id="breakline"><span class="tag">破綻ライン</span></div>
+              <div class="stopline" id="stopline"><span class="tag">あなた</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="meter-row">
+          <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
+          <span class="meter-label" id="meterLabel">静けさ</span>
+        </div>
+
+        <div class="readout">
+          <span class="label">攻めの余白</span>
+          <span class="val" id="potVal">0</span>
+          <span class="unit">点</span>
+        </div>
+
+        <div class="actions">
+          <button id="btnCommit">ここで決める</button>
+        </div>
+
+        <div class="critique" id="critique">
+          <p class="verdict" id="verdict"></p>
+          <p class="msg" id="critMsg"></p>
+          <p class="gained">この席 <b id="gainedVal">0</b> 点</p>
+        </div>
+
+        <div class="actions" id="nextRow" style="display:none;">
+          <button id="btnNext">次の席へ</button>
+        </div>
+
+        <p class="hint-guide" id="hintGuide">紙を右へドラッグして、点を寄せる</p>
+      </section>
+
+      <!-- RESULT -->
+      <section class="result" id="result">
+        <p class="r-eyebrow">結 果</p>
+        <p class="r-type" id="rType">—</p>
+        <p class="r-score">総計 <b id="rScore">0</b> / 500 点</p>
+        <p class="r-desc" id="rDesc"></p>
+        <div class="r-breakdown" id="rBreakdown"></div>
+        <div class="actions">
+          <button class="ghost" id="btnAgain">もう一度、席につく</button>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <a href="../">← mariri のまちへもどる</a>
+    </footer>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // ---- flower SVG for round 4 ----
+  const FLOWER =
+    '<div class="s-flower"><svg width="46" height="46" viewBox="0 0 46 46">' +
+    '<g fill="none" stroke="#2b2723" stroke-width="1.4">' +
+    '<circle cx="23" cy="23" r="3.4" fill="#2b2723" stroke="none"/>' +
+    '<path d="M23 20 C20 12 26 12 23 20"/>' +
+    '<path d="M26 23 C34 20 34 26 26 23"/>' +
+    '<path d="M23 26 C26 34 20 34 23 26"/>' +
+    '<path d="M20 23 C12 26 12 20 20 23"/>' +
+    '<path d="M25.2 20.8 C31 15 33 20 25.2 20.8"/>' +
+    '<path d="M25.2 25.2 C31 31 26 33 25.2 25.2"/>' +
+    '<path d="M20.8 25.2 C15 31 13 26 20.8 25.2"/>' +
+    '<path d="M20.8 20.8 C15 15 20 13 20.8 20.8"/>' +
+    '</g></svg></div>';
+
+  // ---- rounds ----
+  // brk: 破綻が始まる push 値 (0..1)。 warn: 気配が出はじめる手前の窓幅。
+  const ROUNDS = [
+    { name: "墨の一点",       hint: "紙のすみへ、どこまで寄せられる？", brk: 0.90, warn: 0.30, subject: '<div class="s-dot"></div>' },
+    { name: "一文字「間」",    hint: "文字が落ちる、その寸前まで。",     brk: 0.88, warn: 0.24, subject: '<div class="s-kanji">間</div>' },
+    { name: "一行の句",       hint: "言葉を端へ追いやる勇気。",         brk: 0.92, warn: 0.20, subject: '<div class="s-line">山の音、とほく</div>' },
+    { name: "一輪",           hint: "香りが零れる、その手前で。",       brk: 0.86, warn: 0.16, subject: FLOWER },
+    { name: "、（極限の点）",  hint: "最後は、点ひとつ。気配は薄い。",   brk: 0.95, warn: 0.12, subject: '<div class="s-comma">、</div>' },
+  ];
+
+  const MSG = {
+    broke: ["越えました。余白は、静けさの器。", "攻めすぎて、器が割れた。", "あと一歩、手前で止まれたら。", "ふちの向こうは、ただの空白。"],
+    kin:   ["きわどい。でも、凛としている。", "この緊張が、余白の醍醐味。", "紙一重の均衡。お見事。"],
+    ai:    ["よく寄せた。息をのむ余白。", "攻めた。悪くない度胆。", "端の気配を、味方につけた。"],
+    heizei:["安全。でも、少し物足りない。", "もう少し、踏み込めても。", "無難な均衡。乱れはない。"],
+    okubyo:["まだ中央。余白は遠い。", "こわがり過ぎたかも。", "静かすぎる、ほとんど手つかず。"],
+  };
+
+  // ---- state ----
+  let ri = 0;              // round index
+  let push = 0;            // 0..1
+  let phase = "aim";       // aim | revealed
+  let total = 0;
+  let scores = [];         // per round {name, score, broke}
+  let dragging = false;
+  let rafId = null;
+
+  const stage = $("stage");
+  const track = $("track");
+  const subject = $("subject");
+  const breakline = $("breakline");
+  const stopline = $("stopline");
+  const meterFill = $("meterFill");
+  const meterLabel = $("meterLabel");
+  const potVal = $("potVal");
+
+  function metrics() {
+    const tw = track.clientWidth;
+    const sw = subject.offsetWidth;
+    const pad = 8;
+    const maxShift = Math.max(20, tw / 2 - sw / 2 - pad);
+    return { tw, sw, maxShift };
+  }
+
+  // px translate for a given push value (subject center offset from track center)
+  function pxFor(p, m) { return p * m.maxShift; }
+
+  function tension(p) {
+    // 0 until inside warning window, ramps to 1 at break line, >1 clamped
+    const r = ROUNDS[ri];
+    const start = r.brk - r.warn;
+    if (p <= start) return 0;
+    return Math.min(1, (p - start) / r.warn);
+  }
+
+  function scoreFor(p) {
+    const r = ROUNDS[ri];
+    if (p >= r.brk) return 0;
+    return Math.round(Math.pow(p / r.brk, 1.5) * 100);
+  }
+
+  function updateLive() {
+    const r = ROUNDS[ri];
+    const broke = push >= r.brk;
+    const t = tension(push);
+    const s = scoreFor(push);
+
+    // meter reflects how close to the edge (push itself), colored by tension
+    meterFill.style.width = Math.min(100, push * 100) + "%";
+    stage.classList.toggle("tense", t > 0.02 && !broke);
+    stage.classList.toggle("broke", broke);
+
+    meterLabel.classList.toggle("tense", t > 0.3 && !broke);
+    meterLabel.classList.toggle("danger", broke || t > 0.75);
+    if (broke) meterLabel.textContent = "破 綻";
+    else if (t > 0.75) meterLabel.textContent = "きわどい";
+    else if (t > 0.3) meterLabel.textContent = "…緊張";
+    else if (push > 0.05) meterLabel.textContent = "そろり";
+    else meterLabel.textContent = "静けさ";
+
+    potVal.textContent = broke ? "破綻" : s;
+    potVal.classList.toggle("danger", broke);
+  }
+
+  // rAF loop: keep the subject alive with a faint tremble scaled by tension
+  function loop(ts) {
+    if (phase !== "aim") return;
+    const m = metrics();
+    const t = tension(push);
+    const broke = push >= ROUNDS[ri].brk;
+    let sway = 0, rot = 0;
+    if (t > 0) {
+      const amp = t * t * 5.5 + (broke ? 3 : 0);
+      sway = Math.sin(ts / 42) * amp + (Math.sin(ts / 17) * amp * 0.4);
+      rot = Math.sin(ts / 55) * t * 1.3;
+    }
+    subject.style.transform =
+      "translate(calc(-50% + " + (pxFor(push, m) + sway) + "px), -50%) rotate(" + rot + "deg)";
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function startLoop() {
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function setPushFromClientX(clientX) {
+    const rect = track.getBoundingClientRect();
+    const m = metrics();
+    const dx = clientX - (rect.left + rect.width / 2);
+    push = Math.max(0, Math.min(1, dx / m.maxShift));
+    updateLive();
+  }
+
+  // ---- pointer handling ----
+  function onDown(e) {
+    if (phase !== "aim") return;
+    dragging = true;
+    stage.setPointerCapture && stage.setPointerCapture(e.pointerId);
+    setPushFromClientX(e.clientX);
+  }
+  function onMove(e) {
+    if (!dragging || phase !== "aim") return;
+    setPushFromClientX(e.clientX);
+  }
+  function onUp() { dragging = false; }
+
+  stage.addEventListener("pointerdown", onDown);
+  stage.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup", onUp);
+  stage.addEventListener("pointercancel", onUp);
+
+  // ---- round flow ----
+  function loadRound() {
+    const r = ROUNDS[ri];
+    phase = "aim";
+    push = 0;
+    dragging = false;
+
+    $("roundNo").textContent = ri + 1;
+    $("roundName").textContent = r.name;
+    $("roundHint").textContent = r.hint;
+    subject.innerHTML = r.subject;
+    subject.style.transform = "translate(-50%, -50%)";
+
+    breakline.classList.remove("show");
+    stopline.classList.remove("show");
+    $("critique").classList.remove("show");
+    $("nextRow").style.display = "none";
+    $("btnCommit").style.display = "";
+    $("btnCommit").disabled = false;
+    $("hintGuide").style.display = "";
+    potVal.classList.remove("danger");
+    stage.classList.remove("tense", "broke");
+
+    updateLive();
+    startLoop();
+  }
+
+  function commit() {
+    if (phase !== "aim") return;
+    phase = "revealed";
+    dragging = false;
+    cancelAnimationFrame(rafId);
+
+    const r = ROUNDS[ri];
+    const broke = push >= r.brk;
+    const s = broke ? 0 : scoreFor(push);
+    const t = tension(push);
+    total += s;
+    scores.push({ name: r.name, score: s, broke });
+
+    // freeze subject exactly at push (no sway)
+    const m = metrics();
+    subject.style.transform = "translate(calc(-50% + " + pxFor(push, m) + "px), -50%)";
+
+    // place markers (position = subject leading edge)
+    const centerPx = m.tw / 2;
+    const half = m.sw / 2;
+    breakline.style.left = (centerPx + pxFor(r.brk, m) + half) + "px";
+    stopline.style.left = (centerPx + pxFor(push, m) + half) + "px";
+    breakline.classList.add("show");
+    stopline.classList.add("show");
+
+    // verdict class + message
+    let cls, bank;
+    if (broke) { cls = "enji"; bank = MSG.broke; }
+    else if (t >= 0.5) { cls = "kin"; bank = MSG.kin; }        // in the tight daring window
+    else if (push / r.brk >= 0.6) { cls = "ai"; bank = MSG.ai; }
+    else if (push / r.brk >= 0.3) { cls = ""; bank = MSG.heizei; }
+    else { cls = ""; bank = MSG.okubyo; }
+
+    const verdict = $("verdict");
+    verdict.className = "verdict " + cls;
+    verdict.textContent = broke ? "破 綻" : (cls === "kin" ? "凛" : cls === "ai" ? "攻" : "無難");
+    $("critMsg").textContent = bank[Math.floor(Math.random() * bank.length)];
+    $("gainedVal").textContent = s;
+    $("critique").classList.add("show");
+
+    $("totalScore").textContent = total;
+    $("btnCommit").style.display = "none";
+    $("hintGuide").style.display = "none";
+    $("nextRow").style.display = "";
+    $("btnNext").textContent = ri < ROUNDS.length - 1 ? "次の席へ" : "結果を見る";
+    updateLive();
+  }
+
+  function next() {
+    if (ri < ROUNDS.length - 1) { ri++; loadRound(); }
+    else showResult();
+  }
+
+  function showResult() {
+    $("play").style.display = "none";
+    const res = $("result");
+    res.classList.add("show");
+
+    const brokeCount = scores.filter((x) => x.broke).length;
+    let type, desc;
+    if (brokeCount >= 3) {
+      type = "破綻上等の突撃型";
+      desc = "怖いものなし。でも余白は、越えないから美しい。次はひとつ、手前で止まってみて。";
+    } else if (total >= 430) {
+      type = "紙一重の余白師";
+      desc = "ふちの気配を読み切り、限界まで攻めきる度胆。息をのむ緊張と均衡を、両手で扱える人。";
+    } else if (total >= 340) {
+      type = "凛とした均衡型";
+      desc = "攻めながらも、崩さない。張りつめた静けさをまとう、成熟した余白の使い手。";
+    } else if (total >= 230) {
+      type = "気配りの中庸型";
+      desc = "危うさは避け、心地よい間合いを選ぶ。安心して眺められる、やさしい余白。";
+    } else if (total >= 120) {
+      type = "安全運転の無難型";
+      desc = "乱れはないが、少し遠慮がち。ふちの手前には、まだ攻められる余白が残っている。";
+    } else {
+      type = "余白こわがりの人";
+      desc = "点はまだ、中央のあたり。こわくていい。でも一度、思いきってふちへ寄せてみて。";
+    }
+
+    $("rType").textContent = type;
+    $("rScore").textContent = total;
+    $("rDesc").textContent = desc;
+
+    const bd = $("rBreakdown");
+    bd.innerHTML = "";
+    scores.forEach((x, i) => {
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML =
+        '<span class="rn">第' + (i + 1) + '席 ' + x.name + '</span>' +
+        '<span class="rs' + (x.broke ? " zero" : "") + '">' + (x.broke ? "破綻 0" : x.score + " 点") + '</span>';
+      bd.appendChild(row);
+    });
+  }
+
+  function restart() {
+    ri = 0; total = 0; scores = [];
+    $("totalScore").textContent = 0;
+    $("result").classList.remove("show");
+    $("play").style.display = "";
+    loadRound();
+  }
+
+  $("btnCommit").addEventListener("click", commit);
+  $("btnNext").addEventListener("click", next);
+  $("btnAgain").addEventListener("click", restart);
+
+  window.addEventListener("resize", () => {
+    if (phase === "aim") {
+      const m = metrics();
+      subject.style.transform = "translate(calc(-50% + " + pxFor(push, m) + "px), -50%)";
+    }
+  });
+
+  loadRound();
+</script>
+</body>
+</html>

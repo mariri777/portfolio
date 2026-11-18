@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>これ決めて！ルーレット — 迷ったら回して決める</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --paper: #fffdf8;
+    --ink: #2b2823;
+    --ink-soft: #6a6258;
+    --ink-faint: #a89f92;
+    --line: #e6ded0;
+    --line-soft: #f0eade;
+    --accent: #a86b64;
+    --accent-deep: #8a504a;
+    --accent-soft: #f3e5e2;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink); background: var(--bg); min-height: 100vh; line-height: 1.85;
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.02em;
+  }
+
+  .wrap { max-width: 560px; margin: 0 auto; padding: 28px 20px 90px; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft);
+    text-decoration: none; padding: 7px 15px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--paper); transition: border-color .2s ease, color .2s ease;
+  }
+  .home-link:hover { color: var(--accent-deep); border-color: var(--accent); }
+
+  /* Hero */
+  .hero { text-align: center; margin: 40px 0 20px; }
+  .eyebrow { font-family: "Shippori Mincho B1", serif; font-size: 12px; letter-spacing: 0.4em; color: var(--accent-deep); font-weight: 600; }
+  .hero h1 { font-family: "Shippori Mincho B1", serif; font-weight: 700; font-size: clamp(28px, 7vw, 42px); line-height: 1.32; letter-spacing: 0.1em; margin: 12px 0 0; }
+  .hero p { color: var(--ink-soft); font-size: 13.5px; max-width: 380px; margin: 13px auto 0; line-height: 1.95; }
+
+  /* Result */
+  .result { text-align: center; min-height: 44px; margin-bottom: 6px; }
+  .result .r-cap { font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); letter-spacing: 0.16em; }
+  .result .r-name { font-family: "Shippori Mincho B1", serif; font-size: clamp(26px, 7vw, 36px); font-weight: 700; color: var(--accent-deep); line-height: 1.2; letter-spacing: 0.04em; transition: opacity .2s ease; }
+  .result.spinning .r-name { color: var(--ink-faint); }
+  .result .r-name.pop { animation: pop .5s ease; }
+  @keyframes pop { 0% { transform: scale(.7); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+
+  /* Wheel */
+  .wheel-box { position: relative; width: 100%; max-width: 340px; margin: 6px auto 20px; }
+  .wheel-box svg { width: 100%; height: auto; display: block; }
+  #wheelRot { transform-box: fill-box; transform-origin: center; }
+  #wheelRot.anim { transition: transform 4.4s cubic-bezier(.16,.73,.12,1); }
+  .seg-txt { font-family: "Shippori Mincho B1", serif; font-size: 13px; font-weight: 600; fill: #3a332e; letter-spacing: 0.02em; }
+
+  .spin-row { text-align: center; margin-bottom: 22px; }
+  .btn-spin {
+    font-family: "Shippori Mincho B1", serif; font-weight: 700; font-size: 17px; color: #fff; background: var(--accent);
+    border: none; padding: 14px 44px; border-radius: 999px; cursor: pointer; letter-spacing: 0.14em;
+    transition: transform .15s ease, background .15s ease, opacity .2s ease; box-shadow: 0 6px 18px rgba(138,80,74,.24);
+  }
+  .btn-spin:hover { transform: translateY(-1px); background: var(--accent-deep); }
+  .btn-spin:active { transform: translateY(0); }
+  .btn-spin:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 20px 22px; }
+  .panel h2 { font-family: "Shippori Mincho B1", serif; font-size: 14px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 12px; }
+
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .preset { font-family: "Shippori Mincho B1", serif; font-size: 12.5px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--ink-soft); cursor: pointer; transition: all .15s ease; letter-spacing: 0.04em; }
+  .preset:hover { border-color: var(--accent); color: var(--accent-deep); }
+
+  .add-row { display: flex; gap: 9px; margin-bottom: 14px; }
+  input[type="text"] {
+    font-family: inherit; font-size: 14px; color: var(--ink); padding: 11px 13px;
+    border: 1px solid var(--line); border-radius: 10px; background: #fff; outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease; width: 100%;
+  }
+  input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  input::placeholder { color: var(--ink-faint); }
+  .btn { font-family: inherit; font-weight: 700; font-size: 14px; color: #fff; background: var(--accent); border: none; padding: 11px 18px; border-radius: 10px; cursor: pointer; white-space: nowrap; transition: transform .15s ease, background .15s ease; }
+  .btn:hover { transform: translateY(-1px); background: var(--accent-deep); }
+
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opt-chip { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; padding: 7px 8px 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); }
+  .opt-chip .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .opt-chip button { border: none; background: none; cursor: pointer; color: var(--ink-faint); font-size: 15px; line-height: 1; padding: 2px 4px; border-radius: 50%; transition: color .15s ease; }
+  .opt-chip button:hover { color: var(--accent-deep); }
+  .empty { font-size: 13px; color: var(--ink-faint); }
+
+  .footer { text-align: center; margin-top: 44px; padding-top: 24px; border-top: 1px solid var(--line); font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); line-height: 2.1; letter-spacing: 0.14em; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 22px 15px 74px; }
+    .hero { margin: 28px 0 16px; }
+    .panel { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="home-link" href="../">← 一覧へもどる</a>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="eyebrow">DECIDE FOR ME</div>
+    <h1>これ決めて！</h1>
+    <p>迷ったら、回して決める。選択肢を入れてボタンを押すだけ。今日の小さな迷いは、円盤におまかせ。</p>
+  </header>
+
+  <!-- ============ RESULT ============ -->
+  <div class="result" id="result">
+    <div class="r-cap">RESULT</div>
+    <div class="r-name" id="rName">—</div>
+  </div>
+
+  <!-- ============ WHEEL ============ -->
+  <div class="wheel-box">
+    <svg viewBox="0 0 300 300" id="wheelSvg" aria-hidden="true">
+      <g id="wheelRot"></g>
+      <circle cx="150" cy="150" r="24" fill="#fffdf8" stroke="#e6ded0" stroke-width="2"/>
+      <circle cx="150" cy="150" r="6" fill="#a86b64"/>
+      <polygon points="150,20 141,2 159,2" fill="#8a504a"/>
+    </svg>
+  </div>
+
+  <div class="spin-row">
+    <button class="btn-spin" id="btnSpin">ま わ す</button>
+  </div>
+
+  <!-- ============ OPTIONS ============ -->
+  <section class="panel">
+    <h2>選択肢</h2>
+    <div class="presets" id="presets"></div>
+    <div class="add-row">
+      <input type="text" id="optInput" placeholder="選択肢を追加（例：ラーメン）" maxlength="16" />
+      <button class="btn" id="btnAdd">追加</button>
+    </div>
+    <div class="opts" id="opts"></div>
+  </section>
+
+  <footer class="footer">
+    これ決めて！ルーレット ・ サーバー不要<br />
+    Built by mariri
+  </footer>
+
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const KEY = "roulette_v1";
+  const COLORS = ["#d3b0ab", "#c3b7d0", "#a9c3c2", "#cdc4a4", "#d6b79a", "#b3c1a8", "#c7abb6", "#a9b6cb", "#d8c3a2", "#b8b0c4"];
+
+  const PRESETS = {
+    "ランチ": ["和食", "洋食", "中華", "カフェ", "麺類", "パン"],
+    "YES / NO": ["はい", "いいえ"],
+    "今夜どうする": ["映画", "読書", "散歩", "早寝", "ゲーム"],
+    "外食 / 自炊": ["外食", "自炊", "デリバリー"],
+  };
+
+  let opts = [];
+  let rot = 0;          // 現在の回転角
+  let spinning = false;
+
+  const uid = () => Math.random().toString(36).slice(2, 9);
+
+  // ===== 保存 =====
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(opts.map((o) => o.text))); } catch (e) {} }
+  function load() { try { const r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch (e) {} return null; }
+
+  // ===== ホイール描画 =====
+  const CX = 150, CY = 150, R = 138;
+  function pt(ang, radius) {
+    const rad = (ang - 90) * Math.PI / 180; // 0=top
+    return [CX + radius * Math.cos(rad), CY + radius * Math.sin(rad)];
+  }
+  function trunc(s) { return s.length > 5 ? s.slice(0, 5) + "…" : s; }
+
+  function drawWheel() {
+    const g = $("wheelRot");
+    const n = opts.length;
+    if (n === 0) { g.innerHTML = '<circle cx="150" cy="150" r="138" fill="#f0eade"/>'; return; }
+    const slice = 360 / n;
+    let html = "";
+    opts.forEach((o, i) => {
+      const a0 = i * slice, a1 = (i + 1) * slice;
+      const [x0, y0] = pt(a0, R), [x1, y1] = pt(a1, R);
+      const large = slice > 180 ? 1 : 0;
+      const col = COLORS[i % COLORS.length];
+      if (n === 1) {
+        html += '<circle cx="150" cy="150" r="138" fill="' + col + '"/>';
+      } else {
+        html += '<path d="M ' + CX + ' ' + CY + ' L ' + x0.toFixed(2) + ' ' + y0.toFixed(2) +
+          ' A ' + R + ' ' + R + ' 0 ' + large + ' 1 ' + x1.toFixed(2) + ' ' + y1.toFixed(2) + ' Z" fill="' + col + '" stroke="#fffdf8" stroke-width="1.5"/>';
+      }
+      // ラベル
+      const mid = a0 + slice / 2;
+      const [lx, ly] = pt(mid, R * 0.62);
+      const flip = mid > 90 && mid < 270;
+      html += '<g transform="rotate(' + mid.toFixed(2) + ' ' + CX + ' ' + CY + ')">' +
+        '<text class="seg-txt" x="' + CX + '" y="' + (CY - R * 0.62).toFixed(2) + '" text-anchor="middle" dominant-baseline="middle"' +
+        (flip ? ' transform="rotate(180 ' + CX + ' ' + (CY - R * 0.62).toFixed(2) + ')"' : '') + '>' +
+        escapeHtml(trunc(o.text)) + '</text></g>';
+    });
+    g.innerHTML = html;
+  }
+
+  // ===== 回す =====
+  function spin() {
+    if (spinning || opts.length < 2) return;
+    spinning = true;
+    $("btnSpin").disabled = true;
+    $("result").classList.add("spinning");
+    $("rName").textContent = "…";
+    $("rName").classList.remove("pop");
+
+    const n = opts.length;
+    const slice = 360 / n;
+    const winner = Math.floor(Math.random() * n);
+    const winnerCenter = (winner + 0.5) * slice;
+    const jitter = (Math.random() - 0.5) * slice * 0.7;
+    const desiredMod = (360 - winnerCenter - jitter) % 360;
+    const currentMod = ((rot % 360) + 360) % 360;
+    let delta = (desiredMod - currentMod + 360) % 360;
+    rot += 360 * 5 + delta;
+
+    const g = $("wheelRot");
+    g.classList.add("anim");
+    g.style.transform = "rotate(" + rot + "deg)";
+
+    const onEnd = () => {
+      g.removeEventListener("transitionend", onEnd);
+      spinning = false;
+      $("btnSpin").disabled = false;
+      $("result").classList.remove("spinning");
+      const name = opts[winner].text;
+      const el = $("rName");
+      el.textContent = name;
+      el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
+    };
+    g.addEventListener("transitionend", onEnd);
+  }
+
+  // ===== 選択肢の追加・削除 =====
+  function addOpt(text) {
+    text = (text || "").trim();
+    if (!text) return;
+    if (opts.length >= 10) { flash("選択肢は10個までです"); return; }
+    opts.push({ id: uid(), text });
+    renderOpts(); save();
+  }
+  function removeOpt(id) { opts = opts.filter((o) => o.id !== id); renderOpts(); save(); }
+
+  function renderOpts() {
+    const box = $("opts");
+    if (opts.length === 0) { box.innerHTML = '<span class="empty">選択肢を追加するか、上のプリセットを選んでください。</span>'; }
+    else {
+      box.innerHTML = "";
+      opts.forEach((o, i) => {
+        const el = document.createElement("span");
+        el.className = "opt-chip";
+        el.innerHTML = '<span class="dot" style="background:' + COLORS[i % COLORS.length] + '"></span>' +
+          escapeHtml(o.text) + ' <button title="削除">×</button>';
+        el.querySelector("button").addEventListener("click", () => removeOpt(o.id));
+        box.appendChild(el);
+      });
+    }
+    drawWheel();
+    $("btnSpin").disabled = opts.length < 2;
+  }
+
+  function applyPreset(name) {
+    opts = PRESETS[name].map((t) => ({ id: uid(), text: t }));
+    // 回転をリセット
+    rot = 0; $("wheelRot").classList.remove("anim"); $("wheelRot").style.transform = "rotate(0deg)";
+    $("rName").textContent = "—";
+    renderOpts(); save();
+  }
+
+  function buildPresets() {
+    const box = $("presets");
+    Object.keys(PRESETS).forEach((name) => {
+      const el = document.createElement("span");
+      el.className = "preset";
+      el.textContent = name;
+      el.addEventListener("click", () => applyPreset(name));
+      box.appendChild(el);
+    });
+  }
+
+  // ===== ユーティリティ =====
+  function escapeHtml(s) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function flash(msg) { const el = $("rName"); const prev = el.textContent; el.textContent = msg; setTimeout(() => { if (el.textContent === msg) el.textContent = prev; }, 1400); }
+
+  // ===== イベント =====
+  $("btnSpin").addEventListener("click", spin);
+  $("btnAdd").addEventListener("click", () => { addOpt($("optInput").value); $("optInput").value = ""; $("optInput").focus(); });
+  $("optInput").addEventListener("keydown", (e) => { if (e.key === "Enter") { addOpt($("optInput").value); $("optInput").value = ""; } });
+  $("wheelSvg").addEventListener("click", spin);
+
+  // ===== 初期化 =====
+  (function init() {
+    const saved = load();
+    if (saved && saved.length) opts = saved.map((t) => ({ id: uid(), text: t }));
+    else opts = PRESETS["ランチ"].map((t) => ({ id: uid(), text: t }));
+    buildPresets();
+    renderOpts();
+  })();
+</script>
+</body>
+</html>

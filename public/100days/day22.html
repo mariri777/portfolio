@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>文字を数える — 原稿用紙の文字数カウンター</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #f6f1e7;
+    --paper: #fffdf8;
+    --ink: #302a22;
+    --ink-soft: #6f665a;
+    --ink-faint: #a99f8f;
+    --line: #e6dcc9;
+    --line-soft: #efe7d7;
+    --shu: #bb5a41;
+    --shu-deep: #9c4630;
+    --shu-soft: #f4e4dd;
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink); background: var(--bg); min-height: 100vh; line-height: 1.85;
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.02em;
+  }
+
+  .wrap { max-width: 720px; margin: 0 auto; padding: 30px 22px 96px; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft);
+    text-decoration: none; padding: 7px 15px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--paper); transition: border-color .2s ease, color .2s ease;
+  }
+  .home-link:hover { color: var(--shu); border-color: var(--shu); }
+
+  /* Hero */
+  .hero { margin: 54px 0 34px; text-align: center; }
+  .eyebrow { font-family: "Shippori Mincho B1", serif; font-size: 12.5px; letter-spacing: 0.4em; color: var(--shu); font-weight: 600; }
+  .hero h1 { font-family: "Shippori Mincho B1", serif; font-weight: 700; font-size: clamp(34px, 8.5vw, 52px); line-height: 1.32; letter-spacing: 0.1em; margin: 14px 0 0; }
+  .hero p { color: var(--ink-soft); font-size: 14px; max-width: 440px; margin: 16px auto 0; line-height: 2; }
+  .hero .seal {
+    display: inline-grid; place-items: center; width: 40px; height: 40px; margin-top: 22px;
+    border: 1.5px solid var(--shu); border-radius: 7px; color: var(--shu);
+    font-family: "Shippori Mincho B1", serif; font-size: 17px; font-weight: 700; transform: rotate(-4deg);
+    opacity: .85;
+  }
+
+  /* Editor */
+  .editor { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; margin-bottom: 18px; box-shadow: 0 8px 26px rgba(80,60,40,.05); }
+  textarea {
+    width: 100%; min-height: 200px; resize: vertical; border: none; outline: none;
+    font-family: "Zen Kaku Gothic New", sans-serif; font-size: 15.5px; line-height: 2; color: var(--ink);
+    letter-spacing: 0.03em; background:
+      linear-gradient(to right, transparent 40px, var(--shu-soft) 40px, var(--shu-soft) 41px, transparent 41px);
+    padding: 20px 20px 20px 54px; border-radius: 12px;
+  }
+  textarea::placeholder { color: var(--ink-faint); }
+
+  /* Meter + primary count */
+  .board { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .count-main { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 26px; display: flex; flex-direction: column; justify-content: center; }
+  .count-main .cm-label { font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); letter-spacing: 0.18em; }
+  .count-main .cm-num { font-family: "Shippori Mincho B1", serif; font-weight: 700; font-size: clamp(46px, 12vw, 66px); line-height: 1.1; letter-spacing: 0.02em; margin: 4px 0; }
+  .count-main .cm-num small { font-size: 18px; color: var(--ink-faint); margin-left: 6px; }
+  .count-main .cm-sub { font-size: 12px; color: var(--ink-soft); }
+
+  .meter { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring-wrap { position: relative; width: 132px; height: 132px; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: var(--line-soft); stroke-width: 11; }
+  .ring-fg { fill: none; stroke: var(--shu); stroke-width: 11; stroke-linecap: round; transition: stroke-dashoffset .35s ease, stroke .3s ease; }
+  .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring-center .rc-num { font-family: "Shippori Mincho B1", serif; font-size: 30px; font-weight: 700; line-height: 1; transition: color .3s ease; }
+  .ring-center .rc-lbl { font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.12em; margin-top: 4px; }
+  .meter .m-frac { font-family: "Shippori Mincho B1", serif; font-size: 13px; color: var(--ink-soft); margin-top: 12px; letter-spacing: 0.08em; }
+  .meter.over .ring-fg { stroke: var(--shu-deep); }
+  .meter.over .rc-num { color: var(--shu-deep); }
+
+  /* Secondary stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 15px 10px; text-align: center; }
+  .stat .s-num { font-family: "Shippori Mincho B1", serif; font-size: 24px; font-weight: 700; line-height: 1.1; }
+  .stat .s-num small { font-size: 12px; color: var(--ink-faint); margin-left: 2px; }
+  .stat .s-lbl { font-size: 11px; color: var(--ink-soft); letter-spacing: 0.06em; margin-top: 4px; }
+
+  /* Targets */
+  .targets-label { font-family: "Shippori Mincho B1", serif; font-size: 13px; font-weight: 600; letter-spacing: 0.14em; margin-bottom: 12px; }
+  .targets { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 14px; }
+  .target {
+    font-family: "Shippori Mincho B1", serif; font-size: 13px; font-weight: 500;
+    padding: 8px 15px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--paper); color: var(--ink-soft); cursor: pointer; transition: all .18s ease; letter-spacing: 0.05em;
+  }
+  .target:hover { border-color: var(--shu); color: var(--ink); }
+  .target.active { border-color: var(--shu); background: var(--shu); color: #fff; }
+
+  .toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; font-size: 13px; color: var(--ink-soft); }
+  .toggle { position: relative; width: 42px; height: 24px; border-radius: 999px; background: var(--line); cursor: pointer; transition: background .2s ease; flex-shrink: 0; }
+  .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .2s ease; }
+  .toggle.on { background: var(--shu); }
+  .toggle.on::after { transform: translateX(18px); }
+  .toggle-row .hint { font-size: 11.5px; color: var(--ink-faint); }
+
+  .btn-row { display: flex; flex-wrap: wrap; gap: 11px; }
+  .btn { font-family: inherit; font-weight: 700; font-size: 14px; color: #fff; background: var(--ink); border: none; padding: 12px 22px; border-radius: 11px; cursor: pointer; transition: transform .15s ease, opacity .15s ease; letter-spacing: 0.04em; }
+  .btn:hover { transform: translateY(-1px); opacity: .92; }
+  .btn:active { transform: translateY(0); }
+  .btn.ghost { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
+  .btn.ghost:hover { border-color: var(--shu); color: var(--shu); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(16px);
+    background: var(--ink); color: var(--paper); font-size: 13px; padding: 11px 22px; border-radius: 999px;
+    letter-spacing: 0.05em; opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease;
+    box-shadow: 0 8px 26px rgba(0,0,0,.22); z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .footer { text-align: center; margin-top: 50px; padding-top: 26px; border-top: 1px solid var(--line); font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); line-height: 2.1; letter-spacing: 0.14em; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 24px 16px 76px; }
+    .hero { margin: 34px 0 26px; }
+    .board { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    textarea { padding-left: 48px; font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="home-link" href="../">← 一覧へもどる</a>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="eyebrow">MOJI COUNT</div>
+    <h1>文字を、数える。</h1>
+    <p>書いたそばから文字数・行数を数えます。ツイートの140字も、原稿用紙の枚数も、ひと目で。あなたの下書きにそっと寄り添うカウンターです。</p>
+    <div class="seal">數</div>
+  </header>
+
+  <!-- ============ EDITOR ============ -->
+  <div class="editor">
+    <textarea id="ta" placeholder="ここに文章を入力・貼り付けしてください。&#10;文字数はリアルタイムで数えます。"></textarea>
+  </div>
+
+  <!-- ============ BOARD ============ -->
+  <div class="board">
+    <div class="count-main">
+      <div class="cm-label">文字数（空白ふくむ）</div>
+      <div class="cm-num"><span id="numTotal">0</span><small>字</small></div>
+      <div class="cm-sub" id="subReadTime">およその読み時間 0 秒</div>
+    </div>
+
+    <div class="meter" id="meter">
+      <div class="ring-wrap">
+        <svg width="132" height="132" viewBox="0 0 132 132">
+          <circle class="ring-bg" cx="66" cy="66" r="56"></circle>
+          <circle class="ring-fg" id="ringFg" cx="66" cy="66" r="56"></circle>
+        </svg>
+        <div class="ring-center">
+          <div class="rc-num" id="ringNum">140</div>
+          <div class="rc-lbl" id="ringLbl">のこり</div>
+        </div>
+      </div>
+      <div class="m-frac" id="mFrac">0 / 140 字</div>
+    </div>
+  </div>
+
+  <!-- ============ SECONDARY STATS ============ -->
+  <div class="stats">
+    <div class="stat"><div class="s-num" id="numNoSpace">0</div><div class="s-lbl">空白なし</div></div>
+    <div class="stat"><div class="s-num" id="numLines">0</div><div class="s-lbl">行数</div></div>
+    <div class="stat"><div class="s-num" id="numParas">0</div><div class="s-lbl">段落数</div></div>
+    <div class="stat"><div class="s-num"><span id="numGenko">0.0</span><small>枚</small></div><div class="s-lbl">原稿用紙(400字)</div></div>
+  </div>
+
+  <!-- ============ TARGETS ============ -->
+  <div class="targets-label">上限のめやす</div>
+  <div class="targets" id="targets">
+    <button class="target active" data-limit="140">ツイート 140</button>
+    <button class="target" data-limit="280">長文ポスト 280</button>
+    <button class="target" data-limit="32">タイトル 32</button>
+    <button class="target" data-limit="120">meta説明 120</button>
+    <button class="target" data-limit="0">自由</button>
+  </div>
+
+  <div class="toggle-row">
+    <div class="toggle on" id="urlToggle" role="switch" aria-checked="true"></div>
+    <span>URLは23字で数える（Twitter方式）</span>
+    <span class="hint">※リンクはt.co短縮で23字固定</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" id="btnCopy">本文をコピー</button>
+    <button class="btn ghost" id="btnClear">クリア</button>
+  </div>
+
+  <footer class="footer">
+    原稿用紙のような文字数カウンター<br />
+    Built by mariri
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const ta = $("ta");
+
+  let limit = 140;        // 0 = 自由
+  let urlMode = true;     // URLを23字で数える
+
+  const CIRC = 2 * Math.PI * 56; // ≒ 351.86
+  $("ringFg").style.strokeDasharray = CIRC;
+
+  // ===== 数える =====
+  function chars(str) { return [...str].length; } // コードポイント単位（絵文字を1に近づける）
+
+  function tweetLength(text) {
+    // URLは23字固定で数える
+    const urlRe = /https?:\/\/[^\s　]+/g;
+    const urls = text.match(urlRe) || [];
+    const stripped = text.replace(urlRe, "");
+    return chars(stripped) + urls.length * 23;
+  }
+
+  function update() {
+    const text = ta.value;
+    const total = chars(text);
+    const noSpace = chars(text.replace(/\s/g, ""));
+    const lines = text.length === 0 ? 0 : text.split("\n").length;
+    const paras = text.trim() === "" ? 0 : text.trim().split(/\n\s*\n/).filter((p) => p.trim() !== "").length;
+    const genko = (total / 400).toFixed(1);
+    const readSec = Math.round((noSpace / 500) * 60); // 約500字/分
+
+    $("numTotal").textContent = total.toLocaleString();
+    $("numNoSpace").textContent = noSpace.toLocaleString();
+    $("numLines").textContent = lines.toLocaleString();
+    $("numParas").textContent = paras.toLocaleString();
+    $("numGenko").textContent = genko;
+
+    if (readSec < 60) $("subReadTime").textContent = "およその読み時間 " + readSec + " 秒";
+    else $("subReadTime").textContent = "およその読み時間 " + Math.floor(readSec / 60) + " 分 " + (readSec % 60) + " 秒";
+
+    // メーター用の「数える長さ」
+    const counted = (limit === 140 || limit === 280) && urlMode ? tweetLength(text) : total;
+    renderMeter(counted);
+  }
+
+  function renderMeter(counted) {
+    const meter = $("meter");
+    if (limit === 0) {
+      // 自由：リングは満たさず、字数だけ表示
+      $("ringFg").style.strokeDashoffset = CIRC;
+      $("ringNum").textContent = counted.toLocaleString();
+      $("ringLbl").textContent = "字";
+      $("mFrac").textContent = "上限なし";
+      meter.classList.remove("over");
+      $("ringNum").style.fontSize = counted >= 1000 ? "22px" : "30px";
+      return;
+    }
+    const remaining = limit - counted;
+    const pct = Math.min(counted / limit, 1);
+    $("ringFg").style.strokeDashoffset = CIRC * (1 - pct);
+    $("ringNum").style.fontSize = "30px";
+    if (remaining < 0) {
+      meter.classList.add("over");
+      $("ringNum").textContent = Math.abs(remaining).toLocaleString();
+      $("ringLbl").textContent = "字オーバー";
+    } else {
+      meter.classList.remove("over");
+      $("ringNum").textContent = remaining.toLocaleString();
+      $("ringLbl").textContent = "のこり";
+    }
+    $("mFrac").textContent = counted.toLocaleString() + " / " + limit + " 字";
+  }
+
+  // ===== 上限チップ =====
+  document.querySelectorAll("#targets .target").forEach((t) => {
+    t.addEventListener("click", () => {
+      document.querySelectorAll("#targets .target").forEach((x) => x.classList.remove("active"));
+      t.classList.add("active");
+      limit = +t.dataset.limit;
+      update();
+    });
+  });
+
+  // ===== URLトグル =====
+  $("urlToggle").addEventListener("click", () => {
+    urlMode = !urlMode;
+    $("urlToggle").classList.toggle("on", urlMode);
+    $("urlToggle").setAttribute("aria-checked", urlMode);
+    update();
+  });
+
+  // ===== コピー / クリア =====
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove("show"), 1600);
+  }
+  $("btnCopy").addEventListener("click", () => {
+    if (ta.value === "") { toast("本文が空です"); return; }
+    const done = () => toast("本文をコピーしました");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(ta.value).then(done).catch(() => { ta.select(); document.execCommand("copy"); done(); });
+    } else { ta.select(); document.execCommand("copy"); done(); }
+  });
+  $("btnClear").addEventListener("click", () => {
+    ta.value = ""; ta.focus(); update();
+  });
+
+  ta.addEventListener("input", update);
+  update();
+</script>
+</body>
+</html>

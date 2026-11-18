@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catch Me If You Can</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bg: #fff7f2;
+      --bg-soft: #ffeee4;
+      --pink: #ff8fa9;
+      --pink-deep: #e76b8a;
+      --peach: #ffc6a8;
+      --cream: #fffaf6;
+      --ink: #4a2f3a;
+      --ink-soft: #8a6a76;
+      --line: #f3d9d3;
+      --shadow: 0 14px 30px -18px rgba(231, 107, 138, 0.45);
+      --shadow-lg: 0 30px 70px -32px rgba(231, 107, 138, 0.55);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      font-family: "Plus Jakarta Sans", -apple-system, "Hiragino Kaku Gothic ProN",
+        "Yu Gothic UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 12% 10%, #ffd9d0 0%, transparent 45%),
+        radial-gradient(circle at 88% 5%, #ffe6d2 0%, transparent 40%),
+        radial-gradient(circle at 50% 95%, #ffe4ec 0%, transparent 50%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding: 32px 24px 64px;
+    }
+
+    .page {
+      max-width: 1040px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ---- Top bar ---- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--ink-soft);
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      transition: transform 0.25s ease, color 0.25s ease;
+    }
+    .back-link:hover { color: var(--pink-deep); transform: translateX(-2px); }
+
+    .title-block { text-align: center; flex: 1; min-width: 220px; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--pink-deep);
+      background: #fff;
+      padding: 6px 14px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+    }
+    .eyebrow::before { content: "✿"; }
+
+    .title-block h1 {
+      font-family: "Fraunces", serif;
+      font-weight: 600;
+      font-size: clamp(28px, 4.5vw, 44px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-top: 12px;
+    }
+    .title-block h1 .accent { font-style: italic; color: var(--pink-deep); font-weight: 500; }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+    }
+
+    .stat {
+      background: #fff;
+      border-radius: 18px;
+      padding: 10px 18px;
+      box-shadow: var(--shadow);
+      min-width: 92px;
+      text-align: center;
+    }
+    .stat-label {
+      display: block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 2px;
+    }
+    .stat-value {
+      font-family: "Fraunces", serif;
+      font-weight: 600;
+      font-size: 22px;
+      color: var(--ink);
+    }
+
+    /* ---- Game area ---- */
+    .game-shell {
+      background: var(--cream);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 18px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-shell::before {
+      content: "";
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, #ffd6dd 0%, transparent 70%);
+      border-radius: 50%;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .game-shell::after {
+      content: "";
+      position: absolute;
+      bottom: -100px; left: -60px;
+      width: 240px; height: 240px;
+      background: radial-gradient(circle, #ffe6d2 0%, transparent 70%);
+      border-radius: 50%;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 100%;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 30% 20%, #fff 0%, #fff5ef 60%, #ffe6db 100%);
+      cursor: crosshair;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+    .hint kbd {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-bottom-width: 2px;
+      padding: 3px 7px;
+      border-radius: 6px;
+      color: var(--ink);
+    }
+
+    button.reset-btn {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      padding: 9px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+    button.reset-btn:hover {
+      background: var(--pink);
+      color: #fff;
+      border-color: var(--pink);
+      transform: translateY(-1px);
+    }
+
+    /* ---- Modal ---- */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(74, 47, 58, 0.32);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .modal.show { display: flex; opacity: 1; }
+
+    .modal-card {
+      background: var(--cream);
+      border-radius: 28px;
+      padding: 44px 40px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+      transform: scale(0.92);
+      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .modal.show .modal-card { transform: scale(1); }
+
+    .modal-card::before {
+      content: "";
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 160px; height: 160px;
+      background: radial-gradient(circle, #ffd6dd 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .modal-eyebrow {
+      display: inline-block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--pink-deep);
+      background: #fff;
+      padding: 6px 14px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      position: relative;
+      z-index: 1;
+    }
+
+    .modal-card h2 {
+      font-family: "Fraunces", serif;
+      font-weight: 600;
+      font-size: 36px;
+      margin: 18px 0 8px;
+      letter-spacing: -0.01em;
+      position: relative;
+      z-index: 1;
+    }
+    .modal-card h2 .accent { font-style: italic; color: var(--pink-deep); }
+
+    .modal-stats {
+      display: flex;
+      gap: 12px;
+      margin: 22px 0 28px;
+      position: relative;
+      z-index: 1;
+    }
+    .modal-stat {
+      flex: 1;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 8px;
+    }
+    .modal-stat-label {
+      display: block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 4px;
+    }
+    .modal-stat-value {
+      font-family: "Fraunces", serif;
+      font-weight: 600;
+      font-size: 22px;
+      color: var(--ink);
+    }
+
+    .modal-card button {
+      font: inherit;
+      font-weight: 600;
+      font-size: 14px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--peach), var(--pink));
+      border: none;
+      padding: 14px 32px;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 10px 24px -10px rgba(231, 107, 138, 0.7);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      z-index: 1;
+    }
+    .modal-card button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px -10px rgba(231, 107, 138, 0.8);
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 20px 14px 48px; }
+      .stats { width: 100%; justify-content: center; }
+      .game-shell { padding: 12px; border-radius: 22px; }
+      .hint { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a href="../" class="back-link">← Back</a>
+      <div class="title-block">
+        <span class="eyebrow">Mini Game</span>
+        <h1>Catch Me <span class="accent">If You Can</span></h1>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-label">Time</span>
+          <span class="stat-value" id="time">0.0<small style="font-size:13px;color:var(--ink-soft)">s</small></span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Tries</span>
+          <span class="stat-value" id="tries">1</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="game-shell">
+      <canvas id="game" width="960" height="560"></canvas>
+      <div class="footer-row">
+        <div class="hint">
+          <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd>
+          <span>または</span>
+          <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>
+          <span>で動いてタッチ！</span>
+        </div>
+        <button class="reset-btn" id="reset">リセット</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="win-modal" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <span class="modal-eyebrow">Caught!</span>
+      <h2>つかま<span class="accent">えた！</span></h2>
+      <div class="modal-stats">
+        <div class="modal-stat">
+          <span class="modal-stat-label">Time</span>
+          <span class="modal-stat-value" id="win-time">0.0s</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-label">Tries</span>
+          <span class="modal-stat-value" id="win-tries">1</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-label">Best</span>
+          <span class="modal-stat-value" id="win-best">—</span>
+        </div>
+      </div>
+      <button id="play-again">もう一度</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+
+    const timeEl = document.getElementById('time');
+    const triesEl = document.getElementById('tries');
+    const winModal = document.getElementById('win-modal');
+    const winTimeEl = document.getElementById('win-time');
+    const winTriesEl = document.getElementById('win-tries');
+    const winBestEl = document.getElementById('win-best');
+    const playAgainBtn = document.getElementById('play-again');
+    const resetBtn = document.getElementById('reset');
+
+    // ---- Game state ----
+    const keys = {};
+    let tries = 1;
+    let startTime = performance.now();
+    let elapsed = 0;
+    let won = false;
+    let bestTime = parseFloat(localStorage.getItem('catchme-best')) || null;
+    if (bestTime) winBestEl.textContent = bestTime.toFixed(1) + 's';
+
+    const player = {
+      x: 140, y: H / 2,
+      r: 18,
+      speed: 3.6,
+      facing: 1,
+      walk: 0,
+      moving: false,
+    };
+
+    const npc = {
+      x: W - 180, y: H / 2,
+      r: 18,
+      facing: -1,
+      walk: 0,
+      state: 'flee',
+      stateTimer: 60,
+      jukeDx: 0, jukeDy: 0,
+      wanderDx: 0, wanderDy: 0,
+      lastVx: -1, lastVy: 0,
+      blinkTimer: 0,
+      surprise: 0,
+    };
+
+    const sparks = [];   // small near-miss particles
+    const hearts = [];   // win confetti
+
+    // ---- Input ----
+    const keyMap = {
+      ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+      w: 'up', s: 'down', a: 'left', d: 'right',
+      W: 'up', S: 'down', A: 'left', D: 'right',
+    };
+
+    window.addEventListener('keydown', (e) => {
+      const k = keyMap[e.key];
+      if (k) { keys[k] = true; e.preventDefault(); }
+    });
+    window.addEventListener('keyup', (e) => {
+      const k = keyMap[e.key];
+      if (k) keys[k] = false;
+    });
+
+    resetBtn.addEventListener('click', () => resetGame(true));
+    playAgainBtn.addEventListener('click', () => resetGame(false));
+
+    function resetGame(fullReset) {
+      if (fullReset) {
+        tries = 1;
+      } else {
+        tries++;
+      }
+      triesEl.textContent = tries;
+      startTime = performance.now();
+      elapsed = 0;
+      won = false;
+      player.x = 140; player.y = H / 2; player.facing = 1;
+      // place NPC opposite quadrant
+      npc.x = W - 180; npc.y = H / 2; npc.facing = -1;
+      npc.state = 'flee'; npc.stateTimer = 60;
+      sparks.length = 0;
+      hearts.length = 0;
+      winModal.classList.remove('show');
+    }
+
+    // ---- Update ----
+    function updatePlayer() {
+      let vx = 0, vy = 0;
+      if (keys.up) vy -= 1;
+      if (keys.down) vy += 1;
+      if (keys.left) vx -= 1;
+      if (keys.right) vx += 1;
+      const len = Math.hypot(vx, vy);
+      player.moving = len > 0;
+      if (len > 0) {
+        vx /= len; vy /= len;
+        player.x += vx * player.speed;
+        player.y += vy * player.speed;
+        if (Math.abs(vx) > 0.1) player.facing = vx > 0 ? 1 : -1;
+        player.walk += 0.32;
+      } else {
+        player.walk *= 0.85;
+      }
+      player.x = Math.max(player.r + 6, Math.min(W - player.r - 6, player.x));
+      player.y = Math.max(player.r + 30, Math.min(H - player.r - 6, player.y));
+    }
+
+    function updateNPC() {
+      const dx = npc.x - player.x;
+      const dy = npc.y - player.y;
+      const dist = Math.hypot(dx, dy);
+
+      // state machine
+      if (npc.stateTimer > 0) {
+        npc.stateTimer--;
+      } else {
+        const r = Math.random();
+        if (dist < 110 && r < 0.45) {
+          // close: juke perpendicular (sharp dodge)
+          npc.state = 'juke';
+          npc.stateTimer = 14;
+          const angle = Math.atan2(dy, dx) + (Math.random() < 0.5 ? Math.PI / 2 : -Math.PI / 2);
+          npc.jukeDx = Math.cos(angle);
+          npc.jukeDy = Math.sin(angle);
+          npc.surprise = 1;
+        } else if (r < 0.22) {
+          npc.state = 'feint';
+          npc.stateTimer = 18 + Math.random() * 8;
+        } else if (r < 0.55) {
+          npc.state = 'wander';
+          npc.stateTimer = 30 + Math.random() * 50;
+          const ang = Math.random() * Math.PI * 2;
+          npc.wanderDx = Math.cos(ang);
+          npc.wanderDy = Math.sin(ang);
+        } else {
+          npc.state = 'flee';
+          npc.stateTimer = 40 + Math.random() * 50;
+        }
+      }
+
+      let vx = 0, vy = 0;
+      let speed = 3.25;
+      if (npc.state === 'flee') {
+        const len = dist || 1;
+        vx = dx / len; vy = dy / len;
+      } else if (npc.state === 'feint') {
+        // feint: slow approach toward player (looks like surrender)
+        const len = dist || 1;
+        vx = -dx / len; vy = -dy / len;
+        speed = 1.4;
+      } else if (npc.state === 'wander') {
+        vx = npc.wanderDx; vy = npc.wanderDy;
+        speed = 2.4;
+      } else if (npc.state === 'juke') {
+        vx = npc.jukeDx; vy = npc.jukeDy;
+        speed = 5.0;
+      }
+
+      // universal wall steering: reflect velocity if a wall lies ahead so NPC never stalls
+      const wallL = npc.r + 10;
+      const wallR = W - npc.r - 10;
+      const wallT = npc.r + 34;
+      const wallB = H - npc.r - 10;
+      let bounced = false;
+      if (npc.x < wallL && vx < 0) { vx = Math.abs(vx); bounced = true; }
+      if (npc.x > wallR && vx > 0) { vx = -Math.abs(vx); bounced = true; }
+      if (npc.y < wallT && vy < 0) { vy = Math.abs(vy); bounced = true; }
+      if (npc.y > wallB && vy > 0) { vy = -Math.abs(vy); bounced = true; }
+      if (bounced) {
+        // if the bounce zeroed out our motion (e.g. v was purely along a now-flipped axis),
+        // inject a perpendicular kick so we don't crawl along the wall
+        if (Math.hypot(vx, vy) < 0.05) {
+          const a = Math.random() * Math.PI * 2;
+          vx = Math.cos(a);
+          vy = Math.sin(a);
+        }
+        const re = Math.hypot(vx, vy) || 1;
+        vx /= re; vy /= re;
+        // persist bounced heading back into the state so wander/juke keep going
+        if (npc.state === 'wander') { npc.wanderDx = vx; npc.wanderDy = vy; }
+        if (npc.state === 'juke') { npc.jukeDx = vx; npc.jukeDy = vy; }
+      }
+
+      npc.x += vx * speed;
+      npc.y += vy * speed;
+      npc.x = Math.max(npc.r + 6, Math.min(W - npc.r - 6, npc.x));
+      npc.y = Math.max(npc.r + 30, Math.min(H - npc.r - 6, npc.y));
+
+      npc.walk += 0.32;
+      if (Math.abs(vx) > 0.15) npc.facing = vx > 0 ? 1 : -1;
+      npc.lastVx = vx; npc.lastVy = vy;
+
+      npc.blinkTimer = (npc.blinkTimer + 1) % 140;
+      if (npc.surprise > 0) npc.surprise -= 0.04;
+
+      // near-miss sparks
+      if (dist < 70 && dist > 36 && Math.random() < 0.15) {
+        const ang = Math.random() * Math.PI * 2;
+        sparks.push({
+          x: (player.x + npc.x) / 2 + Math.cos(ang) * 8,
+          y: (player.y + npc.y) / 2 + Math.sin(ang) * 8 - 18,
+          vx: Math.cos(ang) * 0.6,
+          vy: Math.sin(ang) * 0.6 - 0.5,
+          life: 24,
+        });
+      }
+    }
+
+    function checkCatch() {
+      const dx = npc.x - player.x;
+      const dy = npc.y - player.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < player.r + npc.r - 2) {
+        win();
+      }
+    }
+
+    function win() {
+      won = true;
+      const t = elapsed / 1000;
+      winTimeEl.textContent = t.toFixed(1) + 's';
+      winTriesEl.textContent = tries;
+      if (!bestTime || t < bestTime) {
+        bestTime = t;
+        localStorage.setItem('catchme-best', t);
+      }
+      winBestEl.textContent = bestTime.toFixed(1) + 's';
+
+      // spawn hearts
+      for (let i = 0; i < 28; i++) {
+        hearts.push({
+          x: npc.x + (Math.random() - 0.5) * 30,
+          y: npc.y - 30,
+          vx: (Math.random() - 0.5) * 4,
+          vy: -Math.random() * 5 - 2,
+          rot: Math.random() * Math.PI * 2,
+          vr: (Math.random() - 0.5) * 0.2,
+          size: 8 + Math.random() * 8,
+          life: 90,
+          color: Math.random() < 0.5 ? '#ff8fa9' : '#ffc6a8',
+        });
+      }
+      setTimeout(() => winModal.classList.add('show'), 380);
+    }
+
+    function updateParticles() {
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i];
+        s.x += s.vx; s.y += s.vy; s.life--;
+        if (s.life <= 0) sparks.splice(i, 1);
+      }
+      for (let i = hearts.length - 1; i >= 0; i--) {
+        const h = hearts[i];
+        h.x += h.vx; h.y += h.vy;
+        h.vy += 0.18;
+        h.rot += h.vr;
+        h.life--;
+        if (h.life <= 0) hearts.splice(i, 1);
+      }
+    }
+
+    // ---- Render ----
+    function drawBackground() {
+      // soft grid dots for depth
+      ctx.save();
+      ctx.fillStyle = 'rgba(231, 107, 138, 0.08)';
+      const step = 36;
+      for (let y = step; y < H; y += step) {
+        for (let x = step; x < W; x += step) {
+          ctx.beginPath();
+          ctx.arc(x, y, 1.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+
+    function drawShadow(x, y) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(74, 47, 58, 0.12)';
+      ctx.beginPath();
+      ctx.ellipse(x, y + 4, 20, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    /**
+     * Draw a cute stick figure.
+     * y is the foot baseline.
+     */
+    function drawStick(x, y, opts) {
+      const {
+        bodyColor, headFill, faceColor, walk, facing,
+        scared, smile, blinking, label, labelColor,
+      } = opts;
+
+      const headR = 18;
+      const headY = y - 60;
+      const torsoTop = headY + headR + 2;
+      const torsoBot = y - 18;
+
+      drawShadow(x, y);
+
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 4.5;
+      ctx.strokeStyle = bodyColor;
+
+      // body
+      ctx.beginPath();
+      ctx.moveTo(x, torsoTop);
+      ctx.lineTo(x, torsoBot);
+      ctx.stroke();
+
+      // legs (walking animation)
+      const legSwing = Math.sin(walk) * 7;
+      ctx.beginPath();
+      ctx.moveTo(x, torsoBot);
+      ctx.lineTo(x - 6 + legSwing, y);
+      ctx.moveTo(x, torsoBot);
+      ctx.lineTo(x + 6 - legSwing, y);
+      ctx.stroke();
+
+      // arms (opposite phase)
+      const armSwing = Math.sin(walk + Math.PI) * 7;
+      const shoulderY = torsoTop + 6;
+      ctx.beginPath();
+      ctx.moveTo(x, shoulderY);
+      ctx.lineTo(x - 14 + armSwing, shoulderY + 14);
+      ctx.moveTo(x, shoulderY);
+      ctx.lineTo(x + 14 - armSwing, shoulderY + 14);
+      ctx.stroke();
+
+      // head
+      ctx.fillStyle = headFill;
+      ctx.beginPath();
+      ctx.arc(x, headY, headR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // hair tuft on top for personality
+      ctx.beginPath();
+      ctx.moveTo(x - 4, headY - headR + 2);
+      ctx.quadraticCurveTo(x, headY - headR - 6, x + 5, headY - headR + 1);
+      ctx.stroke();
+
+      // blush
+      ctx.fillStyle = 'rgba(255, 143, 169, 0.55)';
+      ctx.beginPath();
+      ctx.ellipse(x - 8, headY + 4, 3.6, 2.4, 0, 0, Math.PI * 2);
+      ctx.ellipse(x + 8, headY + 4, 3.6, 2.4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // eyes
+      const eyeOffX = 5 + facing * 0.5;
+      const eyeY = headY - 2;
+      ctx.fillStyle = faceColor;
+      if (blinking) {
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = faceColor;
+        ctx.beginPath();
+        ctx.moveTo(x - eyeOffX - 2, eyeY); ctx.lineTo(x - eyeOffX + 2, eyeY);
+        ctx.moveTo(x + eyeOffX - 2, eyeY); ctx.lineTo(x + eyeOffX + 2, eyeY);
+        ctx.stroke();
+      } else if (scared) {
+        // wide round eyes
+        ctx.beginPath();
+        ctx.arc(x - eyeOffX, eyeY, 2.6, 0, Math.PI * 2);
+        ctx.arc(x + eyeOffX, eyeY, 2.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(x - eyeOffX + 0.8, eyeY - 0.8, 0.9, 0, Math.PI * 2);
+        ctx.arc(x + eyeOffX + 0.8, eyeY - 0.8, 0.9, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.arc(x - eyeOffX, eyeY, 2, 0, Math.PI * 2);
+        ctx.arc(x + eyeOffX, eyeY, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // mouth
+      ctx.strokeStyle = faceColor;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      if (scared) {
+        ctx.arc(x, headY + 8, 2.4, 0, Math.PI * 2);
+      } else if (smile) {
+        ctx.arc(x, headY + 5, 4, 0.15 * Math.PI, 0.85 * Math.PI);
+      } else {
+        ctx.moveTo(x - 3, headY + 7);
+        ctx.lineTo(x + 3, headY + 7);
+      }
+      ctx.stroke();
+
+      ctx.restore();
+
+      // label tag above head
+      if (label) {
+        ctx.save();
+        ctx.font = '600 10px "JetBrains Mono", monospace';
+        const tw = ctx.measureText(label).width + 12;
+        const tx = x - tw / 2;
+        const ty = headY - headR - 18;
+        ctx.fillStyle = labelColor;
+        ctx.beginPath();
+        // rounded rect
+        const r = 8;
+        ctx.moveTo(tx + r, ty);
+        ctx.arcTo(tx + tw, ty, tx + tw, ty + 18, r);
+        ctx.arcTo(tx + tw, ty + 18, tx, ty + 18, r);
+        ctx.arcTo(tx, ty + 18, tx, ty, r);
+        ctx.arcTo(tx, ty, tx + tw, ty, r);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, x, ty + 9);
+        ctx.restore();
+      }
+    }
+
+    function drawHeart(x, y, size, color, rot) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+      ctx.scale(size / 16, size / 16);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(0, 4);
+      ctx.bezierCurveTo(0, -2, -10, -2, -10, 4);
+      ctx.bezierCurveTo(-10, 10, 0, 14, 0, 18);
+      ctx.bezierCurveTo(0, 14, 10, 10, 10, 4);
+      ctx.bezierCurveTo(10, -2, 0, -2, 0, 4);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, W, H);
+      drawBackground();
+
+      // sparks (near miss)
+      for (const s of sparks) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, s.life / 24);
+        ctx.fillStyle = '#ff8fa9';
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // draw NPC first (player drawn on top when close)
+      const dx = npc.x - player.x;
+      const dy = npc.y - player.y;
+      const dist = Math.hypot(dx, dy);
+      const scared = dist < 150;
+      const blink = npc.blinkTimer > 130;
+
+      drawStick(npc.x, npc.y, {
+        bodyColor: '#4a2f3a',
+        headFill: '#fff',
+        faceColor: '#4a2f3a',
+        walk: npc.walk,
+        facing: npc.facing,
+        scared,
+        smile: false,
+        blinking: blink,
+        label: 'NPC',
+        labelColor: '#e76b8a',
+      });
+
+      drawStick(player.x, player.y, {
+        bodyColor: '#4a2f3a',
+        headFill: '#ffe1d4',
+        faceColor: '#4a2f3a',
+        walk: player.walk,
+        facing: player.facing,
+        scared: false,
+        smile: true,
+        blinking: false,
+        label: 'YOU',
+        labelColor: '#4a2f3a',
+      });
+
+      // hearts
+      for (const h of hearts) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, Math.min(1, h.life / 60));
+        drawHeart(h.x, h.y, h.size, h.color, h.rot);
+        ctx.restore();
+      }
+    }
+
+    // ---- Loop ----
+    function tick(t) {
+      if (!won) {
+        elapsed = t - startTime;
+        timeEl.innerHTML = (elapsed / 1000).toFixed(1) + '<small style="font-size:13px;color:var(--ink-soft)">s</small>';
+        updatePlayer();
+        updateNPC();
+        checkCatch();
+      }
+      updateParticles();
+      render();
+      requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame((t) => { startTime = t; tick(t); });
+  </script>
+</body>
+</html>

@@ -63,8 +63,52 @@ const games = [
   },
 ];
 
-// 100日チャレンジ（2026-11-15 時点）
-const days = { done: 47, tool: 34, game: 8, lp: 5, href: 'https://mariri777.github.io/100days_challenges/' };
+// ちいさな作品（まいにち ひとつ つくっていた頃のもの）。本体は public/100days/dayN.html、サムネイルは public/covers/mini/dayN.jpg
+const minis = [
+  { n: 1, cat: 'tool', title: "Clock & List", desc: "時計と、今日やることのリスト" },
+  { n: 2, cat: 'tool', title: "Breathe", desc: "4-7-8 呼吸法のガイド" },
+  { n: 4, cat: 'game', title: "Catch Me If You Can", desc: "にげる相手を追いかけてタッチ。つかまえるまでの時間を競う" },
+  { n: 5, cat: 'game', title: "うさぎマジカルレース", desc: "魔法アイテムでライバルを妨害して、3周レースで1位をめざす" },
+  { n: 6, cat: 'tool', title: "BEAUTÉ", desc: "肌質や悩みから、おすすめのコスメを5つ提案する診断" },
+  { n: 8, cat: 'tool', title: "10-MIN KITCHEN", desc: "10分献立メーカー" },
+  { n: 10, cat: 'game', title: "うさぎでGO", desc: "うさぎ電車を、停止線にぴったり止める運転ゲーム" },
+  { n: 11, cat: 'game', title: "ドットすけっち", desc: "お絵かき＆おだいチャレンジ" },
+  { n: 12, cat: 'game', title: "うさぎのすごろく", desc: "にんじん人生ゲーム" },
+  { n: 13, cat: 'tool', title: "よぞらダイアリー", desc: "きぶん日記" },
+  { n: 15, cat: 'game', title: "ことばシューター", desc: "レトロタイピングゲーム" },
+  { n: 16, cat: 'tool', title: "今日の七十二候", desc: "一年を七十二の季節に" },
+  { n: 17, cat: 'tool', title: "見えるデータベース", desc: "さわって学ぶ、しくみの話" },
+  { n: 18, cat: 'tool', title: "見えるサーバー", desc: "さわって学ぶ、しくみの話" },
+  { n: 19, cat: 'tool', title: "見えるAPI", desc: "さわって学ぶ、しくみの話" },
+  { n: 20, cat: 'tool', title: "見えるHTTP", desc: "さわって学ぶ、しくみの話" },
+  { n: 21, cat: 'tool', title: "配色をツクル", desc: "ニュアンスカラー・パレット" },
+  { n: 22, cat: 'tool', title: "文字を、数える。", desc: "原稿用紙の文字数カウンター" },
+  { n: 23, cat: 'game', title: "一枚絵ガチャ", desc: "静かな和の景色" },
+  { n: 24, cat: 'tool', title: "たてかえ精算メモ", desc: "誰が誰にいくら返す？" },
+  { n: 25, cat: 'tool', title: "今月、あといくら？", desc: "1日あたり使える額がわかる家計電卓" },
+  { n: 26, cat: 'tool', title: "セール価格電卓", desc: "二重割引も税込もすぐ計算" },
+  { n: 27, cat: 'tool', title: "眠りの逆算", desc: "何時に寝ると気持ちよく起きられる？" },
+  { n: 28, cat: 'tool', title: "記念日カウンター", desc: "あと何日、今日で何日目" },
+  { n: 29, cat: 'tool', title: "これ決めて！ルーレット", desc: "迷ったら回して決める" },
+  { n: 31, cat: 'tool', title: "今日、三つだけ", desc: "やることを3つに絞るミニToDo" },
+  { n: 32, cat: 'tool', title: "おくる言葉", desc: "送別・お祝いの一言メーカー" },
+  { n: 33, cat: 'tool', title: "わすれもの帖", desc: "持ち物チェックリスト" },
+  { n: 34, cat: 'tool', title: "まどろみタイマー", desc: "仮眠・休憩タイマー" },
+  { n: 35, cat: 'tool', title: "かしかり帖", desc: "貸し借りの台帳" },
+  { n: 36, cat: 'tool', title: "体調メモ帳", desc: "今日のからだを一行で" },
+  { n: 37, cat: 'tool', title: "時間の家計簿", desc: "24時間の使いみちを、色で見る" },
+  { n: 38, cat: 'tool', title: "きろく献立帳", desc: "今週すでにカレー2回、に気づく" },
+  { n: 39, cat: 'tool', title: "わりかん計算", desc: "1人あたり、いくら？" },
+  { n: 40, cat: 'tool', title: "サブスク棚卸し", desc: "実は年間いくら払ってる？" },
+  { n: 41, cat: 'tool', title: "あと何日カウント", desc: "待ち遠しい日を、紙に貼っておく" },
+  { n: 42, cat: 'tool', title: "お買い物メモ", desc: "よく買うものは、ワンタップで" },
+  { n: 43, cat: 'tool', title: "何食べる？ルーレット", desc: "決められない夜に、クルクル" },
+  { n: 44, cat: 'game', title: "余白の度胆テスト", desc: "どこまで、ふちへ寄せられる？" },
+  { n: 46, cat: 'tool', title: "冷蔵庫のこよみ", desc: "賞味期限リマインダー" },
+  { n: 47, cat: 'tool', title: "さじかげん", desc: "レシピの単位変換" }
+];
+const miniTools = minis.filter((m) => m.cat === 'tool');
+const miniGames = minis.filter((m) => m.cat === 'game');
 
 // Webデザイン
 const designs = [
@@ -152,15 +196,29 @@ const designs = [
     cover: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1600&q=80&auto=format&fit=crop',
     accent: 'from-[#D8E7F3] via-[#4A8DC7] to-[#2F6BA0]',
   },
+  {
+    slug: 'day14-coffee',
+    href: `${BASE}/100days/day14.html`,
+    no: '07',
+    title: '珈琲焙煎所 ブランドサイト',
+    sub: '黄昏珈琲焙煎所',
+    role: 'デザイン + 実装',
+    year: '2026',
+    tags: ['コーヒー', 'ダーク', 'ブランドサイト'],
+    summary: '「一日の終わりに、いちばん深い一杯を。」小さな焙煎所のブランドサイト。',
+    cover: `${BASE}/covers/mini/day14.jpg`,
+    accent: 'from-[#C9A26B] via-[#5A3B22] to-[#1A120B]',
+  },
 ];
+
+const total = services.filter((w) => w.href).length + games.length + designs.length + minis.length;
 
 // マップ上の建物（下の4つのカテゴリと対応）。x,y は 16x12 マスのうち建物の左上のマス
 const spots = [
-  { id: 'services', label: 'サービス・ツール', x: 3, y: 1, name: 'サービス・ツール', kind: 'STAGE 1', text: '語学ツールや セルフチェックなど、まいにち つかえるものを ならべているよ。', href: '#services', cta: 'サービス・ツールを見る' },
-  { id: 'days', label: '100日チャレンジ', x: 11, y: 1, name: '100日チャレンジ', kind: `Lv.${days.done} / 100`, text: `まいにち ひとつ つくって公開する塔。いま ${days.done}かいまで のぼったよ。`, href: '#days', cta: '100日チャレンジを見る' },
-  { id: 'games', label: 'ゲーム', x: 3, y: 7, name: 'ゲーム', kind: 'STAGE 2', text: 'ブラウザで すぐ あそべる ゲームの おしろ。監督になったり、英雄になったり。', href: '#games', cta: 'ゲームを見る' },
+  { id: 'services', label: 'サービス・ツール', x: 3, y: 1, name: 'サービス・ツール', kind: 'STAGE 1', text: `語学ツールや セルフチェック、くらしの ちいさな道具が ${miniTools.length + 2}こ ならんでいるよ。`, href: '#services', cta: 'サービス・ツールを見る' },
+  { id: 'games', label: 'ゲーム', x: 3, y: 7, name: 'ゲーム', kind: 'STAGE 2', text: `ブラウザで すぐ あそべる ゲームが ${miniGames.length + games.length}こ。監督になったり、うさぎになったり。`, href: '#games', cta: 'ゲームを見る' },
   { id: 'home', label: 'mariri のいえ', x: 7, y: 7, name: 'mariri のいえ', kind: 'じこしょうかい', text: 'mariri です。サービスも ゲームも デザインも、おもいついたら つくって 公開しているよ。', href: '#about', cta: 'じこしょうかいを見る' },
-  { id: 'design', label: 'Webデザイン', x: 11, y: 7, name: 'Webデザイン', kind: 'STAGE 3', text: 'クリニックやパティスリーなど、世界観からつくったサイトを かざっているよ。', href: '#design', cta: 'Webデザインを見る' },
+  { id: 'design', label: 'Webデザイン', x: 11, y: 1, name: 'Webデザイン', kind: 'STAGE 3', text: 'クリニックやパティスリーなど、世界観からつくったサイトを かざっているよ。', href: '#design', cta: 'Webデザインを見る' },
 ];
 ---
 <!doctype html>
@@ -169,7 +227,7 @@ const spots = [
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>mariri のまち — つくったものが集まるポートフォリオ</title>
-    <meta name="description" content="mariri のポートフォリオ。うさぎを歩かせて、語学ツール、ブラウザゲーム、Webデザイン、100日チャレンジの作品をめぐれます。" />
+    <meta name="description" content="mariri のポートフォリオ。うさぎを歩かせて、語学ツール、くらしの道具、ブラウザゲーム、Webデザインの作品をめぐれます。" />
     <meta name="theme-color" content="#ffd3e2" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={`${SITE}/`} />
@@ -300,6 +358,12 @@ const spots = [
       .sec-h p { font-size: 13px; color: var(--muted); width: 100%; }
       .grid { display: grid; gap: 28px 24px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
       .grid.sm { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+      .grid.mini { gap: 20px 16px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+      .grid.mini .item { padding: 8px 8px 12px; }
+      .grid.mini .item h3 { margin-top: 8px; font-size: 15px; }
+      .grid.mini .item .txt { margin-top: 2px; font-size: 12px; line-height: 1.6; color: var(--muted); }
+      .mini-h { margin: 44px 0 20px; font-size: 18px; font-weight: 400; color: var(--pink); }
+      .mini-h span { font-size: 13px; color: var(--muted); margin-left: 6px; }
       .item { display: block; text-decoration: none; padding: 12px 12px 16px; position: relative; }
       a.item:hover, a.item:focus-visible { box-shadow: 0 -4px var(--yellow), 0 4px var(--yellow), -4px 0 var(--yellow), 4px 0 var(--yellow); outline: none; }
       a.item:hover .go { color: var(--yellow); }
@@ -380,7 +444,7 @@ const spots = [
               <p>mariri です。思いついたものを、つくって公開しています。</p>
               <dl>
                 <dt>つくるもの</dt><dd>Webサービス・ツール / ブラウザゲーム / Webサイトのデザインと実装</dd>
-                <dt>いま</dt><dd>毎日ひとつ作品をつくる「100日チャレンジ」に挑戦中（{days.done} / 100）</dd>
+                <dt>これまで</dt><dd>公開した作品は {total}こ。ちいさな道具から、ゲーム、サイトまで。</dd>
                 <dt>れんらく</dt><dd>X からどうぞ。</dd>
               </dl>
               <div class="about-links">
@@ -411,6 +475,16 @@ const spots = [
               );
             })}
           </div>
+          <h3 class="mini-h">ちいさな道具 <span>{miniTools.length}こ</span></h3>
+          <div class="grid mini">
+            {miniTools.map((m) => (
+              <a class="win item" href={`${BASE}/100days/day${m.n}.html`}>
+                <div class="pic"><img src={`${BASE}/covers/mini/day${m.n}.jpg`} alt={`${m.title} の画面`} width="480" height="300" loading="lazy" /></div>
+                <h3>{m.title}</h3>
+                <p class="txt">{m.desc}</p>
+              </a>
+            ))}
+          </div>
         </section>
 
         <section class="sec" id="games">
@@ -424,6 +498,16 @@ const spots = [
                 <p class="txt">{w.summary}</p>
                 <ul class="tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
                 <div class="go">▶ 遊んでみる</div>
+              </a>
+            ))}
+          </div>
+          <h3 class="mini-h">ちいさなゲーム <span>{miniGames.length}こ</span></h3>
+          <div class="grid mini">
+            {miniGames.map((m) => (
+              <a class="win item" href={`${BASE}/100days/day${m.n}.html`}>
+                <div class="pic"><img src={`${BASE}/covers/mini/day${m.n}.jpg`} alt={`${m.title} の画面`} width="480" height="300" loading="lazy" /></div>
+                <h3>{m.title}</h3>
+                <p class="txt">{m.desc}</p>
               </a>
             ))}
           </div>
@@ -443,18 +527,6 @@ const spots = [
           </div>
         </section>
 
-        <section class="sec" id="days">
-          <div class="sec-h"><span class="no">STAGE 4</span><h2>100日チャレンジ</h2><p>毎日ひとつ、ツールやゲームやLPをつくって公開していく記録です。</p></div>
-          <a class="win item days" href={days.href} target="_blank" rel="noopener">
-            <div>
-              <div class="lv">Lv.{days.done}<small>/ 100</small></div>
-              <div class="exp" role="img" aria-label={`100日のうち${days.done}日まで進行`}><i style={`width:${days.done}%`}></i></div>
-              <div class="stats"><span>ツール <b>{days.tool}</b></span><span>ゲーム <b>{days.game}</b></span><span>LP <b>{days.lp}</b></span></div>
-              <div class="go">▶ 全作品を見る</div>
-            </div>
-            <div class="pic"><img src={`${BASE}/covers/days.png`} alt="100 Days Challenges の一覧ページ" loading="lazy" /></div>
-          </a>
-        </section>
       </div>
 
       <footer>
@@ -474,7 +546,7 @@ const spots = [
         var W = 16, H = 12, T = 16;
         var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         var rows = [
-          'TTTTTTTTTTT..TTT',
+          'TTTTTTTTTTTTTTTT',
           'T..............T',
           'T.f............T',
           'T..pp..p...pp..T',
@@ -482,15 +554,14 @@ const spots = [
           'T.f...p..p..ww.T',
           'T.....p..p.fww.T',
           'T.....p..p.....T',
-          'T.f...p..p.....T',
-          'T..pp.pppp.pp..T',
+          'T.f...p..p..f..T',
+          'T..pp.pppp....fT',
           'TppppppppppppppT',
           'TTTTTTTTTTTTTTTT'
         ];
         var solid = [];
         for (var y = 0; y < H; y++) { solid.push([]); for (var x = 0; x < W; x++) { var c = rows[y][x]; solid[y].push(c === 'T' || c === 'w'); } }
         SPOTS.forEach(function (s) { for (var dy = 0; dy < 2; dy++) for (var dx = 0; dx < 2; dx++) solid[s.y + dy][s.x + dx] = true; });
-        solid[0][11] = solid[0][12] = true;
         // かんばん（上の2軒のあいだ）。下のマスに立つと読める
         var SIGN = { id: 'sign', x: 7, y: 2, name: 'かんばん', kind: '', text: '「ここは mariri のまち」　つくったものが あつまる ちいさなまち。', href: null };
         solid[SIGN.y][SIGN.x] = true;
@@ -561,15 +632,6 @@ const spots = [
             house(X, Y, { wall: '#7d84a6', roof: '#4a4f73', roofType: 'flat', windows: false, door: '#2a2c40' });
             for (var j = 0; j < 2; j++) for (var i = 0; i < 4; i++) r(X + 4 + i * 7, Y + 6 + j * 6, 4, 3, (i + j) % 2 ? '#ffe58a' : '#2a2c40');
             r(X + 4, Y + 19, 6, 5, '#ffe58a'); r(X + 22, Y + 19, 6, 5, '#ffe58a');
-          },
-          days: function (X, Y) {
-            r(X + 8, Y - 12, 16, 26, '#f4b6c8'); r(X + 8, Y - 12, 16, 2, '#00000022');
-            for (var i = 0; i < 6; i++) r(X + 6 + i * 2 - (i > 2 ? (i - 3) * 4 + 2 : 0) + (i > 2 ? 6 : 0), Y - 14 - i * 2 + (i > 2 ? (i - 3) * 4 + 2 : 0), 1, 1, '#0000');
-            for (i = 0; i < 5; i++) r(X + 6 + i * 2, Y - 14 - i * 2, 20 - i * 4, 2, '#d9486e');
-            r(X + 15, Y - 30, 1, 8, '#f4f1e8'); r(X + 16, Y - 30, 6, 4, '#ffd23f');
-            r(X + 11, Y - 7, 3, 4, '#1b1d3a'); r(X + 18, Y - 7, 3, 4, '#1b1d3a'); r(X + 11, Y + 2, 3, 4, '#1b1d3a'); r(X + 18, Y + 2, 3, 4, '#1b1d3a');
-            house(X, Y, { wall: '#ffd9e2', roof: '#d9486e', roofDark: '#a82f52', roofType: 'none-keep', glass: '#fff3b0' });
-            r(X + 8, Y - 2, 16, 3, '#f4b6c8'); r(X + 11, Y + 2, 3, 4, '#1b1d3a'); r(X + 18, Y + 2, 3, 4, '#1b1d3a');
           },
           games: function (X, Y) {
             house(X, Y, { wall: '#8d93a6', roof: '#5a5f73', roofType: 'castle', door: '#3a2414', glass: '#ffb84a' });

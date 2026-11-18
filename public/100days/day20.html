@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>見えるHTTP — さわって学ぶ、しくみの話</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-2: #f6f8fa;
+    --panel: #ffffff;
+    --ink: #21242b;
+    --ink-soft: #5f6672;
+    --ink-faint: #a7adb8;
+    --accent: #4f9bd1;
+    --accent-deep: #2f7cb8;
+    --accent-soft: #e7f2fb;
+    --mint: #2aa589;
+    --mint-soft: #e6f6f1;
+    --amber: #cf8a24;
+    --amber-soft: #fdf2dd;
+    --line: #e8eaf0;
+    --line-soft: #f1f3f7;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink); background: var(--bg); min-height: 100vh; line-height: 1.8;
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.01em;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 30px 22px 100px; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft);
+    text-decoration: none; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px;
+    background: #fff; transition: border-color .2s ease, color .2s ease;
+  }
+  .home-link:hover { color: var(--accent-deep); border-color: var(--accent); }
+
+  /* Hero */
+  .hero { margin: 64px 0 56px; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 9px; font-family: "JetBrains Mono", monospace; font-size: 11.5px; letter-spacing: 0.22em; font-weight: 500; color: var(--accent-deep); text-transform: uppercase; }
+  .eyebrow .tick { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .hero h1 { font-weight: 900; font-size: clamp(36px, 8vw, 60px); line-height: 1.18; letter-spacing: -0.01em; margin: 18px 0 0; }
+  .hero h1 .u { background: linear-gradient(transparent 64%, var(--accent-soft) 64%); padding: 0 2px; }
+  .hero p { color: var(--ink-soft); font-size: 15px; max-width: 560px; margin: 20px 0 0; line-height: 1.95; }
+
+  /* Panel */
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 32px 30px; margin-bottom: 20px; }
+  .step-tag { display: inline-flex; align-items: center; gap: 9px; font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 500; color: var(--ink-faint); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; }
+  .step-tag .no { background: var(--accent); color: #fff; border-radius: 6px; width: 22px; height: 22px; display: grid; place-items: center; font-size: 12px; font-weight: 700; letter-spacing: 0; }
+  .step-tag .lbl { color: var(--accent-deep); font-family: "Zen Kaku Gothic New", sans-serif; font-weight: 700; letter-spacing: 0.06em; }
+  .panel h2 { font-weight: 900; font-size: clamp(20px, 4vw, 26px); line-height: 1.45; margin-bottom: 12px; letter-spacing: -0.01em; }
+  .panel .lead { color: var(--ink-soft); font-size: 14px; line-height: 1.95; margin-bottom: 24px; }
+  .panel .lead b { color: var(--ink); font-weight: 700; border-bottom: 2px solid var(--accent-soft); }
+
+  /* Controls */
+  .controls { display: grid; gap: 16px; }
+  .field-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+  .field { flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-family: "JetBrains Mono", monospace; font-size: 10.5px; color: var(--ink-faint); font-weight: 500; padding-left: 2px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .field input { font-family: "JetBrains Mono", monospace; font-size: 14px; color: var(--ink); padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; background: #fff; outline: none; transition: border-color .15s ease, box-shadow .15s ease; }
+  .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+  .btn { font-family: inherit; font-weight: 700; font-size: 14px; color: #fff; background: var(--ink); border: none; padding: 11px 22px; border-radius: 10px; cursor: pointer; transition: transform .15s ease, opacity .15s ease, background .15s ease; white-space: nowrap; }
+  .btn:hover { transform: translateY(-1px); opacity: .92; }
+  .btn:active { transform: translateY(0); }
+  .btn.primary { background: var(--accent); }
+  .btn.primary:hover { background: var(--accent-deep); opacity: 1; }
+  .btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .btn.ghost:hover { background: var(--bg-2); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 11px; }
+
+  /* Chips (method / header selector) */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .chip {
+    font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 500;
+    padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line);
+    background: #fff; color: var(--ink-soft); cursor: pointer; transition: all .15s ease;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent-deep); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* Console */
+  .console { margin-top: 22px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+  .console .bar { display: flex; align-items: center; gap: 7px; padding: 10px 15px; background: var(--bg-2); border-bottom: 1px solid var(--line); }
+  .console .bar .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .console .bar .d1 { background: #a4cdeb; }
+  .console .bar .d2 { background: #f2cf8c; }
+  .console .bar .d3 { background: #a4dcc4; }
+  .console .bar .c-title { margin-left: 8px; font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.04em; }
+  .console .body { padding: 16px 18px; overflow-x: auto; }
+  .console code { display: block; white-space: pre; line-height: 1.9; font-family: "JetBrains Mono", monospace; font-size: 13px; color: #2c313b; }
+  .console .plain { font-size: 12.5px; color: var(--ink-soft); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line-soft); white-space: normal; line-height: 1.85; }
+
+  /* HTTP message coloring (the 3 parts) */
+  .rline { color: var(--accent-deep); font-weight: 700; }
+  .hline { color: var(--amber); }
+  .hline b { color: var(--amber); font-weight: 700; }
+  .bline { color: var(--mint); font-weight: 600; }
+  .cmt { color: var(--ink-faint); }
+
+  /* Legend for the 3 parts */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-soft); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; }
+  .legend .lg-r { background: var(--accent-deep); }
+  .legend .lg-h { background: var(--amber); }
+  .legend .lg-b { background: var(--mint); }
+
+  /* Takeaway */
+  .takeaway { margin-top: 22px; background: var(--bg-2); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 16px 20px; font-size: 14px; color: var(--ink); line-height: 1.95; }
+  .takeaway b { color: var(--accent-deep); }
+  .takeaway .em { font-weight: 700; color: var(--accent-deep); }
+
+  /* Header explainer */
+  .hdr-explain { margin-top: 20px; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; background: var(--bg-2); }
+  .hdr-explain .hx-line { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--amber); font-weight: 700; }
+  .hdr-explain .hx-desc { font-size: 13.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.9; }
+  .hdr-explain .hx-desc b { color: var(--ink); font-weight: 700; }
+
+  /* Recap */
+  .words { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .word { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; background: #fff; }
+  .word .term { font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 13.5px; color: var(--accent-deep); margin-bottom: 4px; }
+  .word .term small { font-family: "Zen Kaku Gothic New", sans-serif; color: var(--ink-faint); font-weight: 500; }
+  .word p { font-size: 13px; color: var(--ink-soft); line-height: 1.8; }
+
+  /* Series nav */
+  .series { margin-top: 20px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 24px; }
+  .series h3 { font-size: 14px; font-weight: 900; margin-bottom: 4px; }
+  .series p { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 14px; }
+  .series-links { display: flex; flex-wrap: wrap; gap: 10px; }
+  .series-links a { flex: 1; min-width: 150px; text-decoration: none; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: #fff; transition: border-color .15s ease, transform .15s ease; }
+  .series-links a:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .series-links .v { font-family: "JetBrains Mono", monospace; font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.08em; }
+  .series-links .t { font-size: 13.5px; font-weight: 700; color: var(--ink); margin-top: 2px; }
+  .series-links a.now { border-color: var(--accent); background: var(--accent-soft); }
+  .series-links a.now .t { color: var(--accent-deep); }
+
+  .footer { text-align: center; margin-top: 52px; padding-top: 26px; border-top: 1px solid var(--line); font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-faint); line-height: 2; letter-spacing: 0.04em; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 24px 16px 76px; }
+    .panel { padding: 24px 18px; }
+    .hero { margin: 40px 0 44px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="home-link" href="../">← 一覧へもどる</a>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <span class="eyebrow"><span class="tick"></span>HTTP · さわって学ぶ入門</span>
+    <h1>見える<span class="u">HTTP</span></h1>
+    <p>ブラウザとサーバーは、じつは<b>決まった書式の"手紙"</b>をやりとりしているだけ。その手紙の中身をのぞいて、リクエストもレスポンスも同じ〈行・ヘッダー・ボディ〉の3部構成でできていることを体感しましょう。</p>
+  </header>
+
+  <!-- ============ STEP 0 ============ -->
+  <section class="panel">
+    <span class="step-tag"><span class="no">0</span><span class="lbl">まずイメージ</span></span>
+    <h2>HTTP＝「Webの共通の"手紙フォーマット"」</h2>
+    <p class="lead">
+      あなたがリンクを押すたび、ブラウザはサーバーに<b>「これください」という手紙</b>を送っています。
+      サーバーは<b>「はい、どうぞ」という手紙</b>を返します。
+      HTTP（エイチ・ティー・ティー・ピー）は、この手紙の<b>書き方の共通ルール</b>。
+      世界中のブラウザとサーバーが同じ書式に従うから、どこの誰とでも会話できるんです。
+    </p>
+  </section>
+
+  <!-- ============ STEP 1 : build a request ============ -->
+  <section class="panel">
+    <span class="step-tag"><span class="no">1</span><span class="lbl">送る手紙</span></span>
+    <h2>リクエストは〈3つの部分〉でできている</h2>
+    <p class="lead">
+      メソッド（頼み方）とパス（あて先）を選ぶと、実際に送られる手紙の中身が下に組み上がります。
+      色分けされた<b>リクエスト行・ヘッダー・ボディ</b>の3つが、手紙の基本パーツです。
+    </p>
+
+    <div class="controls">
+      <div class="chips" id="methodChips">
+        <span class="chip active" data-m="GET">GET</span>
+        <span class="chip" data-m="POST">POST</span>
+        <span class="chip" data-m="DELETE">DELETE</span>
+      </div>
+      <div class="field-row">
+        <div class="field" style="flex:2">
+          <label>パス（あて先）/ path</label>
+          <input id="paramPath" type="text" value="/users/7" maxlength="24" />
+        </div>
+      </div>
+    </div>
+
+    <div class="console">
+      <div class="bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="c-title">ブラウザ → サーバー に送られる手紙（HTTPリクエスト）</span></div>
+      <div class="body">
+        <code id="reqBox"></code>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="lg-r"></i>リクエスト行（何を・どこに）</span>
+      <span><i class="lg-h"></i>ヘッダー（付帯情報）</span>
+      <span><i class="lg-b"></i>ボディ（送るデータ）</span>
+    </div>
+    <div class="takeaway">
+      <span class="em">メソッドは"頼み方"。</span>
+      <b>GET</b>＝ください（見るだけ）／<b>POST</b>＝これ登録して（データを送る）／<b>DELETE</b>＝消して。
+      GETやDELETEは<b>ボディが空</b>、POSTだけ手紙にデータ（ボディ）が入るのがポイントです。
+    </div>
+  </section>
+
+  <!-- ============ STEP 2 : receive a response ============ -->
+  <section class="panel">
+    <span class="step-tag"><span class="no">2</span><span class="lbl">返る手紙</span></span>
+    <h2>レスポンスも〈まったく同じ3部構成〉</h2>
+    <p class="lead">
+      「送信する」を押すと、サーバーから返事の手紙が届きます。
+      よく見ると、返事も<b>1行目＋ヘッダー＋ボディ</b>という同じかたち。
+      違うのは1行目が<b>ステータス（結果）</b>になっていることだけです。
+    </p>
+
+    <div class="btn-row">
+      <button class="btn primary" id="btnSend">この手紙を送信する（SEND）</button>
+      <button class="btn ghost" id="btnSendReset">リセット</button>
+    </div>
+
+    <div class="console">
+      <div class="bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="c-title">サーバー → ブラウザ に返る手紙（HTTPレスポンス）</span></div>
+      <div class="body">
+        <code id="resBox"><span class="cmt"># 「送信する」を押すと、サーバーからの返事がここに届きます</span></code>
+        <div class="plain" id="resPlain">ステップ1で作った手紙を送ると、対になる返事が返ってきます。</div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="lg-r"></i>ステータス行（結果）</span>
+      <span><i class="lg-h"></i>ヘッダー（付帯情報）</span>
+      <span><i class="lg-b"></i>ボディ（返すデータ）</span>
+    </div>
+    <div class="takeaway">
+      <span class="em">つながり。</span>
+      1行目の <b>200 OK</b> は<em style="font-style:normal">見えるサーバー（vol.2）</em>で見たステータス、
+      ボディの中身 <b>{ … }</b> は<em style="font-style:normal">見えるAPI（vol.3）</em>で見たJSON。
+      HTTPは、それらを運ぶ<b>封筒そのもの</b>だったんです。
+    </div>
+  </section>
+
+  <!-- ============ STEP 3 : headers ============ -->
+  <section class="panel">
+    <span class="step-tag"><span class="no">3</span><span class="lbl">ヘッダーの役割</span></span>
+    <h2>ヘッダー＝手紙に貼る"付箋（ふせん）"</h2>
+    <p class="lead">
+      ヘッダーは<b>「名前: 値」</b>で書く付帯メモ。本文じゃないけれど、相手が正しく扱うための大事なヒントです。
+      気になる付箋を押すと、意味が読めます。
+    </p>
+
+    <div class="chips" id="hdrChips">
+      <span class="chip active" data-h="host">Host</span>
+      <span class="chip" data-h="ctype">Content-Type</span>
+      <span class="chip" data-h="accept">Accept</span>
+      <span class="chip" data-h="auth">Authorization</span>
+      <span class="chip" data-h="ua">User-Agent</span>
+    </div>
+
+    <div class="hdr-explain">
+      <div class="hx-line" id="hxLine"></div>
+      <div class="hx-desc" id="hxDesc"></div>
+    </div>
+  </section>
+
+  <!-- ============ RECAP ============ -->
+  <section class="panel">
+    <span class="step-tag"><span class="no">★</span><span class="lbl">今日おぼえる言葉</span></span>
+    <h2>4つだけ、持って帰ろう</h2>
+    <div class="words">
+      <div class="word"><div class="term">HTTP <small>エイチティーティーピー</small></div><p>Web上の手紙の共通ルール。ブラウザとサーバーの会話の書式。</p></div>
+      <div class="word"><div class="term">METHOD <small>メソッド</small></div><p>頼み方。GET＝ください／POST＝登録して／DELETE＝消して。</p></div>
+      <div class="word"><div class="term">HEADER <small>ヘッダー</small></div><p>「名前: 値」で書く付帯情報。手紙に貼る付箋。</p></div>
+      <div class="word"><div class="term">BODY <small>ボディ</small></div><p>手紙の本文。送る／返すデータの中身が入る場所。</p></div>
+    </div>
+  </section>
+
+  <!-- ============ SERIES NAV ============ -->
+  <section class="series">
+    <h3>「見える」シリーズ</h3>
+    <p>Webのしくみを、さわって学ぶ連作。上から順に読むと流れがつながります。</p>
+    <div class="series-links">
+      <a href="day17.html"><div class="v">VOL.1</div><div class="t">見えるデータベース</div></a>
+      <a href="day18.html"><div class="v">VOL.2</div><div class="t">見えるサーバー</div></a>
+      <a href="day19.html"><div class="v">VOL.3</div><div class="t">見えるAPI</div></a>
+      <a href="day20.html" class="now"><div class="v">VOL.4 · NOW</div><div class="t">見えるHTTP</div></a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    さわって学ぶ・HTTP入門<br />
+    Built by mariri
+  </footer>
+
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // ======================================================
+  //  STEP 1 : リクエストを組み立てる
+  // ======================================================
+  let method = "GET";
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function buildRequest() {
+    let path = $("paramPath").value.trim() || "/";
+    if (path[0] !== "/") path = "/" + path;
+    path = esc(path);
+
+    let lines = [];
+    // リクエスト行
+    lines.push('<span class="rline">' + method + ' ' + path + ' HTTP/1.1</span>');
+    // ヘッダー
+    lines.push('<span class="hline"><b>Host</b>: api.example.com</span>');
+    lines.push('<span class="hline"><b>Accept</b>: application/json</span>');
+
+    if (method === "POST") {
+      lines.push('<span class="hline"><b>Content-Type</b>: application/json</span>');
+      lines.push('<span class="hline"><b>Content-Length</b>: 24</span>');
+      lines.push(''); // 空行
+      lines.push('<span class="bline">{ "name": "louis", "age": 20 }</span>');
+    } else {
+      lines.push(''); // 空行
+      lines.push('<span class="cmt">（ボディなし … 見るだけ／消すだけの手紙）</span>');
+    }
+    $("reqBox").innerHTML = lines.join("\n");
+  }
+
+  document.querySelectorAll("#methodChips .chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll("#methodChips .chip").forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      method = chip.dataset.m;
+      buildRequest();
+    });
+  });
+  $("paramPath").addEventListener("input", buildRequest);
+
+  // ======================================================
+  //  STEP 2 : レスポンスを受け取る
+  // ======================================================
+  function buildResponse() {
+    let path = $("paramPath").value.trim() || "/";
+    let lines = [];
+    if (method === "GET") {
+      lines.push('<span class="rline">HTTP/1.1 200 OK</span>');
+      lines.push('<span class="hline"><b>Content-Type</b>: application/json</span>');
+      lines.push('<span class="hline"><b>Content-Length</b>: 41</span>');
+      lines.push('');
+      lines.push('<span class="bline">{ "id": 7, "name": "louis", "active": true }</span>');
+      $("resPlain").textContent = "「ください」に対して、サーバーがデータ（JSON）を返してくれました。";
+    } else if (method === "POST") {
+      lines.push('<span class="rline">HTTP/1.1 201 Created</span>');
+      lines.push('<span class="hline"><b>Content-Type</b>: application/json</span>');
+      lines.push('<span class="hline"><b>Location</b>: /users/7</span>');
+      lines.push('');
+      lines.push('<span class="bline">{ "id": 7, "created": true }</span>');
+      $("resPlain").textContent = "「登録して」に対して、201 Created（作ったよ）が返りました。";
+    } else {
+      lines.push('<span class="rline">HTTP/1.1 204 No Content</span>');
+      lines.push('<span class="hline"><b>Date</b>: Sat, 04 Jul 2026 09:00:00 GMT</span>');
+      lines.push('');
+      lines.push('<span class="cmt">（ボディなし … 消したので返す中身はなし）</span>');
+      $("resPlain").textContent = "「消して」に対して、204 No Content（消したよ・中身なし）が返りました。";
+    }
+    $("resBox").innerHTML = lines.join("\n");
+  }
+  function resetResponse() {
+    $("resBox").innerHTML = '<span class="cmt"># 「送信する」を押すと、サーバーからの返事がここに届きます</span>';
+    $("resPlain").textContent = "ステップ1で作った手紙を送ると、対になる返事が返ってきます。";
+  }
+  $("btnSend").addEventListener("click", buildResponse);
+  $("btnSendReset").addEventListener("click", resetResponse);
+
+  // ======================================================
+  //  STEP 3 : ヘッダーの意味
+  // ======================================================
+  const HEADERS = {
+    host:   { line: "Host: api.example.com",          desc: "<b>あて先のサーバー名。</b>1台のサーバーに複数サイトが同居していても、これで「どのサイト宛て？」を見分けます。" },
+    ctype:  { line: "Content-Type: application/json",  desc: "<b>本文（ボディ）の種類。</b>「これはJSONですよ」「これは画像ですよ」と相手に伝える表示ラベルです。" },
+    accept: { line: "Accept: application/json",        desc: "<b>受け取りたい形の希望。</b>「返事はJSONでください」とお願いする付箋。相手はできる範囲で合わせてくれます。" },
+    auth:   { line: "Authorization: Bearer eyJhb...",  desc: "<b>会員証・合鍵。</b>「私は本人です」を証明する情報。これがないと見せてもらえないページもあります。" },
+    ua:     { line: "User-Agent: Chrome/126 (Mac)",    desc: "<b>送り主の自己紹介。</b>どのブラウザ・端末から来たか。サーバーはこれでスマホ用/PC用の表示を出し分けたりします。" },
+  };
+  function showHeader(key) {
+    const h = HEADERS[key];
+    $("hxLine").textContent = h.line;
+    $("hxDesc").innerHTML = h.desc;
+  }
+  document.querySelectorAll("#hdrChips .chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll("#hdrChips .chip").forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      showHeader(chip.dataset.h);
+    });
+  });
+
+  // 初期表示
+  buildRequest();
+  showHeader("host");
+</script>
+</body>
+</html>

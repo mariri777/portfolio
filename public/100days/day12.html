@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>うさぎのすごろく — にんじん人生ゲーム</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #fff7f2;
+    --bg-soft: #ffeee4;
+    --pink: #ff8fa9;
+    --pink-deep: #e76b8a;
+    --peach: #ffc6a8;
+    --cream: #fffaf6;
+    --ink: #4a2f3a;
+    --ink-soft: #8a6a76;
+    --line: #f3d9d3;
+    --grass: #9ed99b;
+    --grass-deep: #5fae72;
+    --carrot: #ff8d3f;
+    --gold: #ffce4d;
+    --shadow: 0 14px 30px -18px rgba(231, 107, 138, 0.45);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 15% 10%, #fff 0, transparent 40%),
+      radial-gradient(circle at 85% 90%, #ffe6ec 0, transparent 45%),
+      linear-gradient(160deg, var(--bg) 0%, var(--bg-soft) 100%);
+    background-attachment: fixed;
+    padding: 22px 16px 60px;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  .top {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  .home {
+    display: inline-block;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    margin-bottom: 10px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: var(--cream);
+    border: 1px solid var(--line);
+  }
+  .home:hover { color: var(--pink-deep); }
+  h1 {
+    font-family: "Mochiy Pop One", sans-serif;
+    font-size: clamp(1.6rem, 5.5vw, 2.5rem);
+    margin: 6px 0 4px;
+    color: var(--pink-deep);
+    letter-spacing: 0.04em;
+  }
+  .lead {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* ---- score panel ---- */
+  .scores {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 16px 0 14px;
+  }
+  .score {
+    background: var(--cream);
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    padding: 9px 6px 8px;
+    text-align: center;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  }
+  .score.active {
+    border-color: var(--pink);
+    box-shadow: 0 0 0 4px rgba(255, 143, 169, 0.22);
+    transform: translateY(-3px);
+  }
+  .score .face { font-size: 1.6rem; line-height: 1; }
+  .score .pname { font-size: 0.72rem; font-weight: 700; margin: 3px 0 2px; }
+  .score .carrots {
+    font-family: "Mochiy Pop One", sans-serif;
+    font-size: 1.15rem;
+    color: var(--carrot);
+  }
+  .score .carrots span { font-size: 0.7rem; }
+  .score .skip-badge {
+    position: absolute;
+    top: -8px; right: -6px;
+    background: var(--ink-soft);
+    color: #fff;
+    font-size: 0.6rem;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+
+  /* ---- board ---- */
+  .board-area {
+    background: linear-gradient(160deg, #eafbe7, #d6f3d6);
+    border: 3px solid #fff;
+    border-radius: 24px;
+    padding: 14px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 6px;
+    aspect-ratio: 7 / 5;
+  }
+  .tile {
+    border-radius: 12px;
+    background: var(--cream);
+    border: 2px solid #fff;
+    box-shadow: 0 3px 6px -3px rgba(95, 174, 114, 0.4);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2px;
+    overflow: visible;
+  }
+  .tile .t-emoji { font-size: clamp(0.9rem, 3.2vw, 1.5rem); line-height: 1; }
+  .tile .t-label {
+    font-size: clamp(0.42rem, 1.5vw, 0.6rem);
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-top: 2px;
+    line-height: 1.1;
+  }
+  .tile .t-val {
+    font-size: clamp(0.42rem, 1.5vw, 0.58rem);
+    font-weight: 800;
+  }
+  .t-val.plus { color: var(--grass-deep); }
+  .t-val.minus { color: var(--pink-deep); }
+
+  .tile.start { background: linear-gradient(135deg, var(--gold), #ffe28a); }
+  .tile.carrot-t { background: #fff1e2; }
+  .tile.big { background: #ffe6ee; }
+  .tile.bad { background: #f1e3ea; }
+  .tile.rest { background: #e6efff; }
+  .tile.lucky { background: linear-gradient(135deg, #fff, #ffeef6); }
+  .tile.center {
+    grid-column: 2 / 7;
+    grid-row: 2 / 5;
+    background: linear-gradient(160deg, #fffdf8, #fff4ea);
+    border: 2px dashed var(--peach);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  /* rabbit tokens sitting on a tile */
+  .tokens {
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1px;
+    z-index: 5;
+  }
+  .token {
+    font-size: clamp(0.7rem, 2.6vw, 1.15rem);
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.18));
+    transition: transform 0.18s;
+  }
+  .token.hop { animation: hop 0.4s ease; }
+  @keyframes hop {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-9px) scale(1.12); }
+  }
+
+  /* ---- center: dice + message ---- */
+  .center-inner { text-align: center; padding: 8px; }
+  .dice {
+    width: clamp(54px, 16vw, 76px);
+    height: clamp(54px, 16vw, 76px);
+    margin: 0 auto 8px;
+    border-radius: 18px;
+    background: #fff;
+    border: 3px solid var(--pink);
+    box-shadow: 0 8px 16px -8px rgba(231,107,138,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Mochiy Pop One", sans-serif;
+    font-size: clamp(1.6rem, 6vw, 2.4rem);
+    color: var(--pink-deep);
+  }
+  .dice.rolling { animation: shake 0.45s ease infinite; }
+  @keyframes shake {
+    0%,100% { transform: rotate(-8deg) scale(1); }
+    50% { transform: rotate(8deg) scale(1.06); }
+  }
+  .msg {
+    min-height: 2.4em;
+    font-size: clamp(0.78rem, 2.6vw, 0.95rem);
+    font-weight: 700;
+    color: var(--ink);
+    max-width: 280px;
+    margin: 0 auto;
+  }
+  .msg .hl { color: var(--carrot); }
+
+  /* ---- controls ---- */
+  .controls { text-align: center; }
+  .turn-pick {
+    display: inline-flex;
+    gap: 4px;
+    background: var(--cream);
+    border: 2px solid var(--line);
+    border-radius: 999px;
+    padding: 4px;
+    margin-bottom: 12px;
+  }
+  .turn-pick button {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-weight: 800;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    background: transparent;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .turn-pick button.on {
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+    color: #fff;
+  }
+  .turn-pick .pick-label {
+    align-self: center;
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    font-weight: 700;
+    padding: 0 6px 0 8px;
+  }
+  .turn-info {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .turn-info b { color: var(--pink-deep); }
+  .btn {
+    font-family: "Mochiy Pop One", sans-serif;
+    font-size: 1.05rem;
+    color: #fff;
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+    border: none;
+    padding: 14px 38px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 12px 22px -10px rgba(231,107,138,0.8);
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    letter-spacing: 0.04em;
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-2px); }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn.ghost {
+    background: var(--cream);
+    color: var(--pink-deep);
+    border: 2px solid var(--pink);
+    box-shadow: none;
+    font-size: 0.85rem;
+    padding: 10px 24px;
+  }
+
+  /* ---- result overlay ---- */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(74, 47, 58, 0.55);
+    backdrop-filter: blur(3px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 50;
+  }
+  .overlay.show { display: flex; }
+  .result {
+    background: var(--cream);
+    border-radius: 26px;
+    padding: 26px 24px 22px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5);
+    animation: pop 0.4s ease;
+  }
+  @keyframes pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .result h2 {
+    font-family: "Mochiy Pop One", sans-serif;
+    color: var(--pink-deep);
+    margin: 4px 0 4px;
+    font-size: 1.4rem;
+  }
+  .winner-face { font-size: 3rem; }
+  .rank-list { list-style: none; padding: 0; margin: 14px 0 18px; }
+  .rank-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    padding: 8px 12px;
+    margin-bottom: 7px;
+    font-weight: 700;
+  }
+  .rank-list li.first { border-color: var(--gold); background: #fffbe9; }
+  .rank-list .medal { font-size: 1.2rem; }
+  .rank-list .rl-name { flex: 1; text-align: left; }
+  .rank-list .rl-carrots { color: var(--carrot); font-family: "Mochiy Pop One", sans-serif; }
+
+  @media (max-width: 640px) {
+    body { padding: 16px 10px 50px; }
+    .scores { gap: 5px; }
+    .score { padding: 7px 3px 6px; border-radius: 13px; }
+    .score .face { font-size: 1.35rem; }
+    .score .pname { font-size: 0.62rem; }
+    .board-area { padding: 9px; border-radius: 18px; }
+    .board { gap: 4px; }
+    .btn { padding: 13px 30px; font-size: 0.98rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a class="home" href="../">← 一覧にもどる</a>
+      <h1>うさぎのすごろく</h1>
+      <p class="lead">決めたターン数だけ走って、にんじんをいちばん集めたうさぎの勝ち！🥕</p>
+    </div>
+
+    <!-- score panel -->
+    <div class="scores" id="scores"></div>
+
+    <!-- board -->
+    <div class="board-area">
+      <div class="board" id="board">
+        <div class="tile center" id="center">
+          <div class="center-inner">
+            <div class="dice" id="dice">🎲</div>
+            <div class="msg" id="msg">「サイコロを振る」でスタート！</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- controls -->
+    <div class="controls">
+      <div class="turn-pick" id="turnPick">
+        <span class="pick-label">ターン数</span>
+        <button data-turns="5">5</button>
+        <button data-turns="10" class="on">10</button>
+        <button data-turns="20">20</button>
+      </div>
+      <div class="turn-info" id="turnInfo">ターン <b>1</b> / 10 ・ <b>あなた</b> の番</div>
+      <button class="btn" id="rollBtn">サイコロを振る 🎲</button>
+    </div>
+  </div>
+
+  <!-- result -->
+  <div class="overlay" id="overlay">
+    <div class="result">
+      <div class="winner-face" id="winFace">🐰</div>
+      <h2 id="winTitle">優勝！</h2>
+      <ul class="rank-list" id="rankList"></ul>
+      <button class="btn ghost" id="againBtn">もう一度あそぶ</button>
+    </div>
+  </div>
+
+<script>
+  // ===== プレイヤー（うさぎ4匹）=====
+  const PLAYERS = [
+    { name: "あなた",   face: "🐰", human: true },
+    { name: "ミミ",     face: "🐇", human: false },
+    { name: "もちお",   face: "🐹", human: false },
+    { name: "くろまめ", face: "🐈‍⬛", human: false },
+  ];
+
+  // ===== 盤面（外周20マス・時計回り）=====
+  // type: start / carrot / big / bad / rest / lucky
+  const TILES = [
+    { type:"start",  emoji:"🏁", label:"スタート", val:0,  effect:"start" },
+    { type:"carrot", emoji:"🥕", label:"にんじん畑", val:3 },
+    { type:"bad",    emoji:"🕳️", label:"落とし穴",  val:-2 },
+    { type:"big",    emoji:"🎁", label:"たからばこ", val:4 },
+    { type:"rest",   emoji:"☕", label:"ひとやすみ", val:0, effect:"skip" },
+    { type:"carrot", emoji:"🥕", label:"にんじん",   val:2 },
+    { type:"big",    emoji:"🎏", label:"おまつり",   val:2 },
+    { type:"bad",    emoji:"🌧️", label:"あめでしょんぼり", val:-1 },
+    { type:"lucky",  emoji:"✨", label:"ラッキー",   val:0, effect:"again" },
+    { type:"carrot", emoji:"🥕", label:"にんじん畑", val:3 },
+    { type:"bad",    emoji:"🦊", label:"どろぼう",   val:-3 },
+    { type:"big",    emoji:"🌟", label:"大ほうさく", val:5 },
+    { type:"carrot", emoji:"🥕", label:"にんじん",   val:1 },
+    { type:"bad",    emoji:"🕳️", label:"落とし穴",  val:-2 },
+    { type:"big",    emoji:"🎁", label:"たからばこ", val:4 },
+    { type:"rest",   emoji:"😴", label:"おひるね",   val:0, effect:"skip" },
+    { type:"carrot", emoji:"🥕", label:"にんじん",   val:2 },
+    { type:"bad",    emoji:"🤝", label:"おすそわけ", val:-1 },
+    { type:"lucky",  emoji:"✨", label:"ラッキー",   val:0, effect:"again" },
+    { type:"carrot", emoji:"🥕", label:"にんじん畑", val:3 },
+  ];
+
+  // 外周マスのグリッド座標（7列×5行・時計回り）
+  const COORDS = [];
+  for (let c = 1; c <= 7; c++) COORDS.push([c, 1]);   // 上段 0-6
+  for (let r = 2; r <= 5; r++) COORDS.push([7, r]);   // 右列 7-10
+  for (let c = 6; c >= 1; c--) COORDS.push([c, 5]);   // 下段 11-16
+  for (let r = 4; r >= 2; r--) COORDS.push([1, r]);   // 左列 17-19
+  const N = TILES.length; // 20
+
+  const START_CARROTS = 10;
+  const PASS_BONUS = 2;
+  let maxTurn = 10;
+
+  // ===== 状態 =====
+  let pos, carrots, skip, cur, turn, busy, gameOver;
+
+  const boardEl = document.getElementById("board");
+  const scoresEl = document.getElementById("scores");
+  const diceEl = document.getElementById("dice");
+  const msgEl = document.getElementById("msg");
+  const turnInfo = document.getElementById("turnInfo");
+  const rollBtn = document.getElementById("rollBtn");
+  const overlay = document.getElementById("overlay");
+
+  const tileEls = [];
+
+  function buildBoard() {
+    COORDS.forEach((co, i) => {
+      const t = TILES[i];
+      const el = document.createElement("div");
+      el.className = "tile " + (
+        t.type === "start" ? "start" :
+        t.type === "carrot" ? "carrot-t" :
+        t.type === "big" ? "big" :
+        t.type === "bad" ? "bad" :
+        t.type === "rest" ? "rest" : "lucky"
+      );
+      el.style.gridColumn = co[0];
+      el.style.gridRow = co[1];
+      const valTxt = t.val > 0 ? "+" + t.val : (t.val < 0 ? t.val : (t.effect==="skip"?"1回休み":(t.effect==="again"?"もう1回":"")));
+      const valClass = t.val > 0 ? "plus" : (t.val < 0 ? "minus" : "");
+      el.innerHTML =
+        `<div class="t-emoji">${t.emoji}</div>` +
+        `<div class="t-label">${t.label}</div>` +
+        `<div class="t-val ${valClass}">${valTxt}</div>` +
+        `<div class="tokens" id="tok-${i}"></div>`;
+      boardEl.appendChild(el);
+      tileEls[i] = el;
+    });
+  }
+
+  function renderTokens() {
+    for (let i = 0; i < N; i++) {
+      const tk = document.getElementById("tok-" + i);
+      if (tk) tk.innerHTML = "";
+    }
+    PLAYERS.forEach((p, idx) => {
+      const tk = document.getElementById("tok-" + pos[idx]);
+      const span = document.createElement("span");
+      span.className = "token";
+      span.id = "tkn-" + idx;
+      span.textContent = p.face;
+      tk.appendChild(span);
+    });
+  }
+
+  function renderScores() {
+    scoresEl.innerHTML = "";
+    PLAYERS.forEach((p, idx) => {
+      const el = document.createElement("div");
+      el.className = "score" + (idx === cur && !gameOver ? " active" : "");
+      el.innerHTML =
+        `<div class="face">${p.face}</div>` +
+        `<div class="pname">${p.name}</div>` +
+        `<div class="carrots">${carrots[idx]}<span>🥕</span></div>` +
+        (skip[idx] ? `<div class="skip-badge">休み</div>` : "");
+      scoresEl.appendChild(el);
+    });
+  }
+
+  function updateTurnInfo() {
+    turnInfo.innerHTML = `ターン <b>${turn}</b> / ${maxTurn} ・ <b>${PLAYERS[cur].name}</b> の番`;
+  }
+
+  function setMsg(html) { msgEl.innerHTML = html; }
+
+  function reset() {
+    pos = [0, 0, 0, 0];
+    carrots = PLAYERS.map(() => START_CARROTS);
+    skip = [false, false, false, false];
+    cur = 0;
+    turn = 1;
+    busy = false;
+    gameOver = false;
+    overlay.classList.remove("show");
+    renderScores();
+    renderTokens();
+    updateTurnInfo();
+    setMsg("「サイコロを振る」でスタート！");
+    diceEl.textContent = "🎲";
+    refreshButton();
+  }
+
+  function refreshButton() {
+    if (gameOver) { rollBtn.disabled = true; return; }
+    rollBtn.disabled = busy || !PLAYERS[cur].human;
+    rollBtn.textContent = PLAYERS[cur].human ? "サイコロを振る 🎲" : PLAYERS[cur].name + " の番…";
+  }
+
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  async function rollDice() {
+    if (busy || gameOver) return;
+    busy = true;
+    refreshButton();
+    diceEl.classList.add("rolling");
+    setMsg(`${PLAYERS[cur].name} はサイコロを振った！`);
+    for (let i = 0; i < 8; i++) {
+      diceEl.textContent = 1 + Math.floor(Math.random() * 6);
+      await sleep(70);
+    }
+    const roll = 1 + Math.floor(Math.random() * 6);
+    diceEl.textContent = roll;
+    diceEl.classList.remove("rolling");
+    await sleep(300);
+    await moveBy(roll);
+  }
+
+  async function moveBy(steps) {
+    let passedStart = false;
+    for (let s = 0; s < steps; s++) {
+      pos[cur] = (pos[cur] + 1) % N;
+      if (pos[cur] === 0) passedStart = true;
+      renderTokens();
+      const tkn = document.getElementById("tkn-" + cur);
+      if (tkn) { tkn.classList.add("hop"); }
+      await sleep(220);
+      if (tkn) tkn.classList.remove("hop");
+    }
+
+    // スタート通過ボーナス（止まった場合は下のstart効果で別途）
+    if (passedStart && pos[cur] !== 0) {
+      carrots[cur] += PASS_BONUS;
+      renderScores();
+      setMsg(`スタートを通過！ ボーナス <span class="hl">+${PASS_BONUS}🥕</span>`);
+      await sleep(700);
+    }
+
+    await applyTile();
+  }
+
+  async function applyTile() {
+    const t = TILES[pos[cur]];
+    const name = PLAYERS[cur].name;
+    let again = false;
+
+    if (t.effect === "start") {
+      carrots[cur] += PASS_BONUS;
+      setMsg(`${t.emoji} スタートに到着！ <span class="hl">+${PASS_BONUS}🥕</span>`);
+    } else if (t.effect === "skip") {
+      skip[cur] = true;
+      setMsg(`${t.emoji} ${t.label}… 次のターンはお休み💤`);
+    } else if (t.effect === "again") {
+      again = true;
+      setMsg(`${t.emoji} ${t.label}！ もう一回振れる！`);
+    } else if (t.val !== 0) {
+      carrots[cur] += t.val;
+      if (carrots[cur] < 0) carrots[cur] = 0;
+      const sign = t.val > 0 ? `<span class="hl">+${t.val}🥕</span> ゲット！` : `<span class="hl">${t.val}🥕</span>…`;
+      setMsg(`${t.emoji} ${t.label} ${sign}`);
+    } else {
+      setMsg(`${t.emoji} ${t.label}`);
+    }
+
+    renderScores();
+    await sleep(again ? 700 : 850);
+
+    if (again && !gameOver) {
+      // もう一回（同じうさぎが続けて振る）
+      busy = false;
+      if (PLAYERS[cur].human) {
+        refreshButton();
+      } else {
+        await sleep(400);
+        await rollDice();
+      }
+      return;
+    }
+
+    nextTurn();
+  }
+
+  async function nextTurn() {
+    // 次のうさぎへ
+    let guard = 0;
+    do {
+      cur = (cur + 1) % PLAYERS.length;
+      if (cur === 0) turn++;            // 一周したらターン+1
+      if (turn > maxTurn) { endGame(); return; }
+      if (skip[cur]) {
+        skip[cur] = false;
+        renderScores();
+        setMsg(`${PLAYERS[cur].name} はお休み中…💤`);
+        updateTurnInfo();
+        await sleep(900);
+      } else break;
+      guard++;
+    } while (guard < 8);
+
+    busy = false;
+    renderScores();
+    updateTurnInfo();
+    refreshButton();
+
+    if (!PLAYERS[cur].human && !gameOver) {
+      await sleep(650);
+      await rollDice();
+    }
+  }
+
+  function endGame() {
+    gameOver = true;
+    busy = true;
+    refreshButton();
+    renderScores();
+
+    const ranked = PLAYERS
+      .map((p, idx) => ({ p, idx, c: carrots[idx] }))
+      .sort((a, b) => b.c - a.c);
+
+    const top = ranked[0];
+    document.getElementById("winFace").textContent = top.p.face;
+    document.getElementById("winTitle").textContent =
+      top.p.human ? "あなたの優勝！🎉" : `${top.p.name} の優勝！`;
+
+    const medals = ["🥇", "🥈", "🥉", "4️⃣"];
+    const list = document.getElementById("rankList");
+    list.innerHTML = "";
+    ranked.forEach((r, i) => {
+      const li = document.createElement("li");
+      if (i === 0) li.className = "first";
+      li.innerHTML =
+        `<span class="medal">${medals[i]}</span>` +
+        `<span class="face">${r.p.face}</span>` +
+        `<span class="rl-name">${r.p.name}</span>` +
+        `<span class="rl-carrots">${r.c} 🥕</span>`;
+      list.appendChild(li);
+    });
+
+    overlay.classList.add("show");
+  }
+
+  rollBtn.addEventListener("click", rollDice);
+
+  document.getElementById("turnPick").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-turns]");
+    if (!b) return;
+    if (busy && !gameOver) return; // ターン処理中は変えない
+    maxTurn = parseInt(b.dataset.turns, 10);
+    document.querySelectorAll("#turnPick button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    reset();
+  });
+  document.getElementById("againBtn").addEventListener("click", reset);
+
+  buildBoard();
+  reset();
+</script>
+</body>
+</html>

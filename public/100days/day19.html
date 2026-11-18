@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>見えるAPI — さわって学ぶ、しくみの話</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-2: #f6f8fa;
+    --panel: #ffffff;
+    --ink: #21242b;
+    --ink-soft: #5f6672;
+    --ink-faint: #a7adb8;
+    --accent: #4f9bd1;
+    --accent-deep: #2f7cb8;
+    --accent-soft: #e7f2fb;
+    --mint: #2aa589;
+    --mint-soft: #e6f6f1;
+    --amber: #d68f2a;
+    --amber-soft: #fdf2dd;
+    --line: #e8eaf0;
+    --line-soft: #f1f3f7;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink); background: var(--bg); min-height: 100vh; line-height: 1.8;
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.01em;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 30px 22px 100px; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft);
+    text-decoration: none; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px;
+    background: #fff; transition: border-color .2s ease, color .2s ease;
+  }
+  .home-link:hover { color: var(--accent-deep); border-color: var(--accent); }
+
+  /* Hero */
+  .hero { margin: 64px 0 56px; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 9px; font-family: "JetBrains Mono", monospace; font-size: 11.5px; letter-spacing: 0.22em; font-weight: 500; color: var(--accent-deep); text-transform: uppercase; }
+  .eyebrow .tick { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .hero h1 { font-weight: 900; font-size: clamp(36px, 8vw, 60px); line-height: 1.18; letter-spacing: -0.01em; margin: 18px 0 0; }
+  .hero h1 .u { background: linear-gradient(transparent 64%, var(--accent-soft) 64%); padding: 0 2px; }
+  .hero p { color: var(--ink-soft); font-size: 15px; max-width: 560px; margin: 20px 0 0; line-height: 1.95; }
+
+  /* Panel */
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 32px 30px; margin-bottom: 20px; }
+  .step-tag { display: inline-flex; align-items: center; gap: 9px; font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 500; color: var(--ink-faint); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px; }
+  .step-tag .no { background: var(--accent); color: #fff; border-radius: 6px; width: 22px; height: 22px; display: grid; place-items: center; font-size: 12px; font-weight: 700; letter-spacing: 0; }
+  .step-tag .lbl { color: var(--accent-deep); font-family: "Zen Kaku Gothic New", sans-serif; font-weight: 700; letter-spacing: 0.06em; }
+  .panel h2 { font-weight: 900; font-size: clamp(20px, 4vw, 26px); line-height: 1.45; margin-bottom: 12px; letter-spacing: -0.01em; }
+  .panel .lead { color: var(--ink-soft); font-size: 14px; line-height: 1.95; margin-bottom: 24px; }
+  .panel .lead b { color: var(--ink); font-weight: 700; border-bottom: 2px solid var(--accent-soft); }
+
+  /* Controls */
+  .controls { display: grid; gap: 16px; }
+  .field-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+  .field { flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-family: "JetBrains Mono", monospace; font-size: 10.5px; color: var(--ink-faint); font-weight: 500; padding-left: 2px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .field input, .field select { font-family: inherit; font-size: 14px; color: var(--ink); padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; background: #fff; outline: none; transition: border-color .15s ease, box-shadow .15s ease; }
+  .field input:focus, .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+  .btn { font-family: inherit; font-weight: 700; font-size: 14px; color: #fff; background: var(--ink); border: none; padding: 11px 22px; border-radius: 10px; cursor: pointer; transition: transform .15s ease, opacity .15s ease, background .15s ease; white-space: nowrap; }
+  .btn:hover { transform: translateY(-1px); opacity: .92; }
+  .btn:active { transform: translateY(0); }
+  .btn.primary { background: var(--accent); }
+  .btn.primary:hover { background: var(--accent-deep); opacity: 1; }
+  .btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .btn.ghost:hover { background: var(--bg-2); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 11px; }
+
+  /* Endpoint chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .chip {
+    font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 500;
+    padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line);
+    background: #fff; color: var(--ink-soft); cursor: pointer; transition: all .15s ease;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent-deep); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* Console */
+  .console { margin-top: 22px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+  .console .bar { display: flex; align-items: center; gap: 7px; padding: 10px 15px; background: var(--bg-2); border-bottom: 1px solid var(--line); }
+  .console .bar .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .console .bar .d1 { background: #a4cdeb; }
+  .console .bar .d2 { background: #f2cf8c; }
+  .console .bar .d3 { background: #a4dcc4; }
+  .console .bar .c-title { margin-left: 8px; font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.04em; }
+  .console .body { padding: 16px 18px; overflow-x: auto; }
+  .console code { display: block; white-space: pre; line-height: 1.85; font-family: "JetBrains Mono", monospace; font-size: 13px; color: #2c313b; }
+  .console .kw { color: var(--accent-deep); font-weight: 700; }
+  .console .key { color: var(--accent-deep); }
+  .console .val { color: var(--mint); font-weight: 500; }
+  .console .mut { color: var(--ink-faint); }
+  .console .ok { color: var(--mint); font-weight: 700; }
+  .console .plain { font-size: 12.5px; color: var(--ink-soft); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line-soft); white-space: normal; line-height: 1.85; }
+
+  /* JSON → card builder (STEP2) */
+  .build { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
+  .build .col h4 { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+  .json-box { border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: var(--bg-2); font-family: "JetBrains Mono", monospace; font-size: 13px; line-height: 1.95; color: #2c313b; }
+  .json-box .key { color: var(--accent-deep); }
+  .json-box .val { color: var(--mint); }
+  .json-box .brace { color: var(--ink-faint); }
+  .json-box .row { display: block; padding-left: 16px; border-radius: 5px; transition: background .2s ease; }
+  .json-box .row.hl { background: var(--amber-soft); }
+  .card-preview { border: 1px solid var(--line); border-radius: 12px; padding: 18px; background: #fff; }
+  .weather-card { text-align: center; }
+  .weather-card .city { font-size: 13px; color: var(--ink-soft); font-weight: 700; }
+  .weather-card .icon { font-size: 46px; margin: 6px 0; }
+  .weather-card .temp { font-size: 34px; font-weight: 900; }
+  .weather-card .temp .u { font-size: 16px; color: var(--ink-faint); }
+  .weather-card .desc { font-size: 13px; color: var(--ink-soft); }
+  .field-tag { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--accent-deep); background: var(--accent-soft); padding: 1px 6px; border-radius: 5px; margin-top: 4px; }
+
+  /* Takeaway */
+  .takeaway { margin-top: 22px; background: var(--bg-2); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 16px 20px; font-size: 14px; color: var(--ink); line-height: 1.95; }
+  .takeaway b { color: var(--accent-deep); }
+  .takeaway .em { font-weight: 700; color: var(--accent-deep); }
+
+  /* Recap */
+  .words { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .word { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; background: #fff; }
+  .word .term { font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 13.5px; color: var(--accent-deep); margin-bottom: 4px; }
+  .word .term small { font-family: "Zen Kaku Gothic New", sans-serif; color: var(--ink-faint); font-weight: 500; }
+  .word p { font-size: 13px; color: var(--ink-soft); line-height: 1.8; }
+
+  .footer { text-align: center; margin-top: 52px; padding-top: 26px; border-top: 1px solid var(--line); font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-faint); line-height: 2; letter-spacing: 0.04em; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 24px 16px 76px; }
+    .panel { padding: 24px 18px; }
+    .hero { margin: 40px 0 44px; }
+    .build { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="home-link" href="../">← 一覧へもどる</a>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <span class="eyebrow"><span class="tick"></span>API · さわって学ぶ入門</span>
+    <h1>見える<span class="u">API</span></h1>
+    <p>「APIって結局なに？」を、決まった頼み方の"注文窓口"に見立てて体感する一冊。窓口を呼ぶと、決まった形のデータが返ってくる感覚をつかみましょう。</p>
+  </header>
+
+  <!-- ============ STEP 0 ============ -->
+  <section class="panel">
+    <span class="step-tag"><span class="no">0</span><span class="lbl">まずイメージ</span></span>
+    <h2>API＝「決まった頼み方の注文窓口」</h2>
+    <p class="lead">
+      レストランには<b>メニュー</b>があり、ウェイターに「これください」と頼めば料理が出てきます。
+      厨房の中を知らなくても、<b>決まった頼み方</b>さえ分かれば注文できますよね。
+      API（エーピーアイ）は、まさにこの<b>「こう頼めば、こう返ってくる」という窓口の決まりごと</b>。サービス同士をつなぐ共通の注文口です。
+    </p>
+  </section>
+
+  <!-- ============ STEP 1 : call an API ============ -->
+  <section class="panel">
+    <span class="step-tag"><span class="no">1</span><span class="lbl">呼んでみる</span></span>
+    <h2>APIを呼ぶと、データが返ってくる</h2>
+    <p class="lead">
+      呼び出し先（<b>エンドポイント</b>）を選び、知りたい街を<b>パラメータ</b>として渡して「呼ぶ」を押します。
+      すると、決まった形のデータ（<b>JSON</b>）が返ってきます。
+    </p>
+
+    <div class="controls">
+      <div class="field-row">
+        <div class="field" style="flex:2">
+          <label>エンドポイント / endpoint</label>
+          <select id="endpoint">
+            <option value="weather">天気API … GET /weather</option>
+            <option value="fx">為替API … GET /exchange</option>
+            <option value="cat">ねこ画像API … GET /cat</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>パラメータ / city</label>
+          <input id="paramCity" type="text" value="tokyo" maxlength="16" />
+        </div>
+        <button class="btn primary" id="btnCall">この窓口を呼ぶ（CALL）</button>
+      </div>
+    </div>
+
+    <div class="console">
+      <div class="bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="c-title">あなたのリクエスト と APIのレスポンス</span></div>
+      <div class="body">
+        <code id="log1"><span class="mut"># 「呼ぶ」を押すと、送った内容と返ってきたJSONが出ます</span></code>
+        <div class="plain" id="plain1">あなたは決まった形で頼むだけ。APIは決まった形のデータで返してくれます。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 2 : JSON -> view ============ -->
+  <section class="panel">
+    <span class="step-tag"><span class="no">2</span><span class="lbl">データの形</span></span>
+    <h2>返ってくる「JSON」を画面に組み立てる</h2>
+    <p class="lead">
+      APIの返事は <b>JSON（ジェイソン）</b> という形式。<b>「名前（キー）: 値」</b>の組み合わせで、人にもプログラムにも読めます。
+      ボタンを押すと、JSONの各項目が画面のどこに使われるかが<b>光ってつながります</b>。
+    </p>
+
+    <div class="build">
+      <div class="col">
+        <h4>返ってきた JSON</h4>
+        <div class="json-box" id="jsonBox">
+          <div class="brace">{</div>
+          <div class="row" data-k="city"><span class="key">"city"</span>: <span class="val">"Tokyo"</span>,</div>
+          <div class="row" data-k="temp"><span class="key">"temp"</span>: <span class="val">28</span>,</div>
+          <div class="row" data-k="icon"><span class="key">"weather"</span>: <span class="val">"sunny"</span>,</div>
+          <div class="row" data-k="desc"><span class="key">"desc"</span>: <span class="val">"晴れ ときどき くもり"</span></div>
+          <div class="brace">}</div>
+        </div>
+      </div>
+      <div class="col">
+        <h4>画面の表示</h4>
+        <div class="card-preview">
+          <div class="weather-card">
+            <div class="city" id="wCity">—</div>
+            <div class="icon" id="wIcon">⬜</div>
+            <div class="temp"><span id="wTemp">—</span><span class="u">℃</span></div>
+            <div class="desc" id="wDesc">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn primary" id="btnBuild">JSON を画面に当てはめる</button>
+      <button class="btn ghost" id="btnBuildReset">からっぽにもどす</button>
+    </div>
+    <div class="takeaway">
+      <span class="em">ポイント。</span> プログラムは <b>data.temp</b> と書けば「28」を、<b>data.city</b> と書けば「Tokyo」を取り出せます。
+      JSONはこの「キーで取り出す」ができるから便利なんです。
+    </div>
+  </section>
+
+  <!-- ============ STEP 3 : same manner, many APIs ============ -->
+  <section class="panel">
+    <span class="step-tag"><span class="no">3</span><span class="lbl">うれしさ</span></span>
+    <h2>中身を知らなくても、同じ作法で呼べる</h2>
+    <p class="lead">
+      天気も、為替も、地図も、AIも。世の中の便利機能はたいてい API で公開されています。
+      すごいのは、<b>どれも「呼ぶ → JSONが返る」という同じ作法</b>で使えること。厨房（中身）を知らなくても、窓口の使い方さえ覚えれば組み合わせられます。
+    </p>
+
+    <div class="chips" id="apiChips">
+      <span class="chip active" data-api="weather">🌤 天気</span>
+      <span class="chip" data-api="fx">💴 為替</span>
+      <span class="chip" data-api="map">🗺 地図</span>
+      <span class="chip" data-api="ai">🤖 AI</span>
+    </div>
+
+    <div class="console">
+      <div class="bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="c-title">どの窓口でも、作法はそっくり</span></div>
+      <div class="body">
+        <code id="log3"></code>
+        <div class="plain" id="plain3">エンドポイントが違うだけ。呼び方も、返ってくる形（JSON）も同じです。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RECAP ============ -->
+  <section class="panel">
+    <span class="step-tag"><span class="no">★</span><span class="lbl">今日おぼえる言葉</span></span>
+    <h2>4つだけ、持って帰ろう</h2>
+    <div class="words">
+      <div class="word"><div class="term">API <small>エーピーアイ</small></div><p>サービスを呼び出すための「決まった注文窓口」。</p></div>
+      <div class="word"><div class="term">ENDPOINT <small>エンドポイント</small></div><p>呼び出し先の住所。/weather など窓口ごとのURL。</p></div>
+      <div class="word"><div class="term">PARAMETER <small>パラメータ</small></div><p>注文の細かい指定。「東京の」「3件だけ」など。</p></div>
+      <div class="word"><div class="term">JSON <small>ジェイソン</small></div><p>キー:値 で表すデータ形式。返事の標準フォーマット。</p></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    さわって学ぶ・API入門<br />
+    Built by mariri
+  </footer>
+
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // ======================================================
+  //  STEP 1 : APIを呼ぶ
+  // ======================================================
+  // 街ごとに「それっぽい天気」を返す。未知の街でも毎回同じ値になるよう、
+  // 文字から決め打ちで作る（本物のAPIのかわり）。
+  function weatherFor(cityKey) {
+    const known = {
+      tokyo:   { temp: 28, weather: "sunny",  desc: "晴れ ときどき くもり" },
+      osaka:   { temp: 31, weather: "sunny",  desc: "晴れ" },
+      sapporo: { temp: 19, weather: "cloudy", desc: "くもり ときどき 雨" },
+      okinawa: { temp: 30, weather: "rainy",  desc: "雨 のち 晴れ" },
+      fukuoka: { temp: 29, weather: "cloudy", desc: "くもり" },
+      nagoya:  { temp: 30, weather: "sunny",  desc: "晴れ" },
+      sendai:  { temp: 24, weather: "rainy",  desc: "雨" },
+    };
+    if (known[cityKey]) return known[cityKey];
+    let h = 0;
+    for (let i = 0; i < cityKey.length; i++) h = (h * 31 + cityKey.charCodeAt(i)) >>> 0;
+    const cond = ["sunny", "cloudy", "rainy"][h % 3];
+    const descMap = { sunny: "晴れ", cloudy: "くもり", rainy: "雨" };
+    return { temp: 15 + (h % 18), weather: cond, desc: descMap[cond] };
+  }
+
+  const ENDPOINTS = {
+    weather: { path: "/weather", build: (city, d) =>
+      '{\n  <span class="key">"city"</span>: <span class="val">"' + city + '"</span>,\n' +
+      '  <span class="key">"temp"</span>: <span class="val">' + d.temp + '</span>,\n' +
+      '  <span class="key">"weather"</span>: <span class="val">"' + d.weather + '"</span>,\n' +
+      '  <span class="key">"desc"</span>: <span class="val">"' + d.desc + '"</span>\n}' },
+    fx: { path: "/exchange", build: () =>
+      '{\n  <span class="key">"pair"</span>: <span class="val">"USD/JPY"</span>,\n' +
+      '  <span class="key">"rate"</span>: <span class="val">156.82</span>,\n' +
+      '  <span class="key">"updated"</span>: <span class="val">"2026-06-18"</span>\n}' },
+    cat: { path: "/cat", build: () =>
+      '{\n  <span class="key">"id"</span>: <span class="val">"a1b2"</span>,\n' +
+      '  <span class="key">"url"</span>: <span class="val">"https://cataas.example/a1b2.jpg"</span>,\n' +
+      '  <span class="key">"width"</span>: <span class="val">640</span>\n}' },
+  };
+
+  function callApi() {
+    const epKey = $("endpoint").value;
+    const ep = ENDPOINTS[epKey];
+    const cityKey = ($("paramCity").value.trim() || "tokyo").toLowerCase();
+    const cityDisplay = cityKey.charAt(0).toUpperCase() + cityKey.slice(1);
+    let query = "", json;
+    if (epKey === "weather") {
+      query = "?city=" + cityKey;
+      json = ep.build(cityDisplay, weatherFor(cityKey));
+    } else {
+      json = ep.build();
+    }
+    $("log1").innerHTML =
+      '<span class="kw">GET</span> ' + ep.path + query + '\n' +
+      '<span class="mut">↓ APIの返事（200 OK / JSON）</span>\n' +
+      '<span class="ok">200 OK</span>\n' + json;
+    $("plain1").textContent = "「" + ep.path + "」という窓口を呼びました。決まった形のJSONが返ってきています。";
+  }
+  $("btnCall").addEventListener("click", callApi);
+
+  // ======================================================
+  //  STEP 2 : JSON → 画面に組み立て
+  // ======================================================
+  const DATA = { city: "Tokyo", temp: 28, icon: "☀️", desc: "晴れ ときどき くもり" };
+
+  function buildView() {
+    const steps = [
+      { k: "city", do: () => { $("wCity").textContent = DATA.city; } },
+      { k: "temp", do: () => { $("wTemp").textContent = DATA.temp; } },
+      { k: "icon", do: () => { $("wIcon").textContent = DATA.icon; } },
+      { k: "desc", do: () => { $("wDesc").textContent = DATA.desc; } },
+    ];
+    clearHl();
+    let t = 0;
+    steps.forEach((s) => {
+      setTimeout(() => {
+        clearHl();
+        const row = $("jsonBox").querySelector('[data-k="' + s.k + '"]');
+        if (row) row.classList.add("hl");
+        s.do();
+      }, t);
+      t += 520;
+    });
+    setTimeout(clearHl, t + 200);
+  }
+  function clearHl() {
+    $("jsonBox").querySelectorAll(".row").forEach((r) => r.classList.remove("hl"));
+  }
+  function resetView() {
+    clearHl();
+    $("wCity").textContent = "—";
+    $("wIcon").textContent = "⬜";
+    $("wTemp").textContent = "—";
+    $("wDesc").textContent = "—";
+  }
+  $("btnBuild").addEventListener("click", buildView);
+  $("btnBuildReset").addEventListener("click", resetView);
+
+  // ======================================================
+  //  STEP 3 : 同じ作法でいろいろなAPI
+  // ======================================================
+  const SAMPLES = {
+    weather: { path: "/weather?city=tokyo", body: '{ <span class="key">"temp"</span>: <span class="val">28</span>, <span class="key">"weather"</span>: <span class="val">"sunny"</span> }' },
+    fx:      { path: "/exchange?pair=USDJPY", body: '{ <span class="key">"rate"</span>: <span class="val">156.82</span> }' },
+    map:     { path: "/geocode?q=東京駅",      body: '{ <span class="key">"lat"</span>: <span class="val">35.681</span>, <span class="key">"lng"</span>: <span class="val">139.767</span> }' },
+    ai:      { path: "/chat",                  body: '{ <span class="key">"reply"</span>: <span class="val">"こんにちは！"</span> }' },
+  };
+
+  function showSample(api) {
+    const s = SAMPLES[api];
+    $("log3").innerHTML =
+      '<span class="kw">GET</span> ' + s.path + '\n' +
+      '<span class="mut">↓</span>\n' +
+      '<span class="ok">200 OK</span>  ' + s.body;
+    $("plain3").textContent = "窓口（エンドポイント）が違うだけ。呼び方も、返ってくる形（JSON）も同じです。";
+  }
+
+  document.querySelectorAll("#apiChips .chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll("#apiChips .chip").forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      showSample(chip.dataset.api);
+    });
+  });
+
+  // 初期表示
+  showSample("weather");
+</script>
+</body>
+</html>

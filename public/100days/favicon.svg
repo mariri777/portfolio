@@ -1,46 +1,78 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <radialGradient id="bg" cx="50%" cy="45%" r="55%">
-      <stop offset="0%" stop-color="#ffd4e1"/>
-      <stop offset="100%" stop-color="#ff8fa9"/>
-    </radialGradient>
-    <linearGradient id="ear" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#fff5f8"/>
-      <stop offset="100%" stop-color="#ffe4ec"/>
-    </linearGradient>
-    <linearGradient id="earInner" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffb3c6"/>
-      <stop offset="100%" stop-color="#ff7da0"/>
-    </linearGradient>
-  </defs>
-
-  <!-- background circle -->
-  <circle cx="32" cy="32" r="30" fill="url(#bg)"/>
-
-  <!-- ears -->
-  <ellipse cx="23" cy="18" rx="5" ry="11" fill="url(#ear)" transform="rotate(-12 23 18)"/>
-  <ellipse cx="41" cy="18" rx="5" ry="11" fill="url(#ear)" transform="rotate(12 41 18)"/>
-  <ellipse cx="23" cy="19" rx="2.2" ry="7" fill="url(#earInner)" transform="rotate(-12 23 19)"/>
-  <ellipse cx="41" cy="19" rx="2.2" ry="7" fill="url(#earInner)" transform="rotate(12 41 19)"/>
-
-  <!-- head -->
-  <ellipse cx="32" cy="38" rx="16" ry="14" fill="#fff5f8"/>
-
-  <!-- cheeks -->
-  <circle cx="22" cy="42" r="3" fill="#ffb3c6" opacity="0.85"/>
-  <circle cx="42" cy="42" r="3" fill="#ffb3c6" opacity="0.85"/>
-
-  <!-- eyes -->
-  <ellipse cx="26" cy="36" rx="1.8" ry="2.6" fill="#3a1f2b"/>
-  <ellipse cx="38" cy="36" rx="1.8" ry="2.6" fill="#3a1f2b"/>
-  <circle cx="26.6" cy="35" r="0.7" fill="#fff"/>
-  <circle cx="38.6" cy="35" r="0.7" fill="#fff"/>
-
-  <!-- nose -->
-  <path d="M30.5 40.5 Q32 42 33.5 40.5 Q32 41.8 30.5 40.5 Z" fill="#ff6f8d"/>
-  <circle cx="32" cy="40.3" r="1" fill="#ff6f8d"/>
-
-  <!-- mouth -->
-  <path d="M32 41.5 L32 43 M32 43 Q30 44.5 28.5 43.8 M32 43 Q34 44.5 35.5 43.8"
-        stroke="#3a1f2b" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" shape-rendering="crispEdges">
+<!-- mariri のまち を歩いているうさぎ（index.astro の bunny と同じドット絵） -->
+<path fill="#ffd3e2" d="M2 0h14v1h1v1h1v14h-1v1h-1v1H2v-1H1v-1H0V2h1V1h1z"/>
+<rect x="5" y="1" width="2" height="1" fill="#2a2440"/>
+<rect x="11" y="1" width="2" height="1" fill="#2a2440"/>
+<rect x="4" y="2" width="1" height="1" fill="#2a2440"/>
+<rect x="5" y="2" width="2" height="1" fill="#ffffff"/>
+<rect x="7" y="2" width="1" height="1" fill="#2a2440"/>
+<rect x="10" y="2" width="1" height="1" fill="#2a2440"/>
+<rect x="11" y="2" width="2" height="1" fill="#ffffff"/>
+<rect x="13" y="2" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="3" width="1" height="1" fill="#2a2440"/>
+<rect x="5" y="3" width="1" height="1" fill="#ffffff"/>
+<rect x="6" y="3" width="1" height="1" fill="#ffa6c4"/>
+<rect x="7" y="3" width="1" height="1" fill="#2a2440"/>
+<rect x="10" y="3" width="1" height="1" fill="#2a2440"/>
+<rect x="11" y="3" width="1" height="1" fill="#ffa6c4"/>
+<rect x="12" y="3" width="1" height="1" fill="#ffffff"/>
+<rect x="13" y="3" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="4" width="1" height="1" fill="#2a2440"/>
+<rect x="5" y="4" width="1" height="1" fill="#ffffff"/>
+<rect x="6" y="4" width="1" height="1" fill="#ffa6c4"/>
+<rect x="7" y="4" width="1" height="1" fill="#2a2440"/>
+<rect x="10" y="4" width="1" height="1" fill="#2a2440"/>
+<rect x="11" y="4" width="1" height="1" fill="#ffa6c4"/>
+<rect x="12" y="4" width="1" height="1" fill="#ffffff"/>
+<rect x="13" y="4" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="5" width="1" height="1" fill="#2a2440"/>
+<rect x="5" y="5" width="2" height="1" fill="#ffffff"/>
+<rect x="7" y="5" width="1" height="1" fill="#2a2440"/>
+<rect x="10" y="5" width="1" height="1" fill="#2a2440"/>
+<rect x="11" y="5" width="2" height="1" fill="#ffffff"/>
+<rect x="13" y="5" width="1" height="1" fill="#2a2440"/>
+<rect x="3" y="6" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="6" width="4" height="1" fill="#ffffff"/>
+<rect x="8" y="6" width="2" height="1" fill="#2a2440"/>
+<rect x="10" y="6" width="4" height="1" fill="#ffffff"/>
+<rect x="14" y="6" width="1" height="1" fill="#2a2440"/>
+<rect x="3" y="7" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="7" width="10" height="1" fill="#ffffff"/>
+<rect x="14" y="7" width="1" height="1" fill="#2a2440"/>
+<rect x="3" y="8" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="8" width="10" height="1" fill="#ffffff"/>
+<rect x="14" y="8" width="1" height="1" fill="#2a2440"/>
+<rect x="3" y="9" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="9" width="10" height="1" fill="#ffffff"/>
+<rect x="14" y="9" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="10" width="1" height="1" fill="#2a2440"/>
+<rect x="5" y="10" width="8" height="1" fill="#ffffff"/>
+<rect x="13" y="10" width="1" height="1" fill="#2a2440"/>
+<rect x="3" y="11" width="2" height="1" fill="#2a2440"/>
+<rect x="5" y="11" width="8" height="1" fill="#ffffff"/>
+<rect x="13" y="11" width="2" height="1" fill="#2a2440"/>
+<rect x="3" y="12" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="12" width="10" height="1" fill="#ffffff"/>
+<rect x="14" y="12" width="1" height="1" fill="#2a2440"/>
+<rect x="3" y="13" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="13" width="10" height="1" fill="#ffffff"/>
+<rect x="14" y="13" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="14" width="1" height="1" fill="#2a2440"/>
+<rect x="5" y="14" width="2" height="1" fill="#ffffff"/>
+<rect x="7" y="14" width="4" height="1" fill="#2a2440"/>
+<rect x="11" y="14" width="2" height="1" fill="#ffffff"/>
+<rect x="13" y="14" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="15" width="1" height="1" fill="#2a2440"/>
+<rect x="5" y="15" width="2" height="1" fill="#ffffff"/>
+<rect x="7" y="15" width="1" height="1" fill="#2a2440"/>
+<rect x="10" y="15" width="1" height="1" fill="#2a2440"/>
+<rect x="11" y="15" width="2" height="1" fill="#ffffff"/>
+<rect x="13" y="15" width="1" height="1" fill="#2a2440"/>
+<rect x="4" y="16" width="4" height="1" fill="#2a2440"/>
+<rect x="10" y="16" width="4" height="1" fill="#2a2440"/>
+<rect x="6" y="8" width="1" height="2" fill="#2a2440"/>
+<rect x="11" y="8" width="1" height="2" fill="#2a2440"/>
+<rect x="8" y="10" width="2" height="1" fill="#ffa6c4"/>
+<rect x="5" y="10" width="2" height="1" fill="#ffd0de"/>
+<rect x="11" y="10" width="2" height="1" fill="#ffd0de"/>
 </svg>

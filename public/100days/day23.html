@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>一枚絵ガチャ — 静かな和の景色</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #efe9dd;
+    --paper: #fbf7ef;
+    --ink: #2e2a22;
+    --ink-soft: #6c6357;
+    --ink-faint: #a89e8d;
+    --line: #e3d9c6;
+    --shu: #bb5a41;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink); background: var(--bg); min-height: 100vh; line-height: 1.8;
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.02em;
+  }
+
+  .wrap { max-width: 620px; margin: 0 auto; padding: 28px 20px 90px; }
+
+  .home-link {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft);
+    text-decoration: none; padding: 7px 15px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--paper); transition: border-color .2s ease, color .2s ease;
+  }
+  .home-link:hover { color: var(--shu); border-color: var(--shu); }
+
+  .hero { text-align: center; margin: 40px 0 26px; }
+  .eyebrow { font-family: "Shippori Mincho B1", serif; font-size: 12px; letter-spacing: 0.42em; color: var(--shu); font-weight: 600; }
+  .hero h1 { font-family: "Shippori Mincho B1", serif; font-weight: 700; font-size: clamp(30px, 7.5vw, 44px); line-height: 1.3; letter-spacing: 0.12em; margin: 12px 0 0; }
+  .hero p { color: var(--ink-soft); font-size: 13.5px; max-width: 400px; margin: 14px auto 0; line-height: 1.95; }
+
+  /* Art frame */
+  .art-shell {
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px; box-shadow: 0 14px 40px rgba(80,60,40,.10); margin-bottom: 20px;
+  }
+  #art { border-radius: 8px; overflow: hidden; }
+  #art svg { width: 100%; height: auto; display: block; }
+  .art-shell.rolling #art { animation: fade .5s ease; }
+  @keyframes fade { from { opacity: .25; transform: scale(.99); } to { opacity: 1; transform: scale(1); } }
+
+  .btn-row { display: flex; flex-wrap: wrap; gap: 11px; justify-content: center; }
+  .btn {
+    font-family: "Shippori Mincho B1", serif; font-weight: 600; font-size: 15px; color: var(--paper); background: var(--ink);
+    border: none; padding: 13px 26px; border-radius: 12px; cursor: pointer; letter-spacing: 0.1em;
+    transition: transform .15s ease, opacity .15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); opacity: .92; }
+  .btn:active { transform: translateY(0); }
+  .btn.ghost { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
+  .btn.ghost:hover { border-color: var(--shu); color: var(--shu); }
+
+  .hint { text-align: center; font-size: 12px; color: var(--ink-faint); margin-top: 16px; letter-spacing: 0.08em; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(16px);
+    background: var(--ink); color: var(--paper); font-size: 13px; padding: 11px 22px; border-radius: 999px;
+    letter-spacing: 0.05em; opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease;
+    box-shadow: 0 8px 26px rgba(0,0,0,.22); z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .footer { text-align: center; margin-top: 46px; padding-top: 24px; border-top: 1px solid var(--line); font-family: "Shippori Mincho B1", serif; font-size: 12px; color: var(--ink-faint); line-height: 2.1; letter-spacing: 0.14em; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 22px 14px 72px; }
+    .hero { margin: 28px 0 20px; }
+    .art-shell { padding: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="home-link" href="../">← 一覧へもどる</a>
+
+  <header class="hero">
+    <div class="eyebrow">ICHIMAI-E</div>
+    <h1>一枚絵ガチャ</h1>
+    <p>引くたびに、二度と同じもののない和の景色が生まれます。気に入った一枚は画像として保存できます。</p>
+  </header>
+
+  <div class="art-shell" id="shell">
+    <div id="art"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" id="btnRoll">べつの一枚を引く</button>
+    <button class="btn ghost" id="btnSave">この一枚を保存</button>
+  </div>
+  <div class="hint" id="hint">— 第一番 —</div>
+
+  <footer class="footer">
+    静かな和の景色を、一枚ずつ<br />
+    Built by mariri
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // ===== 乱数ヘルパー =====
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const rint = (a, b) => Math.floor(rnd(a, b + 1));
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const chance = (p) => Math.random() < p;
+  const f = (n) => Math.round(n);
+
+  // ===== 情景パレット（時間帯）=====
+  const MOODS = [
+    { key: "dawn",     jp: "暁", en: "DAWN",     sky: ["#ecd6da", "#f7ecdc"], body: "#f3d1ba", bodyType: "sun",  glow: "#f0c4ad", mtn: ["#d9c4ca", "#b59db0", "#877391"], mist: "#fbf1e9", water: false, star: false,
+      pre: ["暁の", "あさぼらけの", "しののめの"] },
+    { key: "morning",  jp: "朝", en: "MORNING",  sky: ["#d4e3e8", "#eef4ea"], body: "#fdf6ea", bodyType: "sun",  glow: "#eaf2ee", mtn: ["#c4d3cf", "#9db4b0", "#728d88"], mist: "#f1f7f2", water: true,  star: false,
+      pre: ["朝の", "あさぎの", "すがしき"] },
+    { key: "day",      jp: "昼", en: "DAYLIGHT", sky: ["#d0e0e4", "#eff1e6"], body: "#fdf8eb", bodyType: "sun",  glow: "#f3f6ec", mtn: ["#cdd8c8", "#a6b69f", "#7b8d74"], mist: "#f2f6ec", water: false, star: false,
+      pre: ["昼の", "のどけき", "ひかりの"] },
+    { key: "dusk",     jp: "夕", en: "DUSK",     sky: ["#eec3a6", "#f6e0c2"], body: "#e88f66", bodyType: "sun",  glow: "#eda982", mtn: ["#c8a08d", "#9d746a", "#66463f"], mist: "#f6e2cf", water: true,  star: false,
+      pre: ["夕の", "くれなゐの", "入日の"] },
+    { key: "twilight", jp: "宵", en: "TWILIGHT", sky: ["#9f97bd", "#d8c6ce"], body: "#f2e5d5", bodyType: "moon", glow: "#cbb7c7", mtn: ["#8a83a3", "#655f83", "#423f5b"], mist: "#e3d8e2", water: false, star: true,
+      pre: ["宵の", "たそがれの", "むらさきの"] },
+    { key: "night",    jp: "夜", en: "NIGHT",    sky: ["#2c3757", "#4f5b7a"], body: "#eef0df", bodyType: "moon", glow: "#6a7699", mtn: ["#38415d", "#272d45", "#181d30"], mist: "#3c4763", water: true,  star: true,
+      pre: ["夜の", "月の", "しづかな"] },
+  ];
+
+  const NOUNS = ["稜線", "峰々", "遠嶺", "水面", "入江", "花野", "帰路", "余白", "静寂", "波音", "山あい", "うつろひ", "しじま", "あわい"];
+  const SEALS = ["閑", "静", "遊", "雅", "然", "幽", "和", "翠", "悠"];
+  const KANSUJI = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
+  function kansuji(n) {
+    if (n <= 10) return KANSUJI[n];
+    if (n < 20) return "十" + KANSUJI[n - 10];
+    if (n < 100) { const t = Math.floor(n / 10), o = n % 10; return KANSUJI[t] + "十" + (o ? KANSUJI[o] : ""); }
+    return String(n);
+  }
+
+  // ===== 山の稜線パス =====
+  function ridge(pw, baseY, amp, bottomY) {
+    const n = 6, pts = [];
+    for (let i = 0; i <= n; i++) {
+      const x = (pw / n) * i;
+      let y = baseY + rnd(-amp, amp);
+      if (i === 0 || i === n) y += amp * 0.4; // 端は少し下げる
+      pts.push([f(x), f(y)]);
+    }
+    let d = "M " + pts[0][0] + " " + pts[0][1];
+    for (let i = 1; i <= n; i++) d += " L " + pts[i][0] + " " + pts[i][1];
+    d += " L " + f(pw) + " " + f(bottomY) + " L 0 " + f(bottomY) + " Z";
+    return d;
+  }
+
+  // ===== 情景SVGの生成（picture: pw × ph）=====
+  function scenery(pw, ph) {
+    const m = pick(MOODS);
+    let s = "";
+
+    // 空
+    s += '<rect x="0" y="0" width="' + pw + '" height="' + ph + '" fill="url(#sky)"/>';
+
+    // 天体
+    const bx = f(rnd(pw * 0.2, pw * 0.8));
+    const by = f(rnd(ph * 0.14, ph * 0.32));
+    const br = f(rnd(pw * 0.06, pw * 0.11));
+    // 光背
+    s += '<circle cx="' + bx + '" cy="' + by + '" r="' + f(br * 2.4) + '" fill="url(#glow)"/>';
+    // 星
+    if (m.star) {
+      let stars = "";
+      const cnt = rint(18, 34);
+      for (let i = 0; i < cnt; i++) {
+        const sx = f(rnd(0, pw)), sy = f(rnd(0, ph * 0.5));
+        stars += '<circle cx="' + sx + '" cy="' + sy + '" r="' + rnd(0.6, 1.7).toFixed(1) + '" fill="#fff" opacity="' + rnd(0.3, 0.9).toFixed(2) + '"/>';
+      }
+      s += stars;
+    }
+    // 本体（太陽 / 月）
+    s += '<circle cx="' + bx + '" cy="' + by + '" r="' + br + '" fill="' + m.body + '"/>';
+    if (m.bodyType === "moon") {
+      const phase = pick(["full", "gibbous", "crescent"]);
+      if (phase !== "full") {
+        const off = phase === "crescent" ? br * 0.7 : br * 0.42;
+        s += '<circle cx="' + f(bx + off) + '" cy="' + f(by - off * 0.3) + '" r="' + br + '" fill="' + m.sky[0] + '"/>';
+      }
+    }
+
+    // 霞
+    const bands = rint(2, 4);
+    for (let i = 0; i < bands; i++) {
+      const cy = f(rnd(ph * 0.22, ph * 0.5));
+      s += '<ellipse cx="' + f(pw / 2) + '" cy="' + cy + '" rx="' + f(pw * rnd(0.55, 0.78)) + '" ry="' + f(rnd(9, 20)) + '" fill="' + m.mist + '" opacity="' + rnd(0.35, 0.6).toFixed(2) + '"/>';
+    }
+
+    // 水辺 or 陸
+    const waterline = m.water ? f(ph * rnd(0.66, 0.72)) : ph;
+
+    // 山（2〜3層）
+    const layers = chance(0.5) ? 3 : 2;
+    const cfg = [
+      { by: ph * 0.42, amp: ph * 0.10, c: m.mtn[0] },
+      { by: ph * 0.53, amp: ph * 0.09, c: m.mtn[1] },
+      { by: ph * 0.63, amp: ph * 0.07, c: m.mtn[2] },
+    ];
+    const start = layers === 2 ? 1 : 0;
+    for (let i = start; i < 3; i++) {
+      s += '<path d="' + ridge(pw, cfg[i].by, cfg[i].amp, waterline) + '" fill="' + cfg[i].c + '"/>';
+    }
+
+    // 水面
+    if (m.water) {
+      s += '<rect x="0" y="' + waterline + '" width="' + pw + '" height="' + (ph - waterline) + '" fill="url(#water)"/>';
+      // 天体の映り込み
+      s += '<ellipse cx="' + bx + '" cy="' + f(waterline + (ph - waterline) * 0.4) + '" rx="' + f(br * 0.85) + '" ry="' + f((ph - waterline) * 0.42) + '" fill="' + m.body + '" opacity="0.28"/>';
+      // さざ波
+      for (let i = 0; i < 4; i++) {
+        const wy = f(waterline + rnd(14, (ph - waterline) - 8));
+        const wx = f(rnd(pw * 0.15, pw * 0.6));
+        s += '<line x1="' + wx + '" y1="' + wy + '" x2="' + f(wx + rnd(40, 90)) + '" y2="' + wy + '" stroke="#fff" stroke-width="1.5" opacity="0.22" stroke-linecap="round"/>';
+      }
+    }
+
+    // 装飾（花びら / 鳥 / 松）を1〜2種
+    const extra = pick(["petal", "bird", "tree", "bird", "petal", "none"]);
+    if (extra === "petal") {
+      const col = m.key === "night" || m.key === "twilight" ? "#e6d9ea" : "#e8c4c4";
+      for (let i = 0; i < rint(6, 10); i++) {
+        const px = f(rnd(0, pw)), py = f(rnd(0, ph * 0.75)), rot = f(rnd(0, 360));
+        s += '<g transform="translate(' + px + ',' + py + ') rotate(' + rot + ')"><ellipse cx="0" cy="0" rx="2.4" ry="5" fill="' + col + '" opacity="' + rnd(0.55, 0.9).toFixed(2) + '"/></g>';
+      }
+    } else if (extra === "bird") {
+      const col = m.mtn[2];
+      const gx = f(rnd(pw * 0.15, pw * 0.55)), gy = f(rnd(ph * 0.16, ph * 0.34));
+      for (let i = 0; i < rint(3, 5); i++) {
+        const x = f(gx + i * rnd(22, 34) + rnd(-8, 8)), y = f(gy + rnd(-14, 14));
+        s += '<path d="M ' + x + ' ' + y + ' q 7 -6 13 0 q 6 -6 13 0" fill="none" stroke="' + col + '" stroke-width="1.8" stroke-linecap="round"/>';
+      }
+    } else if (extra === "tree") {
+      const col = m.mtn[2];
+      const tx = f(chance(0.5) ? rnd(pw * 0.12, pw * 0.24) : rnd(pw * 0.76, pw * 0.88));
+      const groundY = m.water ? waterline : f(ph * 0.9);
+      const th = f(rnd(60, 96));
+      s += '<rect x="' + f(tx - 2.5) + '" y="' + f(groundY - th * 0.34) + '" width="5" height="' + f(th * 0.34) + '" fill="' + col + '"/>';
+      for (let i = 0; i < 3; i++) {
+        const ty = f(groundY - th + i * (th * 0.26));
+        const tw = f(18 + i * 9);
+        s += '<path d="M ' + tx + ' ' + ty + ' L ' + (tx - tw) + ' ' + f(ty + th * 0.3) + ' L ' + (tx + tw) + ' ' + f(ty + th * 0.3) + ' Z" fill="' + col + '"/>';
+      }
+    }
+
+    // タイトル・封・英名
+    const title = pick(m.pre) + pick(NOUNS);
+    const seal = pick(SEALS);
+    return { markup: s, mood: m, title, seal };
+  }
+
+  // ===== 全体（色紙）SVGを組み立て =====
+  let state = { count: 0, svg: "" };
+
+  function buildSVG() {
+    state.count++;
+    const W = 900, pad = 60, pw = W - pad * 2, ph = 640;
+    const sc = scenery(pw, ph);
+    const m = sc.mood;
+
+    const defs =
+      '<defs>' +
+      '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="' + m.sky[0] + '"/><stop offset="1" stop-color="' + m.sky[1] + '"/></linearGradient>' +
+      '<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">' +
+        '<stop offset="0" stop-color="' + m.glow + '" stop-opacity="0.9"/><stop offset="1" stop-color="' + m.glow + '" stop-opacity="0"/></radialGradient>' +
+      '<linearGradient id="water" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="' + m.mtn[2] + '" stop-opacity="0.55"/><stop offset="1" stop-color="' + m.sky[1] + '" stop-opacity="0.9"/></linearGradient>' +
+      '<clipPath id="pclip"><rect x="' + pad + '" y="' + pad + '" width="' + pw + '" height="' + ph + '" rx="8"/></clipPath>' +
+      '</defs>';
+
+    const title = sc.title, seal = sc.seal;
+    const capY = pad + ph + 62;
+
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="900" viewBox="0 0 ' + W + ' 900">' +
+      defs +
+      '<rect x="0" y="0" width="' + W + '" height="900" fill="#fbf7ef"/>' +
+      '<g clip-path="url(#pclip)"><g transform="translate(' + pad + ',' + pad + ')">' + sc.markup + '</g></g>' +
+      '<rect x="' + pad + '" y="' + pad + '" width="' + pw + '" height="' + ph + '" rx="8" fill="none" stroke="#e3d9c6" stroke-width="1.5"/>' +
+      // タイトル
+      '<text x="' + pad + '" y="' + capY + '" font-family="Shippori Mincho B1, serif" font-size="36" font-weight="700" fill="#2e2a22" letter-spacing="4">' + title + '</text>' +
+      '<text x="' + pad + '" y="' + (capY + 30) + '" font-family="Shippori Mincho B1, serif" font-size="15" fill="#a89e8d" letter-spacing="6">' + m.en + ' ・ 第' + kansuji(state.count) + '番</text>' +
+      // 朱印
+      '<rect x="' + (W - pad - 66) + '" y="' + (capY - 48) + '" width="66" height="66" rx="9" fill="none" stroke="#bb5a41" stroke-width="2.5"/>' +
+      '<text x="' + (W - pad - 33) + '" y="' + (capY - 4) + '" text-anchor="middle" font-family="Shippori Mincho B1, serif" font-size="38" font-weight="700" fill="#bb5a41">' + seal + '</text>' +
+      '</svg>';
+
+    state.svg = svg;
+    $("art").innerHTML = svg;
+    $("hint").textContent = "— 「" + title + "」・ 第" + kansuji(state.count) + "番 —";
+
+    const shell = $("shell");
+    shell.classList.remove("rolling");
+    void shell.offsetWidth;
+    shell.classList.add("rolling");
+  }
+
+  // ===== 保存（PNG）=====
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove("show"), 1600);
+  }
+  function savePNG() {
+    const data = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(state.svg);
+    const img = new Image();
+    img.onload = () => {
+      const s = 2, c = document.createElement("canvas");
+      c.width = 900 * s; c.height = 900 * s;
+      const ctx = c.getContext("2d");
+      ctx.scale(s, s);
+      ctx.drawImage(img, 0, 0, 900, 900);
+      c.toBlob((blob) => {
+        if (!blob) { toast("保存できませんでした"); return; }
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "ichimai-e-" + state.count + ".png";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        toast("画像を保存しました");
+      }, "image/png");
+    };
+    img.onerror = () => toast("保存できませんでした");
+    img.src = data;
+  }
+
+  $("btnRoll").addEventListener("click", buildSVG);
+  $("btnSave").addEventListener("click", savePNG);
+
+  // 初期表示
+  buildSVG();
+</script>
+</body>
+</html>
