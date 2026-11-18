@@ -1,0 +1,96 @@
+---
+import '../styles/global.css';
+import '../styles/town.css';
+import { BASE, allWorks } from '../data/works.js';
+const SITE = 'https://mariri777.github.io/portfolio';
+
+// しぼりこみボタン。cat は allWorks の cat と対応
+const cats = [
+  { id: 'all', label: 'ぜんぶ' },
+  { id: 'tool', label: 'サービス・ツール' },
+  { id: 'game', label: 'ゲーム' },
+  { id: 'design', label: 'Webデザイン' },
+];
+const count = (id) => (id === 'all' ? allWorks.length : allWorks.filter((w) => w.cat === id).length);
+const catLabel = { tool: 'サービス・ツール', game: 'ゲーム', design: 'Webデザイン' };
+---
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>さくひんそうこ — mariri のまち</title>
+    <meta name="description" content="mariri がこれまでに つくったもの ぜんぶ。サービス・ツール、ゲーム、Webデザインで しぼりこめます。" />
+    <meta name="theme-color" content="#ffd3e2" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={`${SITE}/all/`} />
+    <meta property="og:title" content="さくひんそうこ — mariri のまち" />
+    <meta property="og:description" content="mariri がこれまでに つくったもの ぜんぶ。" />
+    <meta property="og:image" content={`${SITE}/og.png`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@mariri_7777777" />
+    <link rel="icon" type="image/svg+xml" href={`${BASE}/favicon.svg`} />
+    <link rel="apple-touch-icon" href={`${BASE}/apple-touch-icon.png`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet" />
+  </head>
+  <body id="top" class="antialiased">
+    <main class="wrap">
+      <header class="title">
+        <h1 class="logo" style="font-size:clamp(32px, 9vw, 52px)">さくひんそうこ</h1>
+        <p class="sub">これまでに つくったもの ぜんぶ。</p>
+        <p style="margin-top:16px"><a class="btn" href={`${BASE}/`}>◀ まちに もどる</a></p>
+      </header>
+
+      <div class="filters" role="group" aria-label="カテゴリでしぼりこむ">
+        {cats.map((c) => (
+          <button type="button" class="btn" data-cat={c.id} aria-pressed={c.id === 'all' ? 'true' : 'false'}>{c.label}<small>{count(c.id)}</small></button>
+        ))}
+      </div>
+
+      <div class="grid mini" id="list">
+        {allWorks.map((w) => {
+          const Tag = w.href ? 'a' : 'div';
+          const ext = w.href && w.href.startsWith('http');
+          return (
+            <Tag class="win item" data-cat={w.cat} href={w.href || undefined} target={ext ? '_blank' : undefined} rel={ext ? 'noopener' : undefined}>
+              <div class="pic">
+                {w.img ? <img src={w.img} alt={`${w.title} の画面`} width="480" height="300" loading="lazy" /> : <div class="closed-pic"><div><b>{w.title}</b>じゅんびちゅう</div></div>}
+              </div>
+              <div class="cat">{catLabel[w.cat]}</div>
+              <h3>{w.title}{!w.href && <span class="badge">おやすみ中</span>}</h3>
+              <p class="txt">{w.desc}</p>
+            </Tag>
+          );
+        })}
+      </div>
+
+      <footer>
+        <div class="links">
+          <a class="btn" href={`${BASE}/`}>◀ まちに もどる</a>
+          <a class="btn" href="https://x.com/mariri_7777777" target="_blank" rel="noopener">X @mariri_7777777</a>
+          <a class="btn" href="#top">▲ うえに もどる</a>
+        </div>
+        <div>© 2026 mariri</div>
+      </footer>
+    </main>
+
+    <script is:inline>
+      (function () {
+        var btns = [].slice.call(document.querySelectorAll('.filters .btn'));
+        var items = [].slice.call(document.querySelectorAll('#list .item'));
+        function show(cat, push) {
+          var known = btns.some(function (b) { return b.dataset.cat === cat; });
+          if (!known) cat = 'all';
+          btns.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.cat === cat ? 'true' : 'false'); });
+          items.forEach(function (el) { el.hidden = cat !== 'all' && el.dataset.cat !== cat; });
+          if (push) { try { history.replaceState(null, '', cat === 'all' ? location.pathname : '?cat=' + cat); } catch (e) {} }
+        }
+        btns.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.cat, true); }); });
+        var m = /[?&]cat=([a-z]+)/.exec(location.search);
+        if (m) show(m[1], false);
+      })();
+    </script>
+  </body>
+</html>

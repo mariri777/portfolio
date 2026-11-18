@@ -8,15 +8,16 @@ Astro + Tailwind CSS で構築し、GitHub Pages 上で配信しています。
 ## 収録作品
 
 トップページ（`src/pages/index.astro`）は、うさぎを歩かせて作品の建物をめぐるドット絵のまち。
-先頭にある配列を編集すると、掲載作品を増減できます。マップ上の建物は `spots` 配列で、
-URL に `?spot=games` のように付けると、その建物まで歩いた状態ではじまります。
+トップには各カテゴリの代表作を3つずつ、ぜんぶの作品は「さくひんそうこ」（`src/pages/all.astro` → `/all/`、`?cat=tool|game|design` でしぼりこみ）にならべています。
+作品のデータは `src/data/works.js`、見た目は `src/styles/town.css` で、両方のページから使います。
+マップ上の建物は `index.astro` の `spots` 配列で、URL に `?spot=games` のように付けると、その建物まで歩いた状態ではじまります。
 
-| 区分 | 配列 | 作品 |
+| 区分 | 配列（`works.js`） | 内容 |
 | --- | --- | --- |
-| サービス・ツール | `services` | 超!企業DB / 日々. / 気血水カルテ（`public/tools/kikketsusui.html`） |
-| ゲーム | `games` | その判定、言うか。 / 英傑大乱 |
-| Webデザイン | `designs` | 鼓動 KODO / TSUMUGI / Lume Aesthetic Clinic / Rabbit Specialty Clinic / Pâtisserie Hidamari / Aoyama Leaf Clinic |
-| ちいさな作品 | `minis` | まいにち ひとつ つくっていた頃の41作品（道具33・ゲーム8）。本体は `public/100days/dayN.html`、サムネイルは `public/covers/mini/` |
+| サービス・ツール | `services` | トップにのせる3つ：超!企業DB / 日々. / 気血水カルテ |
+| ゲーム | `games` | トップにのせる3つ：その判定、言うか。 / 英傑大乱 / うさぎマジカルレース |
+| Webデザイン | `designs` | 7作品。`pick: true` の3つ（Rabbit Specialty Clinic / 鼓動 KODO / Lume Aesthetic Clinic）がトップにのる |
+| ちいさな作品 | `minis` | 道具33・ゲーム7。そうこにだけ出る。本体は `public/100days/dayN.html`、サムネイルは `public/covers/mini/` |
 
 BGM と釣れたときの音は `python3 tools/make-bgm.py` で `public/bgm.wav` / `public/catch.wav` に書き出しています（曲を変えるときはこのスクリプトの音符を編集）。
 
@@ -50,7 +51,8 @@ GitHub リポジトリの Settings → Pages → Source を **GitHub Actions** �
 ```
 src/
 ├── pages/
-│   ├── index.astro                  # ポートフォリオ作品一覧
+│   ├── index.astro                  # mariri のまち（トップ）
+│   ├── all.astro                    # さくひんそうこ（ぜんぶの作品）
 │   └── works/
 │       ├── beauty-clinic.astro      # 美容クリニックLP
 │       └── rabbit-clinic.astro      # うさぎ専門病院LP
